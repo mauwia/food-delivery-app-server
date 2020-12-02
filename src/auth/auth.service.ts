@@ -9,6 +9,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import * as utils from "../utils";
+import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -32,12 +33,11 @@ export class AuthService {
         process.env.JWT_ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
-
-      const user = {
+      userExist.pass_hash = "";
+      return {
         user: userExist,
         token,
       };
-      return user;
     } catch (error) {
       throw new UnauthorizedException(error);
     }
@@ -71,6 +71,7 @@ export class AuthService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
+        user.pass_hash = "";
         return { token, user, Code: OTPCode.CodeDigit };
       } else {
         throw "User Already Exist";
@@ -89,6 +90,7 @@ export class AuthService {
       if (!UserInfo) {
         throw "User Not Found";
       }
+      UserInfo.pass_hash = "";
       return { user: UserInfo };
     } catch (e) {
       throw new NotFoundException(e);
@@ -114,6 +116,29 @@ export class AuthService {
       if (e == "Invalid OTP" || e == "OTP Expired")
         throw new UnauthorizedException(e);
       else throw new NotFoundException(e);
+    }
+  }
+  async resendOTP(req) {
+    try {
+        let { user } = req;
+        const UserInfo = await this.authModel.findOne({
+          phone_no: user.phone_no,
+        });
+        if (!UserInfo) {
+          throw "User Not Found";
+        } else{
+            let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+            let OTPCode = {
+              CodeDigit,
+              createdAt: new Date(),
+              expiresAt: utils.expiryCodeGenerator(),
+            };
+            this.OTP.push(OTPCode);
+            return {Code: OTPCode.CodeDigit }
+        }
+
+    } catch (e) {
+        throw new NotFoundException(e)
     }
   }
 }

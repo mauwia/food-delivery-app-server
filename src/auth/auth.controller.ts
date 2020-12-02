@@ -30,4 +30,10 @@ export class AuthController {
     const response = await this.authService.authenticateOTP(request);
     return response;
   }
+  @UseGuards(new JWTAuthGuard())
+  @Get("/resendOTP")
+  async ResendOTP(@Req() request:Request){
+      const response = await this.authService.resendOTP(request);
+      return response;
+  }
 }
