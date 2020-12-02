@@ -6,7 +6,7 @@ export const AuthSchema= new mongoose.Schema({
     location:{type:Array},
     image_url:{type:String},
     username:{type:String},
-    mobile_registered_id:{type:String,required:true,unique:true}
+    mobile_registered_id:{type:String,required:true}
 })
 
 
