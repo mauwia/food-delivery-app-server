@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  HttpStatus,HttpException
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -36,7 +37,10 @@ export class AuthService {
         token,
       };
     } catch (error) {
-      throw new UnauthorizedException(error);
+      throw new HttpException({
+        status:HttpStatus.UNAUTHORIZED,
+        msg:error
+      },HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -50,7 +54,7 @@ export class AuthService {
       const uniqueNumber = await this.authModel.findOne({
         phoneNo: req.phoneNo,
       });
-      console.log(uniqueNumber)
+      // console.log(uniqueNumber)
       if (!uniqueNumber) {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
@@ -77,7 +81,11 @@ export class AuthService {
       }
     } catch (error) {
       // console.log(error)
-      throw new BadRequestException(error);
+      // throw new BadRequestException(error);
+      throw new HttpException({
+        status:HttpStatus.BAD_REQUEST,
+        msg:error
+      },HttpStatus.BAD_REQUEST);
     }
   }
   async getLoverInfo(req) {
@@ -91,8 +99,11 @@ export class AuthService {
       }
       UserInfo.passHash = "";
       return { user: UserInfo };
-    } catch (e) {
-      throw new NotFoundException(e);
+    } catch (error) {
+      throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
     }
   }
   async authenticateOTP(req) {
@@ -108,13 +119,21 @@ export class AuthService {
         if (!checked.validation) {
           throw checked.message;
         } else {
-          return { checked };
+          return  checked ;
         }
       }
-    } catch (e) {
-      if (e == "Invalid OTP" || e == "OTP Expired")
-        throw new UnauthorizedException(e);
-      else throw new NotFoundException(e);
+    } catch (error) {
+      if (error == "Invalid OTP" || error == "OTP Expired")
+        { 
+          throw new HttpException({
+          status:HttpStatus.UNAUTHORIZED,
+          msg:error
+        },HttpStatus.UNAUTHORIZED);
+      }
+      else throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
     }
   }
   async resendOTP(req) {
@@ -126,7 +145,8 @@ export class AuthService {
         if (!UserInfo) {
           throw "User Not Found";
         } else{
-            let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+
+            let CodeDigit = req.body.CodeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
             let OTPCode = {
               CodeDigit,
               phoneNo:UserInfo.phoneNo,
@@ -137,8 +157,11 @@ export class AuthService {
             return {Code: OTPCode.CodeDigit }
         }
 
-    } catch (e) {
-        throw new NotFoundException(e)
+    } catch (error) {
+      throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
     }
   }
   async addNewPassword(req){
@@ -150,7 +173,6 @@ export class AuthService {
       if (!UserInfo) {
         throw "User Not Found";
       }else{
-        // UserInfo.
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
         await UserInfo.save()
@@ -158,8 +180,11 @@ export class AuthService {
       }
 
     }
-    catch(e){
-      throw new NotFoundException(e)
+    catch(error){
+      throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
     }
   }
   async getUserRegisteredDevice(req){
@@ -174,8 +199,11 @@ export class AuthService {
       else{
         return {mobileRegisteredId:UserInfo.mobileRegisteredId}
       }
-    }catch(e){
-      throw new NotFoundException(e)
+    }catch(error){
+      throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
     }
   }
 }

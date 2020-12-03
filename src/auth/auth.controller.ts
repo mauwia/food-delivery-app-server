@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JWTAuthGuard } from "./jwt/jwt-auth.guard";
-import { request, Request } from "express";
+import { Request } from "express";
 
 @Controller("auth")
 export class AuthController {
@@ -31,21 +31,21 @@ export class AuthController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get("/resendOTP")
-  async ResendOTP(@Req() request:Request){
-      const response = await this.authService.resendOTP(request);
-      return response;
+  @Post("/resendOTP")
+  async ResendOTP(@Req() request: Request) {
+    const response = await this.authService.resendOTP(request);
+    return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Post('/addNewPassword')
-  async AddNewPassword(@Req() request:Request){
-    const response= await this.authService.addNewPassword(request)
-    return response
+  @Post("/addNewPassword")
+  async AddNewPassword(@Req() request: Request) {
+    const response = await this.authService.addNewPassword(request);
+    return response;
   }
   @UseGuards(new JWTAuthGuard())
   @Get("/getUserRegisteredDevice")
-  async GetUserRegisteredDevice(@Req() request:Request){
-    const response=await this.authService.getUserRegisteredDevice(request)
-    return response
+  async GetUserRegisteredDevice(@Req() request: Request) {
+    const response = await this.authService.getUserRegisteredDevice(request);
+    return response;
   }
 }

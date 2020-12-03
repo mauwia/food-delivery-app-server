@@ -14,7 +14,7 @@ export const checkExpiry = (otpArray, OTPCode,phoneNo) => {
       if (OTPCode == otpArray[i].CodeDigit && phoneNo==otpArray[i].phoneNo ) {
           f=1
         if (otpArray[i].expiresAt.getTime() > Date.now()) {
-          return { validation: true, message: "Validated" };
+          return { validation: true};
         } else {
           return { validation: false, message: "OTP Expired" };
         }
