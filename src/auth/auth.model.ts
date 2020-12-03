@@ -1,22 +1,22 @@
 import * as mongoose from 'mongoose';
 
 export const AuthSchema= new mongoose.Schema({
-    phone_no: {type:String,required:true,unique:true},
-    pass_hash: {type:String,required:true},
+    phoneNo: {type:String,required:true,unique:true},
+    passHash: {type:String,required:true},
     location:{type:Array},
-    image_url:{type:String},
+    imageUrl:{type:String},
     username:{type:String},
-    mobile_registered_id:{type:String,required:true}
+    mobileRegisteredId:{type:String,required:true}
 })
 
 
 export interface Auth {
     
-        phone_no: string;
-        pass_hash: string; 
+        phoneNo: string;
+        passHash: string; 
         location:[];
-        image_url:string,
+        imageUrl:string,
         username:string,
-        mobile_registered_id:string;
+        mobileRegisteredId:string;
         
 }

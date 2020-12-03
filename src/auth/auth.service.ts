@@ -3,13 +3,11 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
-  UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import * as utils from "../utils";
-import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -18,22 +16,21 @@ dotenv.config();
 export class AuthService {
   constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>) {}
   OTP = [];
-  async signinLover(req: { phone_no: string; password: string }) {
+  async signinLover(req: { phoneNo: string; password: string }) {
     try {
       const userExist = await this.authModel.findOne({
-        phone_no: req.phone_no,
+        phoneNo: req.phoneNo,
       });
       if (!userExist) {
         throw "User Doesnot Exist";
       }
-      if (!bcrypt.compareSync(req.password, userExist.pass_hash))
+      if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw "Wrong Password";
       const token = jwt.sign(
-        { phone_no: userExist.phone_no },
+        { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET,
-        { expiresIn: "1h" }
       );
-      userExist.pass_hash = "";
+      userExist.passHash = "";
       return {
         user: userExist,
         token,
@@ -44,34 +41,36 @@ export class AuthService {
   }
 
   async signupLover(req: {
-    phone_no: string;
-    pass_hash: string;
+    phoneNo: string;
+    passHash: string;
     password: string;
-    mobile_registered_id: string;
+    mobileRegisteredId: string;
   }) {
     try {
       const uniqueNumber = await this.authModel.findOne({
-        phone_no: req.phone_no,
+        phoneNo: req.phoneNo,
       });
+      console.log(uniqueNumber)
       if (!uniqueNumber) {
-        req.pass_hash = bcrypt.hashSync(req.password, 8);
+        req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
 
         const newUser = new this.authModel(req);
         const user = await this.authModel.create(newUser);
         const token = jwt.sign(
-          { phone_no: req.phone_no },
+          { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET,
-          { expiresIn: "1h" }
+          
         );
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
+          phoneNo:user.phoneNo,
           createdAt: new Date(),
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-        user.pass_hash = "";
+        user.passHash = "";
         return { token, user, Code: OTPCode.CodeDigit };
       } else {
         throw "User Already Exist";
@@ -85,12 +84,12 @@ export class AuthService {
     try {
       let { user } = req;
       const UserInfo = await this.authModel.findOne({
-        phone_no: user.phone_no,
+        phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw "User Not Found";
       }
-      UserInfo.pass_hash = "";
+      UserInfo.passHash = "";
       return { user: UserInfo };
     } catch (e) {
       throw new NotFoundException(e);
@@ -100,12 +99,12 @@ export class AuthService {
     try {
       let { user } = req;
       const UserInfo = await this.authModel.findOne({
-        phone_no: user.phone_no,
+        phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw "User Not Found";
       } else {
-        let checked = utils.checkExpiry(this.OTP, req.body.otp);
+        let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
         if (!checked.validation) {
           throw checked.message;
         } else {
@@ -122,7 +121,7 @@ export class AuthService {
     try {
         let { user } = req;
         const UserInfo = await this.authModel.findOne({
-          phone_no: user.phone_no,
+          phoneNo: user.phoneNo,
         });
         if (!UserInfo) {
           throw "User Not Found";
@@ -130,6 +129,7 @@ export class AuthService {
             let CodeDigit = Math.floor(100000 + Math.random() * 900000);
             let OTPCode = {
               CodeDigit,
+              phoneNo:UserInfo.phoneNo,
               createdAt: new Date(),
               expiresAt: utils.expiryCodeGenerator(),
             };
@@ -139,6 +139,43 @@ export class AuthService {
 
     } catch (e) {
         throw new NotFoundException(e)
+    }
+  }
+  async addNewPassword(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "User Not Found";
+      }else{
+        // UserInfo.
+        UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
+        delete req.body.password;
+        await UserInfo.save()
+        return {passwordChanged:true}
+      }
+
+    }
+    catch(e){
+      throw new NotFoundException(e)
+    }
+  }
+  async getUserRegisteredDevice(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "User Not Found";
+      }
+      else{
+        return {mobileRegisteredId:UserInfo.mobileRegisteredId}
+      }
+    }catch(e){
+      throw new NotFoundException(e)
     }
   }
 }

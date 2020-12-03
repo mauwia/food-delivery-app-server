@@ -36,4 +36,16 @@ export class AuthController {
       const response = await this.authService.resendOTP(request);
       return response;
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/addNewPassword')
+  async AddNewPassword(@Req() request:Request){
+    const response= await this.authService.addNewPassword(request)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get("/getUserRegisteredDevice")
+  async GetUserRegisteredDevice(@Req() request:Request){
+    const response=await this.authService.getUserRegisteredDevice(request)
+    return response
+  }
 }
