@@ -3,7 +3,7 @@ import {
   HttpStatus,HttpException
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
+// import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import * as utils from "../utils";
@@ -13,7 +13,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>,@InjectTwilio() private readonly client: TwilioClient) {}
+  constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>) {}
   OTP = [];
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
@@ -64,8 +64,8 @@ export class AuthService {
           process.env.JWT_ACCESS_TOKEN_SECRET,
           
         );
-        let codeResp=await this.sendSMS()
-        console.log(codeResp)
+        // let codeResp=await this.sendSMS()
+        // console.log(codeResp)
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -228,18 +228,18 @@ export class AuthService {
       },HttpStatus.NOT_FOUND);
     }
   }
-  async sendSMS() {
-    try {
-      // let service=await this.client.verify.services.create({friendlyName: 'My First Verify Service'})
-      // console.log(service.sid)
-      let response=await this.client.verify.services(process.env.TWILIO_SERVICE_ID)
-      .verifications
-      .create({to: '+923343058887', channel: 'sms'})
-      .then(verification => console.log(verification.status));
-      return response
-    } catch (e) {
-      return e;
-    }
-  }
+  // async sendSMS() {
+  //   try {
+  //     // let service=await this.client.verify.services.create({friendlyName: 'My First Verify Service'})
+  //     // console.log(service.sid)
+  //     let response=await this.client.verify.services(process.env.TWILIO_SERVICE_ID)
+  //     .verifications
+  //     .create({to: '+923343058887', channel: 'sms'})
+  //     .then(verification => console.log(verification.status));
+  //     return response
+  //   } catch (e) {
+  //     return e;
+  //   }
+  // }
  
 }
