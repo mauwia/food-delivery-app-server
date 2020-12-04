@@ -40,7 +40,7 @@ export class AuthService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-        return {userExist,token,code: OTPCode.CodeDigit}
+        return {user:userExist,token,code: OTPCode.CodeDigit}
       }
       userExist.passHash = "";
       return {
