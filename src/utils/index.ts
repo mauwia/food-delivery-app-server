@@ -7,23 +7,23 @@ export const checkExpiry = (otpArray, OTPCode,phoneNo) => {
   try {
       let f=0
     if (otpArray.length == 0) {
-      return { validation: false, message: "Invalid OTP" };
+      return { validated: false, message: "Invalid OTP" };
     }
     for (let i = 0; i < otpArray.length; i++) {
         console.log('here2',otpArray[i].CodeDigit,OTPCode,otpArray[i].phoneNo,phoneNo)
       if (OTPCode == otpArray[i].CodeDigit && phoneNo==otpArray[i].phoneNo ) {
           f=1
         if (otpArray[i].expiresAt.getTime() > Date.now()) {
-          return { validation: true};
+          return { validated: true};
         } else {
-          return { validation: false, message: "OTP Expired" };
+          return { validated: false, message: "OTP Expired" };
         }
       } else {
         f=0
       }
     }
     if(!f){
-      return { validation: false, message: "Invalid OTP" };
+      return { validated: false, message: "Invalid OTP" };
     }
   } catch (e) {
     throw e;

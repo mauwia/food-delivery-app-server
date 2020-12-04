@@ -1,8 +1,5 @@
 import {
-  BadRequestException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
   HttpStatus,HttpException
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
@@ -116,7 +113,7 @@ export class AuthService {
         throw "User Not Found";
       } else {
         let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
-        if (!checked.validation) {
+        if (!checked.validated) {
           throw checked.message;
         } else {
           return  checked ;
@@ -127,7 +124,8 @@ export class AuthService {
         { 
           throw new HttpException({
           status:HttpStatus.UNAUTHORIZED,
-          msg:error
+          msg:error,
+          validated:false
         },HttpStatus.UNAUTHORIZED);
       }
       else throw new HttpException({
@@ -146,7 +144,7 @@ export class AuthService {
           throw "User Not Found";
         } else{
 
-            let CodeDigit = req.body.CodeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
+            let CodeDigit = req.body.codeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
             let OTPCode = {
               CodeDigit,
               phoneNo:UserInfo.phoneNo,
@@ -154,7 +152,7 @@ export class AuthService {
               expiresAt: utils.expiryCodeGenerator(),
             };
             this.OTP.push(OTPCode);
-            return {Code: OTPCode.CodeDigit }
+            return {code: OTPCode.CodeDigit }
         }
 
     } catch (error) {
@@ -206,4 +204,26 @@ export class AuthService {
       },HttpStatus.NOT_FOUND);
     }
   }
+  async createTransactionPin(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "User Not Found";
+      }
+      else{
+        UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
+        await UserInfo.save()
+        return {message:'Pin Saved'}
+      }
+    }catch(error){
+      throw new HttpException({
+        status:HttpStatus.NOT_FOUND,
+        msg:error
+      },HttpStatus.NOT_FOUND);
+    }
+  }
+ 
 }

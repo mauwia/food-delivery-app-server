@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 export const AuthSchema= new mongoose.Schema({
     phoneNo: {type:String,required:true,unique:true},
     passHash: {type:String,required:true},
+    pinHash:{type:String},
     location:{type:Array},
     imageUrl:{type:String},
     username:{type:String},

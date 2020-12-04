@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JWTAuthGuard } from "./jwt/jwt-auth.guard";
-import { Request } from "express";
+import { request, Request } from "express";
 
 @Controller("auth")
 export class AuthController {
@@ -47,5 +47,11 @@ export class AuthController {
   async GetUserRegisteredDevice(@Req() request: Request) {
     const response = await this.authService.getUserRegisteredDevice(request);
     return response;
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/createTransactionPin")
+  async CreateTransactionPin(@Req() request:Request){
+    const response=await this.authService.createTransactionPin(request)
+    return response
   }
 }
