@@ -7,6 +7,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import * as utils from "../utils";
+import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -25,10 +26,22 @@ export class AuthService {
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw "Wrong Password";
+      
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET,
       );
+      if(!userExist.verified){
+        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo:userExist.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
+        return {userExist,token,code: OTPCode.CodeDigit}
+      }
       userExist.passHash = "";
       return {
         user: userExist,
@@ -119,6 +132,8 @@ export class AuthService {
         if (!checked.validated) {
           throw checked.message;
         } else {
+          UserInfo.verified=true
+          await UserInfo.save()
           return  checked ;
         }
       }

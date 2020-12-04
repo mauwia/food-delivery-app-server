@@ -7,6 +7,7 @@ export const AuthSchema= new mongoose.Schema({
     location:{type:Array},
     imageUrl:{type:String},
     username:{type:String},
+    verified:{type:Boolean,default:false},
     mobileRegisteredId:{type:String,required:true}
 })
 
@@ -14,7 +15,8 @@ export const AuthSchema= new mongoose.Schema({
 export interface Auth {
     
         phoneNo: string;
-        passHash: string; 
+        passHash: string;
+        verified:boolean;
         location:[];
         imageUrl:string,
         username:string,
