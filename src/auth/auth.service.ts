@@ -140,8 +140,8 @@ export class AuthService {
         );
         if (!checked.validated) {
           throw checked.message;
-        } else if(checked.validated && req.user) {
-          UserInfo.verified = true;
+        } else {
+          UserInfo.verified = req.user?true:false;
           await UserInfo.save();
           return checked;
         }
