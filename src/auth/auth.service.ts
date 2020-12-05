@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 // import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
+import {AUTH_MESSAGES} from './constants/key-contants'
 import * as utils from "../utils";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -18,10 +19,10 @@ export class AuthService {
         phoneNo: req.phoneNo,
       });
       if (!userExist) {
-        throw "User Doesnot Exist";
+        throw AUTH_MESSAGES.USER_NOT_EXIST;
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
-        throw "Wrong Password";
+        throw AUTH_MESSAGES.WRONG_PASSWORD;
 
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
@@ -36,6 +37,7 @@ export class AuthService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
+        userExist.passHash=''
         return { user: userExist, token, code: OTPCode.CodeDigit };
       }
       userExist.passHash = "";
@@ -88,7 +90,7 @@ export class AuthService {
         user.passHash = "";
         return { token, user, code: OTPCode.CodeDigit };
       } else {
-        throw "User Already Exist";
+        throw AUTH_MESSAGES.USER_EXIST;
       }
     } catch (error) {
       // console.log(error)
@@ -109,7 +111,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.passHash = "";
       return { user: UserInfo };
@@ -131,7 +133,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         let checked = utils.checkExpiry(
           this.OTP,
@@ -141,13 +143,15 @@ export class AuthService {
         if (!checked.validated) {
           throw checked.message;
         } else {
-          UserInfo.verified = req.user?true:false;
+          if(req.user){
+          UserInfo.verified = req.user ?true:false;
+        }
           await UserInfo.save();
           return checked;
         }
       }
     } catch (error) {
-      if (error == "Invalid OTP" || error == "OTP Expired") {
+      if (error == AUTH_MESSAGES.INVALID_OTP|| error == AUTH_MESSAGES.OTP_EXPIRED) {
         throw new HttpException(
           {
             status: HttpStatus.UNAUTHORIZED,
@@ -174,7 +178,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         let CodeDigit =
           req.body.codeLength == 6
@@ -207,7 +211,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
@@ -231,7 +235,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         return { mobileRegisteredId: UserInfo.mobileRegisteredId };
       }
@@ -252,7 +256,7 @@ export class AuthService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw "User Not Found";
+        throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
         await UserInfo.save();

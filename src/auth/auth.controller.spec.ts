@@ -7,7 +7,8 @@ import { Request } from "express";
 
 let event = {
   phoneNo: "123456789",
-  passHash: "1230930",
+  passHash: "",
+  verified:false,
   location: [],
   imageUrl: "",
   username: "",
@@ -61,7 +62,7 @@ describe("AppController", () => {
 
   });
   test("FoodLoverSignUp", async() => {
-    //   try{
+
     // let req = {
     //   body: {
     //     phoneNo: "123456789",
@@ -78,12 +79,10 @@ describe("AppController", () => {
     //     username: '',
     //     mobileRegisteredId: 'body.mobileRegisteredId'
     //   })
-    // }catch(error){
-    //     console.log(error)
-    // }
+  
   });
   test("FoodLoverSignIn",async()=>{
-    try{
+
       let req = {
         body: {
           phoneNo: "123456789",
@@ -94,13 +93,50 @@ describe("AppController", () => {
       expect(response.user).toStrictEqual({
         phoneNo: '123456789',
         passHash: '',
+        verified:false,
         location: [],
         imageUrl: '',
         username: '',
         mobileRegisteredId: '12345678'
       })
-      }catch(error){
-          console.log(error)
+     
+  })
+  test('getLoverInfo',async ()=>{
+      let req={
+        user: {
+          phoneNo: "123456789"
+        }
+      } as unknown as Request
+      let response=await authController.LoverInfo(req)
+      expect(response.user).toStrictEqual({
+        phoneNo: '123456789',
+        passHash: '',
+        verified: false,
+        location: [],
+        imageUrl: '',
+        username: '',
+        mobileRegisteredId: '12345678'
       }
+)
+  })
+
+  test('getUserRegisteredDevice',async ()=>{
+    let req={
+      user: {
+        phoneNo: "123456789"
+      }
+    } as unknown as Request
+    let response=await authController.GetUserRegisteredDevice(req)
+   expect(response.mobileRegisteredId).toBe("12345678")
+  })
+  test('authenticateOTP',()=>{
+    let req={
+      user: {
+        phoneNo: "123456789"
+      },
+      body:{
+        
+      }
+    } as unknown as Request
   })
 });
