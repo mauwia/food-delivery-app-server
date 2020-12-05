@@ -7,7 +7,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import * as utils from "../utils";
-import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -184,7 +183,8 @@ export class AuthService {
   }
   async addNewPassword(req){
     try{
-      let { user } = req;
+      let user=req.user?req.user:req.body
+      // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
