@@ -88,7 +88,7 @@ export class AuthService {
         };
         this.OTP.push(OTPCode);
         user.passHash = "";
-        return { token, user, Code: OTPCode.CodeDigit };
+        return { token, user, code: OTPCode.CodeDigit };
       } else {
         throw "User Already Exist";
       }
@@ -119,9 +119,10 @@ export class AuthService {
       },HttpStatus.NOT_FOUND);
     }
   }
-  async authenticateOTP(req) {
+  async authenticateOTP_and_forgetPasswordOTP(req) {
     try {
-      let { user } = req;
+      let user=req.user?req.user:req.body
+      // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -152,9 +153,10 @@ export class AuthService {
       },HttpStatus.NOT_FOUND);
     }
   }
-  async resendOTP(req) {
+  async resendOTP_and_forgetPasswordOtp(req) {
     try {
-        let { user } = req;
+        let user=req.user?req.user:req.body
+        // let { user } = req;
         const UserInfo = await this.authModel.findOne({
           phoneNo: user.phoneNo,
         });

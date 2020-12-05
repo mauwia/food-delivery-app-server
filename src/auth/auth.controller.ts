@@ -27,16 +27,26 @@ export class AuthController {
   @UseGuards(new JWTAuthGuard())
   @Post("/authenticateOTP")
   async AuthenticateCode(@Req() request: Request) {
-    const response = await this.authService.authenticateOTP(request);
+    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
   @Post("/resendOTP")
   async ResendOTP(@Req() request: Request) {
-    const response = await this.authService.resendOTP(request);
+    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
     return response;
   }
-  @UseGuards(new JWTAuthGuard())
+
+  @Post("/forgetPassAuthOTP")
+  async ForgetPasswordAuthenticateCode(@Req() request: Request) {
+    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
+    return response;
+  }
+  @Post("/forgetPasswordOTP")
+  async ForgetPasswordOTP(@Req() request: Request) {
+    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
+    return response;
+  }
   @Post("/addNewPassword")
   async AddNewPassword(@Req() request: Request) {
     const response = await this.authService.addNewPassword(request);
