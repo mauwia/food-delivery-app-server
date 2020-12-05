@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JWTAuthGuard } from "./jwt/jwt-auth.guard";
-import { request, Request } from "express";
+import { Request } from "express";
 
 @Controller("auth")
 export class AuthController {
@@ -16,6 +16,21 @@ export class AuthController {
   @Post("/signupLover")
   async signup(@Req() request: Request) {
     const response = await this.authService.signupLover(request.body);
+    return response;
+  }
+  @Post("/forgetPassAuthOTP")
+  async ForgetPasswordAuthenticateCode(@Req() request: Request) {
+    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
+    return response;
+  }
+  @Post("/forgetPasswordOTP")
+  async ForgetPasswordOTP(@Req() request: Request) {
+    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
+    return response;
+  }
+  @Post("/addNewPassword")
+  async AddNewPassword(@Req() request: Request) {
+    const response = await this.authService.addNewPassword(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
@@ -34,22 +49,6 @@ export class AuthController {
   @Post("/resendOTP")
   async ResendOTP(@Req() request: Request) {
     const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
-    return response;
-  }
-
-  @Post("/forgetPassAuthOTP")
-  async ForgetPasswordAuthenticateCode(@Req() request: Request) {
-    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
-    return response;
-  }
-  @Post("/forgetPasswordOTP")
-  async ForgetPasswordOTP(@Req() request: Request) {
-    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
-    return response;
-  }
-  @Post("/addNewPassword")
-  async AddNewPassword(@Req() request: Request) {
-    const response = await this.authService.addNewPassword(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())

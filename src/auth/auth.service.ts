@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  HttpStatus,HttpException
-} from "@nestjs/common";
+import { Injectable, HttpStatus, HttpException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 // import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
 import { Model } from "mongoose";
@@ -25,21 +22,21 @@ export class AuthService {
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw "Wrong Password";
-      
+
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
-        process.env.JWT_ACCESS_TOKEN_SECRET,
+        process.env.JWT_ACCESS_TOKEN_SECRET
       );
-      if(!userExist.verified){
+      if (!userExist.verified) {
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
-          phoneNo:userExist.phoneNo,
+          phoneNo: userExist.phoneNo,
           createdAt: new Date(),
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-        return {user:userExist,token,code: OTPCode.CodeDigit}
+        return { user: userExist, token, code: OTPCode.CodeDigit };
       }
       userExist.passHash = "";
       return {
@@ -47,10 +44,13 @@ export class AuthService {
         token,
       };
     } catch (error) {
-      throw new HttpException({
-        status:HttpStatus.UNAUTHORIZED,
-        msg:error
-      },HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          msg: error,
+        },
+        HttpStatus.UNAUTHORIZED
+      );
     }
   }
 
@@ -73,15 +73,14 @@ export class AuthService {
         const user = await this.authModel.create(newUser);
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
-          process.env.JWT_ACCESS_TOKEN_SECRET,
-          
+          process.env.JWT_ACCESS_TOKEN_SECRET
         );
         // let codeResp=await this.sendSMS()
         // console.log(codeResp)
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
-          phoneNo:user.phoneNo,
+          phoneNo: user.phoneNo,
           createdAt: new Date(),
           expiresAt: utils.expiryCodeGenerator(),
         };
@@ -94,10 +93,13 @@ export class AuthService {
     } catch (error) {
       // console.log(error)
       // throw new BadRequestException(error);
-      throw new HttpException({
-        status:HttpStatus.BAD_REQUEST,
-        msg:error
-      },HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          msg: error,
+        },
+        HttpStatus.BAD_REQUEST
+      );
     }
   }
   async getLoverInfo(req) {
@@ -112,15 +114,18 @@ export class AuthService {
       UserInfo.passHash = "";
       return { user: UserInfo };
     } catch (error) {
-      throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
   async authenticateOTP_and_forgetPasswordOTP(req) {
     try {
-      let user=req.user?req.user:req.body
+      let user = req.user ? req.user : req.body;
       // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
@@ -128,121 +133,139 @@ export class AuthService {
       if (!UserInfo) {
         throw "User Not Found";
       } else {
-        let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
+        let checked = utils.checkExpiry(
+          this.OTP,
+          req.body.otp,
+          UserInfo.phoneNo
+        );
         if (!checked.validated) {
           throw checked.message;
-        } else {
-          UserInfo.verified=true
-          await UserInfo.save()
-          return  checked ;
+        } else if(checked.validated && req.user) {
+          UserInfo.verified = true;
+          await UserInfo.save();
+          return checked;
         }
       }
     } catch (error) {
-      if (error == "Invalid OTP" || error == "OTP Expired")
-        { 
-          throw new HttpException({
-          status:HttpStatus.UNAUTHORIZED,
-          msg:error,
-          validated:false
-        },HttpStatus.UNAUTHORIZED);
-      }
-      else throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
+      if (error == "Invalid OTP" || error == "OTP Expired") {
+        throw new HttpException(
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            msg: error,
+            validated: false,
+          },
+          HttpStatus.UNAUTHORIZED
+        );
+      } else
+        throw new HttpException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            msg: error,
+          },
+          HttpStatus.NOT_FOUND
+        );
     }
   }
   async resendOTP_and_forgetPasswordOtp(req) {
     try {
-        let user=req.user?req.user:req.body
-        // let { user } = req;
-        const UserInfo = await this.authModel.findOne({
-          phoneNo: user.phoneNo,
-        });
-        if (!UserInfo) {
-          throw "User Not Found";
-        } else{
-
-            let CodeDigit = req.body.codeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
-            let OTPCode = {
-              CodeDigit,
-              phoneNo:UserInfo.phoneNo,
-              createdAt: new Date(),
-              expiresAt: utils.expiryCodeGenerator(),
-            };
-            this.OTP.push(OTPCode);
-            return {code: OTPCode.CodeDigit }
-        }
-
-    } catch (error) {
-      throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
-    }
-  }
-  async addNewPassword(req){
-    try{
-      let user=req.user?req.user:req.body
+      let user = req.user ? req.user : req.body;
       // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw "User Not Found";
-      }else{
+      } else {
+        let CodeDigit =
+          req.body.codeLength == 6
+            ? Math.floor(100000 + Math.random() * 900000)
+            : Math.floor(1000 + Math.random() * 9000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo: UserInfo.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
+        return { code: OTPCode.CodeDigit };
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+  async addNewPassword(req) {
+    try {
+      let user = req.user ? req.user : req.body;
+      // let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "User Not Found";
+      } else {
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
-        await UserInfo.save()
-        return {passwordChanged:true}
+        await UserInfo.save();
+        return { passwordChanged: true };
       }
-
-    }
-    catch(error){
-      throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
-  async getUserRegisteredDevice(req){
-    try{
+  async getUserRegisteredDevice(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw "User Not Found";
+      } else {
+        return { mobileRegisteredId: UserInfo.mobileRegisteredId };
       }
-      else{
-        return {mobileRegisteredId:UserInfo.mobileRegisteredId}
-      }
-    }catch(error){
-      throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
-  async createTransactionPin(req){
-    try{
+  async createTransactionPin(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw "User Not Found";
-      }
-      else{
+      } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        await UserInfo.save()
-        return {message:'Pin Saved'}
+        await UserInfo.save();
+        return { message: "Pin Saved" };
       }
-    }catch(error){
-      throw new HttpException({
-        status:HttpStatus.NOT_FOUND,
-        msg:error
-      },HttpStatus.NOT_FOUND);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
   // async sendSMS() {
@@ -258,5 +281,4 @@ export class AuthService {
   //     return e;
   //   }
   // }
- 
 }
