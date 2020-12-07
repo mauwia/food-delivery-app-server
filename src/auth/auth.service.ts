@@ -1,12 +1,13 @@
 import {
   Injectable,
-  HttpStatus,HttpException
+  HttpStatus,HttpException,Inject
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import { AUTH_MESSAGES } from './constants/key-contants'
+import  {WalletService } from 'src/wallet/wallet.service';
 import * as utils from "../utils";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -14,7 +15,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>, @InjectTwilio() private readonly client: TwilioClient) { }
+  constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>, @InjectTwilio() private readonly client: TwilioClient, private readonly walletService:WalletService) { }
   OTP = [];
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
@@ -259,7 +260,9 @@ export class AuthService {
       else{
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
         await UserInfo.save()
-        return {message:'Pin Saved'}
+        let walletCreate=await this.walletService.createWallet()
+        let getBalance=await this.walletService.getBalance(walletCreate.address)
+        return {message:'Pin Saved',walletCreate,getBalance}
       }
     }catch(error){
       throw new HttpException({

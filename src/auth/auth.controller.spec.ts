@@ -4,7 +4,11 @@ import { AuthController } from "./auth.controller";
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from "./auth.service";
 import { Request } from "express";
-
+import { TwilioModule } from "nestjs-twilio";
+import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
+import {
+  Injectable,
+} from "@nestjs/common";
 let event = {
   phoneNo: "123456789",
   passHash: "1230930",
@@ -12,6 +16,7 @@ let event = {
   imageUrl: "",
   username: "",
   mobileRegisteredId: "12345678",
+  verified:true
 };
 class eventModel {
   constructor() {}
@@ -37,10 +42,12 @@ class eventModel {
 
   static deleteOne = jest.fn().mockResolvedValue(true);
 }
-
+@Injectable()
+class InjectableService {
+  public constructor(@InjectTwilio() public readonly client: TwilioClient) {}
+}
 describe("AppController", () => {
   let authController: AuthController;
-  let authService:AuthService;
   let bcryptCompareSync: jest.Mock;
   beforeEach(async () => {
     bcryptCompareSync = jest.fn().mockReturnValue(true);
@@ -52,12 +59,15 @@ describe("AppController", () => {
         {
           provide: getModelToken("Auth"),
           useValue: eventModel,
-        },
+        },InjectableService,
+        
       ],
+      imports:[TwilioModule.forRoot({
+        accountSid:process.env.TWILIO_ACCOUNT_SID,
+          authToken:process.env.TWILIO_AUTH_TOKEN,
+      })]
     }).compile();
-
     authController = app.get<AuthController>(AuthController);
-    authService = app.get<AuthService>(AuthService);
 
   });
   test("FoodLoverSignUp", async() => {
@@ -96,6 +106,7 @@ describe("AppController", () => {
         passHash: '',
         location: [],
         imageUrl: '',
+        verified:true,
         username: '',
         mobileRegisteredId: '12345678'
       })
