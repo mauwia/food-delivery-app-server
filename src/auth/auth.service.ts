@@ -1,21 +1,21 @@
-import {
-  Injectable,
-  HttpStatus,HttpException,Inject
-} from "@nestjs/common";
+import { Injectable, HttpStatus, HttpException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { InjectTwilio, TwilioClient } from 'nestjs-twilio';
+import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { Model } from "mongoose";
 import { Auth } from "./auth.model";
-import { AUTH_MESSAGES } from './constants/key-contants'
-import  {WalletService } from 'src/wallet/wallet.service';
-import * as utils from "../utils";
+import { AUTH_MESSAGES } from "./constants/key-contants";
+import { WalletService } from "../wallet/wallet.service";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 dotenv.config();
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel("Auth") private readonly authModel: Model<Auth>, @InjectTwilio() private readonly client: TwilioClient, private readonly walletService:WalletService) { }
+  constructor(
+    @InjectModel("Auth") private readonly authModel: Model<Auth>,
+    @InjectTwilio() private readonly client: TwilioClient,
+    private readonly walletService: WalletService
+  ) {}
   OTP = [];
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
@@ -27,24 +27,16 @@ export class AuthService {
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw AUTH_MESSAGES.WRONG_PASSWORD;
-      
+
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET
       );
       if (!userExist.verified) {
-        let codeResp = await this.sendSMS()
-        console.log(codeResp)
-        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
-        let OTPCode = {
-          CodeDigit,
-          phoneNo: userExist.phoneNo,
-          createdAt: new Date(),
-          expiresAt: utils.expiryCodeGenerator(),
-        };
-        this.OTP.push(OTPCode);
-        userExist.passHash = ''
-        return { user: userExist, token, code: OTPCode.CodeDigit };
+        await this.sendSMS(userExist.phoneNo);
+
+        userExist.passHash = "";
+        return { user: userExist, token };
       }
       userExist.passHash = "";
       return {
@@ -83,24 +75,14 @@ export class AuthService {
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
         );
-        let codeResp = await this.sendSMS()
-        console.log(codeResp)
-        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
-        let OTPCode = {
-          CodeDigit,
-          phoneNo: user.phoneNo,
-          createdAt: new Date(),
-          expiresAt: utils.expiryCodeGenerator(),
-        };
-        this.OTP.push(OTPCode);
+        await this.sendSMS(req.phoneNo);
+
         user.passHash = "";
-        return { token, user, code: OTPCode.CodeDigit };
+        return { token, user };
       } else {
         throw AUTH_MESSAGES.USER_EXIST;
       }
     } catch (error) {
-      // console.log(error)
-      // throw new BadRequestException(error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -141,17 +123,16 @@ export class AuthService {
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
-        let { otp } = req.body
-        // let checked = utils.checkExpiry(
-        //   this.OTP,
-        //   req.body.otp,
-        //   UserInfo.phoneNo
-        // );
-        let check = await this.checkSmsVerification(otp, otp.length)
+        let { otp } = req.body;
+        let check = await this.checkSmsVerification(
+          UserInfo.phoneNo,
+          otp,
+          otp.length
+        );
         let checked = {
           validated: check.valid,
-          message: check.status
-        }
+          message: check.status,
+        };
         if (!checked.validated) {
           throw checked.message;
         } else {
@@ -163,7 +144,10 @@ export class AuthService {
         }
       }
     } catch (error) {
-      if (error == AUTH_MESSAGES.INVALID_OTP || error == AUTH_MESSAGES.OTP_EXPIRED) {
+      if (
+        error == AUTH_MESSAGES.INVALID_OTP ||
+        error == AUTH_MESSAGES.OTP_EXPIRED
+      ) {
         throw new HttpException(
           {
             status: HttpStatus.UNAUTHORIZED,
@@ -185,27 +169,14 @@ export class AuthService {
   async resendOTP_and_forgetPasswordOtp(req) {
     try {
       let user = req.user ? req.user : req.body;
-      // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
-        let codeResp = await this.sendSMS(req.body.codeLength)
-        console.log(codeResp)
-        let CodeDigit =
-          req.body.codeLength == 6
-            ? Math.floor(100000 + Math.random() * 900000)
-            : Math.floor(1000 + Math.random() * 9000);
-        let OTPCode = {
-          CodeDigit,
-          phoneNo: UserInfo.phoneNo,
-          createdAt: new Date(),
-          expiresAt: utils.expiryCodeGenerator(),
-        };
-        this.OTP.push(OTPCode);
-        return { code: OTPCode.CodeDigit };
+        await this.sendSMS(user.phoneNo, req.body.codeLength);
+        return { result: "Code Sent" };
       }
     } catch (error) {
       throw new HttpException(
@@ -220,13 +191,12 @@ export class AuthService {
   async addNewPassword(req) {
     try {
       let user = req.user ? req.user : req.body;
-      // let { user } = req;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
-      }else{
+      } else {
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
         await UserInfo.save();
@@ -244,15 +214,14 @@ export class AuthService {
   }
   async getUserRegisteredDevice(req) {
     try {
-      let { user } = req;
-      const UserInfo = await this.authModel.findOne({
-        phoneNo: user.phoneNo,
+      const UserInfo = await this.authModel.find({
+        mobileRegisteredId:req.body.mobileRegisteredId
       });
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
-      }
-      else{
-        return {mobileRegisteredId:UserInfo.mobileRegisteredId}
+      } else {
+        console.log(UserInfo)
+        return { mobileRegisteredId: UserInfo.length>0 };
       }
     } catch (error) {
       throw new HttpException(
@@ -272,13 +241,14 @@ export class AuthService {
       });
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
-      }
-      else{
+      } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        await UserInfo.save()
-        let walletCreate=await this.walletService.createWallet()
-        let getBalance=await this.walletService.getBalance(walletCreate.address)
-        return {message:'Pin Saved',walletCreate,getBalance}
+        await UserInfo.save();
+        let walletCreate = await this.walletService.createWallet();
+        let getBalance = await this.walletService.getBalance(
+          walletCreate.address
+        );
+        return { message: "Pin Saved", walletCreate, getBalance };
       }
     } catch (error) {
       throw new HttpException(
@@ -290,26 +260,34 @@ export class AuthService {
       );
     }
   }
-  async sendSMS(codeLength = 6) {
+  async sendSMS(phoneNo, codeLength = 6) {
     try {
       // let service=await this.client.verify.services.create({friendlyName: 'OTP'})
       // console.log(service.sid)
-      let response = await this.client.verify.services(codeLength == 6 ? process.env.TWILIO_SERVICE_ID_6 : process.env.TWILIO_SERVICE_ID_4)
-        .verifications
-        .create({ to: '+923343058887', channel: 'sms' })
-      return response
+      let response = await this.client.verify
+        .services(
+          codeLength == 6
+            ? process.env.TWILIO_SERVICE_ID_6
+            : process.env.TWILIO_SERVICE_ID_4
+        )
+        .verifications.create({ to: phoneNo, channel: "sms" });
+      return response;
     } catch (e) {
       return e;
     }
   }
-  async checkSmsVerification(code, codeLength = 6) {
+  async checkSmsVerification(phoneNo, code, codeLength = 6) {
     try {
-      let response = await this.client.verify.services(codeLength == 6 ? process.env.TWILIO_SERVICE_ID_6 : process.env.TWILIO_SERVICE_ID_4)
-        .verificationChecks
-        .create({ to: '+923343058887', code })
-      return response
+      let response = await this.client.verify
+        .services(
+          codeLength == 6
+            ? process.env.TWILIO_SERVICE_ID_6
+            : process.env.TWILIO_SERVICE_ID_4
+        )
+        .verificationChecks.create({ to: phoneNo, code });
+      return response;
     } catch (e) {
-      return e
+      return e;
     }
   }
 }
