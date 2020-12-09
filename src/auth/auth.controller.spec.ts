@@ -51,12 +51,11 @@ class InjectableService {
 }
 describe("AppController", () => {
   let authController: AuthController;
-  let verify: jest.Mock;
+  let authService:AuthService;
+  let injectableService:InjectableService
   let bcryptCompareSync: jest.Mock;
   beforeEach(async () => {
     bcryptCompareSync = jest.fn().mockReturnValue(true);
-    verify = jest.fn().mockReturnValue("432571");
-
     (bcrypt.compareSync as jest.Mock) = bcryptCompareSync;
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -79,6 +78,8 @@ describe("AppController", () => {
       ],
     }).compile();
     authController = app.get<AuthController>(AuthController);
+    authService=app.get<AuthService>(AuthService)
+    injectableService=app.get<InjectableService>(InjectableService)
   });
   test("FoodLoverSignUp", async () => {
     // let req = {
@@ -122,6 +123,7 @@ describe("AppController", () => {
         phoneNo: "123456789",
       },
     } as unknown) as Request;
+    let res=await authService.getLoverInfo(req);console.log(res)
     let response = await authController.LoverInfo(req);
     expect(response.user).toStrictEqual({
       phoneNo: "123456789",
@@ -136,22 +138,29 @@ describe("AppController", () => {
 
   test("getUserRegisteredDevice", async () => {
     let req = ({
-      user: {
-        phoneNo: "123456789",
+      body: {
+       mobileRegisteredId:'12345678',
       },
     } as unknown) as Request;
     let response = await authController.GetUserRegisteredDevice(req);
-    expect(response.mobileRegisteredId).toBe("12345678");
+    expect(response.mobileRegisteredId).toBe(true);
   });
-  test("authenticateOTP", () => {
-    let req = ({
+  test("authenticateOTP",async () => {
+    try
+    {
+       
+      let req = ({
       user: {
         phoneNo: "123456789",
       },
       body: {
         otp: "234563",
       },
-      // const
     } as unknown) as Request;
+    const response=await authController.AuthenticateCode(req)
+    console.log(response)}
+    catch(e){
+      console.log(e)
+    }
   });
 });

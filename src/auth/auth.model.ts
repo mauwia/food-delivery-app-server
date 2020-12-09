@@ -7,6 +7,7 @@ export const AuthSchema = new mongoose.Schema({
   location: { type: Array },
   imageUrl: { type: String },
   username: { type: String },
+  walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet"},
   verified: { type: Boolean, default: false },
   mobileRegisteredId: { type: String, required: true },
 });
@@ -18,5 +19,6 @@ export interface Auth {
   location: [];
   imageUrl: string;
   username: string;
+  walletId:string
   mobileRegisteredId: string;
 }

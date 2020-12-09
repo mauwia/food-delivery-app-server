@@ -220,7 +220,7 @@ export class AuthService {
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
-        console.log(UserInfo)
+        // console.log(UserInfo)
         return { mobileRegisteredId: UserInfo.length>0 };
       }
     } catch (error) {
@@ -243,12 +243,14 @@ export class AuthService {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        await UserInfo.save();
-        let walletCreate = await this.walletService.createWallet();
+        let wallet = await this.walletService.createWallet();
         let getBalance = await this.walletService.getBalance(
-          walletCreate.address
+          wallet.createAccount.address
         );
-        return { message: "Pin Saved", walletCreate, getBalance };
+        UserInfo.walletId=wallet.wallet_id
+        await UserInfo.save();
+        delete wallet.wallet_id
+        return { message: "Pin Saved", createAccount:wallet.createAccount, getBalance };
       }
     } catch (error) {
       throw new HttpException(
@@ -260,6 +262,7 @@ export class AuthService {
       );
     }
   }
+
   async sendSMS(phoneNo, codeLength = 6) {
     try {
       // let service=await this.client.verify.services.create({friendlyName: 'OTP'})
