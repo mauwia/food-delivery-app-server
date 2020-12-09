@@ -20,17 +20,26 @@ export class AuthController {
   }
   @Post("/forgetPassAuthOTP")
   async ForgetPasswordAuthenticateCode(@Req() request: Request) {
-    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
+    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(
+      request
+    );
     return response;
   }
   @Post("/forgetPasswordOTP")
   async ForgetPasswordOTP(@Req() request: Request) {
-    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
+    const response = await this.authService.resendOTP_and_forgetPasswordOtp(
+      request
+    );
     return response;
   }
   @Post("/addNewPassword")
   async AddNewPassword(@Req() request: Request) {
     const response = await this.authService.addNewPassword(request);
+    return response;
+  }
+  @Post("/getUserRegisteredDevice")
+  async GetUserRegisteredDevice(@Req() request: Request) {
+    const response = await this.authService.getUserRegisteredDevice(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
@@ -42,25 +51,23 @@ export class AuthController {
   @UseGuards(new JWTAuthGuard())
   @Post("/authenticateOTP")
   async AuthenticateCode(@Req() request: Request) {
-    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(request);
+    const response = await this.authService.authenticateOTP_and_forgetPasswordOTP(
+      request
+    );
     return response;
   }
   @UseGuards(new JWTAuthGuard())
   @Post("/resendOTP")
   async ResendOTP(@Req() request: Request) {
-    const response = await this.authService.resendOTP_and_forgetPasswordOtp(request);
-    return response;
-  }
-  @UseGuards(new JWTAuthGuard())
-  @Get("/getUserRegisteredDevice")
-  async GetUserRegisteredDevice(@Req() request: Request) {
-    const response = await this.authService.getUserRegisteredDevice(request);
+    const response = await this.authService.resendOTP_and_forgetPasswordOtp(
+      request
+    );
     return response;
   }
   @UseGuards(new JWTAuthGuard())
   @Post("/createTransactionPin")
-  async CreateTransactionPin(@Req() request:Request){
-    const response=await this.authService.createTransactionPin(request)
-    return response
+  async CreateTransactionPin(@Req() request: Request) {
+    const response = await this.authService.createTransactionPin(request);
+    return response;
   }
 }
