@@ -5,7 +5,7 @@ const TokenSchema=new mongoose.Schema({
     tokenAddress:{type:String},
     tokenSymbol:{type:String},
     tokenName:{type:String},
-    amount:{type:Number},
+    amount:{type:Number,default:0},
 })
 export const WalletSchema=new mongoose.Schema({
     walletAddress:{type:String},
