@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 // import{ BncClient, rpc } from "@binance-chain/javascript-sdk";
-import { Wallet } from "./wallet.model";
+import { Wallet, Transactions } from "./wallet.model";
 import { Auth } from "../auth/auth.model";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
@@ -14,7 +14,9 @@ client.chooseNetwork("testnet");
 export class WalletService {
   constructor(
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
-    @InjectModel("Auth") private readonly authModel: Model<Auth>
+    @InjectModel("Auth") private readonly authModel: Model<Auth>,
+    @InjectModel("Transactions")
+    private readonly transactionsModel: Model<Transactions>
   ) {}
   async createWallet() {
     // const client = new BncClient("https://bsc-dataseed.binance.org/");
@@ -42,22 +44,130 @@ export class WalletService {
       console.log("a===>", balance);
       return balance;
     } catch (e) {
-      if (e.message == "Cannot read property 'address' of null")
+      if (e.message == WALLET_MESSAGES.ZERO_BALANCE)
         return { balance: 0 };
       return e;
     }
   }
+  async withdrawNoshies(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let { publicKey, tokenName, amount } = req.body;
+      // console.log(publicKey);
+      let wallet = await this.walletModel.findOne({
+        publicKey: publicKey,
+      });
+      if (!wallet) {
+        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+      }
+      let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
+      asset.amount = asset.amount - amount;
+      await wallet.save();
+      await this.createTransaction({
+        transactionType: "Withdraw",
+        from: publicKey,
+        amount,
+        currency: tokenName,
+        message: "Test message",
+      });
+      return { messages:WALLET_MESSAGES.WITHDRAW_SUCCESS , wallet };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async sendNoshies(req) {
     try {
-
-    } catch (e) {
-      return e;
+      let { user } = req;
+      const UserInfo = await this.authModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let { senderPublicKey, recieverPublicKey, amount, tokenName } = req.body;
+      let senderWallet = await this.walletModel.findOne({
+        publicKey: senderPublicKey,
+      });
+      let recieverWallet = await this.walletModel.findOne({
+        publicKey: recieverPublicKey,
+      });
+      if (!senderWallet || !recieverWallet) {
+        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+      }
+      let senderAssets = senderWallet.assets.find(
+        (asset) => asset.tokenName == tokenName
+      );
+      let recieverAssets = recieverWallet.assets.find(
+        (asset) => asset.tokenName == tokenName
+      );
+      if (!recieverAssets) {
+        let newRecieverAsset = await this.createAsset(
+          tokenName,
+          recieverWallet,
+          amount
+        );
+        senderAssets.amount = senderAssets.amount - amount;
+        await senderWallet.save();
+        await this.createTransaction({
+          transactionType: "Send",
+          from: senderPublicKey,
+          to: recieverPublicKey,
+          amount: amount,
+          currency: tokenName,
+          message: "Test Message",
+        });
+        return {
+          message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
+          // senderAmount: senderAssets.amount,
+          // recieverAmount: newRecieverAsset.amount,
+          senderWallet
+        };
+      } else {
+        recieverAssets.amount = recieverAssets.amount + +amount;
+        senderAssets.amount = senderAssets.amount - amount;
+        await recieverWallet.save();
+        await senderWallet.save();
+        await this.createTransaction({
+          transactionType: "Send",
+          from: senderPublicKey,
+          to: recieverPublicKey,
+          amount: amount,
+          currency: tokenName,
+          message: "Test Message",
+        });
+        return {
+          message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
+          // senderAmount: senderAssets.amount,
+          // recieverAmount: recieverAssets.amount,
+          senderWallet
+        };
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
   async getNoshifyContacts(req) {
     try {
       let { user } = req;
-      let {contacts}=req.body
+      let { contacts } = req.body;
       const UserInfo = await this.authModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -79,7 +189,7 @@ export class WalletService {
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash")
-          .populate("walletId","publicKey");
+          .populate("walletId", "publicKey");
         if (user) {
           common.push(user);
         }
@@ -95,7 +205,7 @@ export class WalletService {
       );
     }
   }
-  async addNoshiesByCard(req) {
+  async addNoshiesByCard(req, source) {
     try {
       let { user } = req;
       const UserInfo = await this.authModel.findOne({
@@ -105,37 +215,53 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { publicKey, amount, tokenName } = req.body;
-      let getAsset;
       let wallet = await this.walletModel.findOne({
         publicKey: publicKey,
       });
       if (!wallet) {
-        throw "PUBLIC_KEY_NOT_FOUND";
+        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
       }
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
-        wallet.assets.map((asset) => {
-          if (asset.tokenName === tokenName) {
-            getAsset = asset;
-          }
-        });
-        if (!getAsset) {
+        let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
+        if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
+          await this.createTransaction({
+            transactionType: source,
+            from: publicKey,
+            amount,
+            currency: tokenName,
+            message: "Test message",
+          });
           return {
-            message: "Amount Added Successfully",
+            message:WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS ,
             totalAmount: token.amount,
           };
         }
-        getAsset.amount = getAsset.amount + amount;
+        asset.amount = asset.amount + amount;
         wallet.save();
+        await this.createTransaction({
+          transactionType: source,
+          from: publicKey,
+          amount,
+          currency: tokenName,
+          message: "Test message",
+        });
         return {
-          message: "Amount Added Successfully",
-          totalAmount: getAsset.amount,
+          message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+          totalAmount: asset.amount,
         };
       } else {
         let token = await this.createAsset(tokenName, wallet, amount);
+        await this.createTransaction({
+          transactionType: source,
+          from: publicKey,
+          amount,
+          currency: tokenName,
+          message: "Test message",
+        });
         return {
-          message: "Amount Added Successfully",
+          message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: token.amount,
         };
       }
@@ -149,17 +275,19 @@ export class WalletService {
       );
     }
   }
-  async getAllAssets(req){
-    try{
+  async getAllAssets(req) {
+    try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
-        phoneNo: user.phoneNo,
-      }).populate("walletId");
+      const UserInfo = await this.authModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      return {assets:UserInfo.walletId.assets}
-    }catch(error){
+      return { assets: UserInfo.walletId.assets };
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -169,13 +297,50 @@ export class WalletService {
       );
     }
   }
+  async getTransactions(req) {
+    try {
+      // console.log(req.params)
+      let { user } = req;
+      const UserInfo = await this.authModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId", "publicKey");
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let transactions = await this.transactionsModel.find({
+        $or: [
+          { to: UserInfo.walletId.publicKey },
+          { from: UserInfo.walletId.publicKey },
+        ],
+      });
+      if (req.params.assetId) {
+        let { assetId } = req.params;
+        transactions = transactions.filter(
+          (transaction) => transaction.currency == assetId
+        );
+        return { transactions };
+      }
+      return { transactions };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+
   async createAsset(tokenName, wallet, amount) {
     try {
       let token = {
-        tokenAddress: "1w0iew9e39r3",
+        tokenAddress: "0x1w0iew9e39r3",
         tokenSymbol: tokenName,
         tokenName,
-        amount,
+        amount: parseInt(amount),
       };
       wallet.assets.push(token);
       await wallet.save();
@@ -183,6 +348,11 @@ export class WalletService {
     } catch (error) {
       return error;
     }
+  }
+  async createTransaction(transactionDetails) {
+    let newTransaction = new this.transactionsModel(transactionDetails);
+    let transaction = await this.transactionsModel.create(newTransaction);
+    return transaction;
   }
 }
 
