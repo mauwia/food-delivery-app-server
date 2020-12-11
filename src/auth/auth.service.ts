@@ -273,7 +273,7 @@ export class AuthService {
             ? process.env.TWILIO_SERVICE_ID_6
             : process.env.TWILIO_SERVICE_ID_4
         )
-        .verifications.create({ to: "+923343058887", channel: "sms" });
+        .verifications.create({ to: phoneNo, channel: "sms" });
       return response;
     } catch (e) {
       return e;
@@ -287,7 +287,7 @@ export class AuthService {
             ? process.env.TWILIO_SERVICE_ID_6
             : process.env.TWILIO_SERVICE_ID_4
         )
-        .verificationChecks.create({ to: "+923343058887", code });
+        .verificationChecks.create({ to: phoneNo, code });
       return response;
     } catch (e) {
       return e;

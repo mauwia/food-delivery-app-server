@@ -16,9 +16,17 @@ export class WalletController {
     let response = await this.walletService.getBalance(request.body.address);
     return response;
   }
+  @UseGuards(new JWTAuthGuard())
   @Post("/sendNoshies")
   async SendNoshies(@Req()req:Request){
     let response = await this.walletService.sendNoshies(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/withdrawNoshies")
+  async WithdrawNoshies(@Req()req:Request){
+    let response = await this.walletService.withdrawNoshies(req)
+    return response
   }
   @UseGuards(new JWTAuthGuard())
   @Get('/getNoshifyContacts')
@@ -29,14 +37,14 @@ export class WalletController {
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByCard')
   async AddNoshiesByCard(@Req() req:Request){
-    let response=await this.walletService.addNoshiesByCard(req)
+    let response=await this.walletService.addNoshiesByCard(req,"By_Card")
     return response
   }
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByBank')
   async AddNoshiesByBank(@Req() req:Request){
     ///Will update when paystack integrate
-    let response=await this.walletService.addNoshiesByCard(req)
+    let response=await this.walletService.addNoshiesByCard(req,"By_Bank")
     return response
   }
   @UseGuards(new JWTAuthGuard())
@@ -44,6 +52,18 @@ export class WalletController {
   async GetAllAssets(@Req() req:Request){
     ///Will update when paystack integrate
     let response=await this.walletService.getAllAssets(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get('/getAllTransactions')
+  async GetAllTransactions(@Req() req:Request){
+    let response=await this.walletService.getTransactions(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get('/getTransactionsByAsset/:assetId')
+  async GetAllTransactionsByAssets(@Req() req:Request){
+    let response=await this.walletService.getTransactions(req)
     return response
   }
 }
