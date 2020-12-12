@@ -266,6 +266,7 @@ export class WalletService {
         };
       }
     } catch (error) {
+      console.log(error)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -286,8 +287,10 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
+      // console.log(UserInfo)
       return { assets: UserInfo.walletId.assets };
     } catch (error) {
+      // console.log(error)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,

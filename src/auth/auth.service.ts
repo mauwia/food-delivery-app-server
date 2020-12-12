@@ -5,6 +5,7 @@ import { Model } from "mongoose";
 import { Auth } from "./auth.model";
 import { AUTH_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
+import * as utils from "../utils";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -33,10 +34,18 @@ export class AuthService {
         process.env.JWT_ACCESS_TOKEN_SECRET
       );
       if (!userExist.verified) {
-        await this.sendSMS(userExist.phoneNo);
+        // await this.sendSMS(userExist.phoneNo);
+        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo:userExist.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
 
         userExist.passHash = "";
-        return { user: userExist, token };
+        return { user: userExist, token, code: OTPCode.CodeDigit };
       }
       userExist.passHash = "";
       return {
@@ -75,10 +84,18 @@ export class AuthService {
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
         );
-        await this.sendSMS(req.phoneNo);
+        // await this.sendSMS(req.phoneNo);
+        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo:user.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
 
         user.passHash = "";
-        return { token, user };
+        return { token, user,code: OTPCode.CodeDigit };
       } else {
         throw AUTH_MESSAGES.USER_EXIST;
       }
@@ -123,16 +140,17 @@ export class AuthService {
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
-        let { otp } = req.body;
-        let check = await this.checkSmsVerification(
-          UserInfo.phoneNo,
-          otp,
-          otp.length
-        );
-        let checked = {
-          validated: check.valid,
-          message: check.status,
-        };
+        // let { otp } = req.body;
+        let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
+        // let check = await this.checkSmsVerification(
+        //   UserInfo.phoneNo,
+        //   otp,
+        //   otp.length
+        // );
+        // let checked = {
+        //   validated: check.valid,
+        //   message: check.status,
+        // };
         if (!checked.validated) {
           throw checked.message;
         } else {
@@ -175,8 +193,16 @@ export class AuthService {
       if (!UserInfo) {
         throw AUTH_MESSAGES.USER_NOT_FOUND;
       } else {
-        await this.sendSMS(user.phoneNo, req.body.codeLength);
-        return { result: "Code Sent" };
+        // await this.sendSMS(user.phoneNo, req.body.codeLength);
+        let CodeDigit = req.body.codeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
+            let OTPCode = {
+              CodeDigit,
+              phoneNo:UserInfo.phoneNo,
+              createdAt: new Date(),
+              expiresAt: utils.expiryCodeGenerator(),
+            };
+            this.OTP.push(OTPCode);
+            return {code: OTPCode.CodeDigit }
       }
     } catch (error) {
       throw new HttpException(
