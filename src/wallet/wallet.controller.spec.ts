@@ -91,7 +91,7 @@ describe("WalletController", () => {
     }).compile();
     walletController = wallet.get<WalletController>(WalletController);
   });
-  test("getAllAssets", async () => {
+  test("getAllAsset", async () => {
     // uncomment first populate Method in userModel
     // let req = ({
     //   user: {
