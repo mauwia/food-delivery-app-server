@@ -2,8 +2,8 @@ import { Injectable, HttpStatus, HttpException, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { Model } from "mongoose";
-import { Auth } from "./auth.model";
-import { AUTH_MESSAGES } from "./constants/key-contants";
+import { FoodLover } from "./foodLover.model";
+import { FOOD_LOVER_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 const jwt = require("jsonwebtoken");
@@ -11,24 +11,24 @@ const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 dotenv.config();
 @Injectable()
-export class AuthService {
+export class FoodLoverService {
   constructor(
-    @InjectModel("Auth") private readonly authModel: Model<Auth>,
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
   OTP = [];
-  private logger=new Logger('Auth')
+  private logger=new Logger('Food Lover')
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
-      const userExist = await this.authModel.findOne({
+      const userExist = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       }).populate("walletId", "publicKey");
       if (!userExist) {
-        throw AUTH_MESSAGES.USER_NOT_EXIST;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_EXIST;
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
-        throw AUTH_MESSAGES.WRONG_PASSWORD;
+        throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
 
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
@@ -73,7 +73,7 @@ export class AuthService {
     mobileRegisteredId: string;
   }) {
     try {
-      const uniqueNumber = await this.authModel.findOne({
+      const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });
       // console.log(uniqueNumber)
@@ -81,8 +81,8 @@ export class AuthService {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
 
-        const newUser = new this.authModel(req);
-        const user = await this.authModel.create(newUser);
+        const newUser = new this.foodLoverModel(req);
+        const user = await this.foodLoverModel.create(newUser);
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
@@ -100,7 +100,7 @@ export class AuthService {
         user.passHash = "";
         return { token, user,code: OTPCode.CodeDigit };
       } else {
-        throw AUTH_MESSAGES.USER_EXIST;
+        throw FOOD_LOVER_MESSAGES.USER_EXIST;
       }
     } catch (error) {
       this.logger.error(error,error.stack)
@@ -116,11 +116,11 @@ export class AuthService {
   async getLoverInfo(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.passHash = "";
       return { user: UserInfo };
@@ -139,11 +139,11 @@ export class AuthService {
     try {
       let user = req.user ? req.user : req.body;
       // let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // let { otp } = req.body;
         let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
@@ -168,8 +168,8 @@ export class AuthService {
       }
     } catch (error) {
       if (
-        error == AUTH_MESSAGES.INVALID_OTP ||
-        error == AUTH_MESSAGES.OTP_EXPIRED
+        error == FOOD_LOVER_MESSAGES.INVALID_OTP ||
+        error == FOOD_LOVER_MESSAGES.OTP_EXPIRED
       ) {
       this.logger.error(error,error.stack)
         throw new HttpException(
@@ -194,11 +194,11 @@ export class AuthService {
   async resendOTP_and_forgetPasswordOtp(req) {
     try {
       let user = req.user ? req.user : req.body;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // await this.sendSMS(user.phoneNo, req.body.codeLength);
         let CodeDigit = req.body.codeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
@@ -225,11 +225,11 @@ export class AuthService {
   async addNewPassword(req) {
     try {
       let user = req.user ? req.user : req.body;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
@@ -249,11 +249,11 @@ export class AuthService {
   }
   async getUserRegisteredDevice(req) {
     try {
-      const UserInfo = await this.authModel.find({
+      const UserInfo = await this.foodLoverModel.find({
         mobileRegisteredId:req.body.mobileRegisteredId
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // console.log(UserInfo)
         return { mobileRegisteredId: UserInfo.length>0 };
@@ -272,11 +272,11 @@ export class AuthService {
   async createTransactionPin(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw AUTH_MESSAGES.USER_NOT_FOUND;
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
         let wallet = await this.walletService.createWallet();

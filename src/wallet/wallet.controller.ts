@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Req,UseGuards } from "@nestjs/common";
 import { Request } from "express";
-import { JWTAuthGuard } from "../auth/jwt/jwt-auth.guard";
+import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { WalletService } from "./wallet.service";
 
 @Controller("wallet")

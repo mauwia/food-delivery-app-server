@@ -99,7 +99,7 @@ describe("WalletController", () => {
           useValue: walletModel,
         },
         {
-          provide: getModelToken("Auth"),
+          provide: getModelToken("FoodLover"),
           useValue: userModel,
         },
         {

@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getModelToken } from "@nestjs/mongoose";
-import { AuthController } from "./auth.controller";
+import { FoodLoverController } from "./foodLover.controller";
 import * as bcrypt from "bcryptjs";
-import { AuthService } from "./auth.service";
+import { FoodLoverService } from "./foodLover.service";
 import { Request, response } from "express";
 import { TwilioModule } from "nestjs-twilio";
 import { WalletService } from "../wallet/wallet.service";
@@ -84,18 +84,18 @@ class eventModel {
 }
 
 describe("AppController", () => {
-  let authController: AuthController;
-  let authService:AuthService;
+  let foodLoverController: FoodLoverController;
+  let foodLoverService:FoodLoverService;
   let bcryptCompareSync: jest.Mock;
   beforeEach(async () => {
     bcryptCompareSync = jest.fn().mockReturnValue(true);
     (bcrypt.compareSync as jest.Mock) = bcryptCompareSync;
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+      controllers: [FoodLoverController],
       providers: [
-        AuthService,WalletService,
+        FoodLoverService,WalletService,
         {
-          provide: getModelToken("Auth"),
+          provide: getModelToken("FoodLover"),
           useValue: eventModel,
         },
         {
@@ -114,28 +114,28 @@ describe("AppController", () => {
         })
       ],
     }).compile();
-    authController = app.get<AuthController>(AuthController);
-    authService=app.get<AuthService>(AuthService)
+    foodLoverController = app.get<FoodLoverController>(FoodLoverController);
+    foodLoverService=app.get<FoodLoverService>(FoodLoverService)
   });
   test("FoodLoverSignUp", async () => {
     // uncomment findone in eventModal and comment exsiting one
-//     let req = {
-//       body: {
-//         phoneNo: "123456789",
-//         password: "string",
-//         mobileRegisteredId: "122343454",
-//       },
-//     } as Request;
-//     let response=await  authController.signup(req)
-//     expect(response.user).toStrictEqual({
-//         phoneNo: '12345',
-//         passHash: '',
-//         location: [],
-//         imageUrl: '',
-//         username: '',
-//         mobileRegisteredId: 'body.mobileRegisteredId',
-//         verified:false
-//       })
+    // let req = {
+    //   body: {
+    //     phoneNo: "123456789",
+    //     password: "string",
+    //     mobileRegisteredId: "122343454",
+    //   },
+    // } as Request;
+    // let response=await  foodLoverController.signup(req)
+    // expect(response.user).toStrictEqual({
+    //     phoneNo: '12345',
+    //     passHash: '',
+    //     location: [],
+    //     imageUrl: '',
+    //     username: '',
+    //     mobileRegisteredId: 'body.mobileRegisteredId',
+    //     verified:false
+    //   })
   });
   test("FoodLoverSignIn", async () => {
     // let req = {
@@ -144,7 +144,7 @@ describe("AppController", () => {
     //     password: "string",
     //   },
     // } as Request;
-    // let response = await authController.login(req);
+    // let response = await foodLoverController.login(req);
     // expect(response.user).toStrictEqual({
     //   phoneNo: "123456789",
     //   passHash: "",
@@ -161,8 +161,7 @@ describe("AppController", () => {
     //     phoneNo: "123456789",
     //   },
     // } as unknown) as Request;
-    // let res=await authService.getLoverInfo(req);console.log(res)
-    // let response = await authController.LoverInfo(req);
+    // let response = await foodLoverController.LoverInfo(req);
     // expect(response.user).toStrictEqual({
     //   phoneNo: "123456789",
     //   passHash: "",
@@ -180,7 +179,7 @@ describe("AppController", () => {
     //    mobileRegisteredId:'12345678',
     //   },
     // } as unknown) as Request;
-    // let response = await authController.GetUserRegisteredDevice(req);
+    // let response = await foodLoverController.GetUserRegisteredDevice(req);
     // expect(response.mobileRegisteredId).toBe(true);
   });
   //UNCOMENT findOne() return property for these test
@@ -193,7 +192,7 @@ describe("AppController", () => {
     //         codeLength:6
     //     }
     //   } as unknown) as Request;
-    // let response=await authController.ResendOTP(req)
+    // let response=await foodLoverController.ResendOTP(req)
     // expect(response).toHaveProperty('code')
   });
   test('authenticateOTP',async ()=>{
@@ -205,7 +204,7 @@ describe("AppController", () => {
     //         codeLength:6
     //     }
     //   } as unknown) as Request;
-    // let response1=await authController.ResendOTP(req1)
+    // let response1=await foodLoverController.ResendOTP(req1)
     // let req = ({
     //     user: {
     //       phoneNo: "123456789",
@@ -214,7 +213,7 @@ describe("AppController", () => {
     //         otp:response1.code
     //     }
     //   } as unknown) as Request;
-    //   let response=await authController.AuthenticateCode(req)
+    //   let response=await foodLoverController.AuthenticateCode(req)
     //  expect(response.validated).toBe(true)
   })
   test("forgetPassword",async()=>{
@@ -226,7 +225,7 @@ describe("AppController", () => {
     //         codeLength:4
     //     }
     //   } as unknown) as Request;
-    // let response=await authController.ForgetPasswordOTP(req)
+    // let response=await foodLoverController.ForgetPasswordOTP(req)
     // console.log(response)
   })
   test("authenticateForgetPassword",async ()=>{
@@ -238,7 +237,7 @@ describe("AppController", () => {
     //         codeLength:4
     //     }
     //   } as unknown) as Request;
-    // let response1=await authController.ResendOTP(req1)
+    // let response1=await foodLoverController.ResendOTP(req1)
     // let req = ({
     //     user: {
     //       phoneNo: "123456789",
@@ -247,17 +246,17 @@ describe("AppController", () => {
     //         otp:response1.code
     //     }
     //   } as unknown) as Request;
-    //   let response=await authController.ForgetPasswordAuthenticateCode(req)
+    //   let response=await foodLoverController.ForgetPasswordAuthenticateCode(req)
     //  expect(response.validated).toBe(true)
   })
   test("resendPassword",async()=>{
-    //     let req = ({
-    //     body:{
-    //         phoneNo:'123456789',
-    //         password:"reset"
-    //     }
-    //   } as unknown) as Request;
-    // let response=await authController.AddNewPassword(req)
-    // expect(response.passwordChanged).toBe(true)
+        let req = ({
+        body:{
+            phoneNo:'123456789',
+            password:"reset"
+        }
+      } as unknown) as Request;
+    let response=await foodLoverController.AddNewPassword(req)
+    expect(response.passwordChanged).toBe(true)
   })
 });
