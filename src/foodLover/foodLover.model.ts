@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 
-export const AuthSchema = new mongoose.Schema({
+export const FoodLoverSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String },
@@ -12,7 +12,7 @@ export const AuthSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
 });
 
-export interface Auth {
+export interface FoodLover {
   phoneNo: string;
   passHash: string;
   verified: boolean;

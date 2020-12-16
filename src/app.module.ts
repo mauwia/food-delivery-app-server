@@ -3,13 +3,13 @@ import { MongooseModule } from "@nestjs/mongoose";
 import {TwilioModule} from 'nestjs-twilio'
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { AuthModule } from "./auth/auth.module";
+import { FoodLoverModule } from "./foodLover/foodLover.module";
 import { WalletModule } from './wallet/wallet.module';
 
 
 @Module({
   imports: [
-    AuthModule,
+    FoodLoverModule,
     MongooseModule.forRoot( `mongodb+srv://${process.env.MONGOOSE_PASSWORD}:nestonep@cluster0.arej3.mongodb.net/${process.env.MONGOOSE_DB_NAME}?retryWrites=true&w=majority`,{
       useNewUrlParser:true,useUnifiedTopology:true,useCreateIndex:true
     }),
