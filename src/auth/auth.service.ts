@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus, HttpException } from "@nestjs/common";
+import { Injectable, HttpStatus, HttpException, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { Model } from "mongoose";
@@ -18,11 +18,12 @@ export class AuthService {
     private readonly walletService: WalletService
   ) {}
   OTP = [];
+  private logger=new Logger('Auth')
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
       const userExist = await this.authModel.findOne({
         phoneNo: req.phoneNo,
-      });
+      }).populate("walletId", "publicKey");
       if (!userExist) {
         throw AUTH_MESSAGES.USER_NOT_EXIST;
       }
@@ -43,16 +44,18 @@ export class AuthService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-
+        userExist.pinHash=!!userExist.pinHash
         userExist.passHash = "";
         return { user: userExist, token, code: OTPCode.CodeDigit };
       }
+      userExist.pinHash=!!userExist.pinHash
       userExist.passHash = "";
       return {
         user: userExist,
         token,
       };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.UNAUTHORIZED,
@@ -93,13 +96,14 @@ export class AuthService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-
+        user.pinHash=!!user.pinHash
         user.passHash = "";
         return { token, user,code: OTPCode.CodeDigit };
       } else {
         throw AUTH_MESSAGES.USER_EXIST;
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -121,6 +125,7 @@ export class AuthService {
       UserInfo.passHash = "";
       return { user: UserInfo };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -166,6 +171,7 @@ export class AuthService {
         error == AUTH_MESSAGES.INVALID_OTP ||
         error == AUTH_MESSAGES.OTP_EXPIRED
       ) {
+      this.logger.error(error,error.stack)
         throw new HttpException(
           {
             status: HttpStatus.UNAUTHORIZED,
@@ -175,6 +181,7 @@ export class AuthService {
           HttpStatus.UNAUTHORIZED
         );
       } else
+      this.logger.error(error,error.stack)
         throw new HttpException(
           {
             status: HttpStatus.NOT_FOUND,
@@ -205,6 +212,7 @@ export class AuthService {
             return {code: OTPCode.CodeDigit }
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -229,6 +237,7 @@ export class AuthService {
         return { passwordChanged: true };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -250,6 +259,7 @@ export class AuthService {
         return { mobileRegisteredId: UserInfo.length>0 };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -279,6 +289,7 @@ export class AuthService {
         return { message: "Pin Saved", createAccount:wallet.createAccount, getBalance };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,

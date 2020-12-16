@@ -4,8 +4,8 @@ import { JwtModule } from "@nestjs/jwt/dist/jwt.module";
 import { WalletController } from "./wallet.controller";
 import { TransactionsSchema, WalletSchema } from "./wallet.model";
 import { WalletService } from "./wallet.service";
-import { JwtStrategy } from "src/auth/jwt/jwt.strategy";
-import { AuthSchema } from "src/auth/auth.model";
+import { JwtStrategy } from "../auth/jwt/jwt.strategy";
+import { AuthSchema } from "../auth/auth.model";
 
 @Module({
   imports: [

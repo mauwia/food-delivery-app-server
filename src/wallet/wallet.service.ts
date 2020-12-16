@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, HttpException, HttpStatus, Logger } from "@nestjs/common";
 // import{ BncClient, rpc } from "@binance-chain/javascript-sdk";
 import { Wallet, Transactions } from "./wallet.model";
 import { Auth } from "../auth/auth.model";
@@ -18,6 +18,7 @@ export class WalletService {
     @InjectModel("Transactions")
     private readonly transactionsModel: Model<Transactions>
   ) {}
+  private logger=new Logger("Wallet")
   async createWallet() {
     // const client = new BncClient("https://bsc-dataseed.binance.org/");
     try {
@@ -29,8 +30,9 @@ export class WalletService {
       });
       let wallet = await this.walletModel.create(newWallet);
       return { createAccount, wallet_id: wallet._id };
-    } catch (e) {
-      return e;
+    } catch (error) {
+      this.logger.error(error,error.stack)
+      return error;
     }
   }
   async getBalance(publicAddress) {
@@ -78,6 +80,7 @@ export class WalletService {
       });
       return { messages:WALLET_MESSAGES.WITHDRAW_SUCCESS , wallet };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -155,6 +158,7 @@ export class WalletService {
         };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -196,6 +200,7 @@ export class WalletService {
       }
       return { contacts: common };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -266,6 +271,7 @@ export class WalletService {
         };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       console.log(error)
       throw new HttpException(
         {
@@ -290,6 +296,7 @@ export class WalletService {
       // console.log(UserInfo)
       return { assets: UserInfo.walletId.assets };
     } catch (error) {
+      this.logger.error(error,error.stack)
       // console.log(error)
       throw new HttpException(
         {
@@ -327,6 +334,7 @@ export class WalletService {
       }
       return { transactions };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -349,6 +357,7 @@ export class WalletService {
       await wallet.save();
       return token;
     } catch (error) {
+      this.logger.error(error,error.stack)
       return error;
     }
   }
