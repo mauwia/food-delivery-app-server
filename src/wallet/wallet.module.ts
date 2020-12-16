@@ -4,14 +4,14 @@ import { JwtModule } from "@nestjs/jwt/dist/jwt.module";
 import { WalletController } from "./wallet.controller";
 import { TransactionsSchema, WalletSchema } from "./wallet.model";
 import { WalletService } from "./wallet.service";
-import { JwtStrategy } from "src/auth/jwt/jwt.strategy";
-import { AuthSchema } from "src/auth/auth.model";
+import { JwtStrategy } from "../foodLover/jwt/jwt.strategy";
+import { FoodLoverSchema} from "../foodLover/foodLover.model";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: "Wallet", schema: WalletSchema },
-      { name: "Auth", schema: AuthSchema },
+      { name: "FoodLover", schema: FoodLoverSchema },
       { name: "Transactions", schema: TransactionsSchema },
     ]),
     JwtModule.register({

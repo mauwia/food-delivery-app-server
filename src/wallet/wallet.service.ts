@@ -1,7 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, HttpException, HttpStatus, Logger } from "@nestjs/common";
 // import{ BncClient, rpc } from "@binance-chain/javascript-sdk";
 import { Wallet, Transactions } from "./wallet.model";
-import { Auth } from "../auth/auth.model";
+import { FoodLover } from "../foodLover/foodLover.model";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
@@ -14,10 +14,11 @@ client.chooseNetwork("testnet");
 export class WalletService {
   constructor(
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
-    @InjectModel("Auth") private readonly authModel: Model<Auth>,
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Transactions")
     private readonly transactionsModel: Model<Transactions>
   ) {}
+  private logger=new Logger("Wallet")
   async createWallet() {
     // const client = new BncClient("https://bsc-dataseed.binance.org/");
     try {
@@ -29,8 +30,9 @@ export class WalletService {
       });
       let wallet = await this.walletModel.create(newWallet);
       return { createAccount, wallet_id: wallet._id };
-    } catch (e) {
-      return e;
+    } catch (error) {
+      this.logger.error(error,error.stack)
+      return error;
     }
   }
   async getBalance(publicAddress) {
@@ -52,7 +54,7 @@ export class WalletService {
   async withdrawNoshies(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
@@ -78,6 +80,7 @@ export class WalletService {
       });
       return { messages:WALLET_MESSAGES.WITHDRAW_SUCCESS , wallet };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -90,7 +93,7 @@ export class WalletService {
   async sendNoshies(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
@@ -155,6 +158,7 @@ export class WalletService {
         };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -168,7 +172,7 @@ export class WalletService {
     try {
       let { user } = req;
       let { contacts } = req.body;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
@@ -184,7 +188,7 @@ export class WalletService {
       // console.log(numb)
       const common = [];
       for (let i = 0; i < contacts.length; i++) {
-        const user = await this.authModel
+        const user = await this.foodLoverModel
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
@@ -196,6 +200,7 @@ export class WalletService {
       }
       return { contacts: common };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -208,7 +213,7 @@ export class WalletService {
   async addNoshiesByCard(req, source) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
@@ -266,6 +271,7 @@ export class WalletService {
         };
       }
     } catch (error) {
+      this.logger.error(error,error.stack)
       console.log(error)
       throw new HttpException(
         {
@@ -279,7 +285,7 @@ export class WalletService {
   async getAllAssets(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.authModel
+      const UserInfo = await this.foodLoverModel
         .findOne({
           phoneNo: user.phoneNo,
         })
@@ -290,6 +296,7 @@ export class WalletService {
       // console.log(UserInfo)
       return { assets: UserInfo.walletId.assets };
     } catch (error) {
+      this.logger.error(error,error.stack)
       // console.log(error)
       throw new HttpException(
         {
@@ -304,7 +311,7 @@ export class WalletService {
     try {
       // console.log(req.params)
       let { user } = req;
-      const UserInfo = await this.authModel
+      const UserInfo = await this.foodLoverModel
         .findOne({
           phoneNo: user.phoneNo,
         })
@@ -327,6 +334,7 @@ export class WalletService {
       }
       return { transactions };
     } catch (error) {
+      this.logger.error(error,error.stack)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -349,6 +357,7 @@ export class WalletService {
       await wallet.save();
       return token;
     } catch (error) {
+      this.logger.error(error,error.stack)
       return error;
     }
   }
