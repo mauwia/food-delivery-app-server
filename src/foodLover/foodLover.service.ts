@@ -299,6 +299,31 @@ export class FoodLoverService {
       );
     }
   }
+  async verifyPin(req){
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+        }
+      if (!bcrypt.compareSync(req.body.pin, UserInfo.pinHash))
+        return {verified:false}
+      else{
+        return {verified:true}
+      }
+      }catch(error){
+        this.logger.error(error,error.stack)
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+      }
+  }
 
   async sendSMS(phoneNo, codeLength = 6) {
     try {
