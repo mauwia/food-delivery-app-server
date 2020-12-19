@@ -1,9 +1,9 @@
 export const FOOD_LOVER_MESSAGES = {
-    USER_NOT_FOUND:"User Not Found",
+    USER_NOT_FOUND:"User not found",
     INVALID_OTP:"Invalid OTP",
-    OTP_EXPIRED:"OTP Expired",
-    USER_NOT_EXIST:"User Doesnot Exist",
-    WRONG_PASSWORD:"Wrong Password",
-    USER_EXIST:"User Already Exist",
-    WRONG_PIN:"Wrong Pin"
+    OTP_EXPIRED:"OTP expired",
+    USER_NOT_EXIST:"User does not exist",
+    WRONG_PASSWORD:"Wrong password",
+    USER_EXIST:"User already exist",
+    WRONG_PIN:"Wrong pin"
 };
