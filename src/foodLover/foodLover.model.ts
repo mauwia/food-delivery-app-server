@@ -3,10 +3,10 @@ import * as mongoose from "mongoose";
 export const FoodLoverSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
-  pinHash: { type: String },
+  pinHash: { type: String, default: null },
   location: { type: Array },
-  imageUrl: { type: String },
-  username: { type: String },
+  imageUrl: { type: String, default: null },
+  username: { type: String, default: null },
   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet"},
   verified: { type: Boolean, default: false },
   mobileRegisteredId: { type: String, required: true },
