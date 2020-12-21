@@ -12,7 +12,7 @@ import { ProfileModule } from './profile/profile.module';
   imports: [
     FoodLoverModule,
     MongooseModule.forRoot( `mongodb+srv://${process.env.MONGOOSE_PASSWORD}:nestonep@cluster0.arej3.mongodb.net/${process.env.MONGOOSE_DB_NAME}?retryWrites=true&w=majority`,{
-      useNewUrlParser:true,useUnifiedTopology:true,useCreateIndex:true
+      useNewUrlParser:true,useUnifiedTopology:true,useCreateIndex:true, useFindAndModify: false
     }),
     WalletModule,
     TwilioModule.forRoot({

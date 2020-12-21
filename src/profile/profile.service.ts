@@ -54,7 +54,7 @@ export class ProfileService {
             pinHash: pinHash || userProfile.pinHash,
             mobileRegisteredId: body.mobileRegisteredId || userProfile.mobileRegisteredId,
           }},
-          { returnNewDocument: false,
+          { new: true,
             fields: { passHash: 0, __v: 0 }
           },
         );
@@ -86,8 +86,9 @@ export class ProfileService {
         phoneNo: user.phoneNo,
       });
       if (userProfile) {
-        const passwordUpdateRes = await this.foodLoverModel.updateOne({ phoneNo: user.phoneNo }, { passHash: passwordHash });
-        return passwordUpdateRes;
+        userProfile.passHash = bcrypt.hashSync(body.password, 8);
+        await userProfile.save();
+        return { passwordUpdated: true };
       } else {
         throw PROFILE_MESSAGES.USER_NOT_FOUND
       }
