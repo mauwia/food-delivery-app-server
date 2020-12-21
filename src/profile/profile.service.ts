@@ -1,9 +1,9 @@
-import bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 import { Injectable, HttpStatus, HttpException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PROFILE_MESSAGES } from './constants/key-constants';
 import { FoodLover } from '../foodLover/foodLover.model';
+const bcrypt = require('bcryptjs');
 
 
 @Injectable()
@@ -60,6 +60,34 @@ export class ProfileService {
         );
         updatedProfile.pinHash = !!updatedProfile.pinHash
         return updatedProfile;
+      } else {
+        throw PROFILE_MESSAGES.USER_NOT_FOUND
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack)
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          msg: error,
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  async updatePassword(request) {
+    let { user, body }: { user: { phoneNo: string }, body: {
+      password: string,
+    } } = request;
+    let passwordHash = bcrypt.hashSync(body.password, 8)
+
+    try {
+      const userProfile = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (userProfile) {
+        const passwordUpdateRes = await this.foodLoverModel.updateOne({ phoneNo: user.phoneNo }, { passHash: passwordHash });
+        return passwordUpdateRes;
       } else {
         throw PROFILE_MESSAGES.USER_NOT_FOUND
       }
