@@ -29,7 +29,7 @@ export class WalletController {
     return response
   }
   @UseGuards(new JWTAuthGuard())
-  @Get('/getNoshifyContacts')
+  @Post('/getNoshifyContacts')
   async GetNoshifyContacts(@Req() req:Request){
     let response=await this.walletService.getNoshifyContacts(req)
     return response

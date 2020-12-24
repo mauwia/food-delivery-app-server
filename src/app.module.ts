@@ -14,12 +14,12 @@ import { ProfileModule } from './profile/profile.module';
     MongooseModule.forRoot( `mongodb+srv://${process.env.MONGOOSE_PASSWORD}:nestonep@cluster0.arej3.mongodb.net/${process.env.MONGOOSE_DB_NAME}?retryWrites=true&w=majority`,{
       useNewUrlParser:true,useUnifiedTopology:true,useCreateIndex:true, useFindAndModify: false
     }),
+    ProfileModule,
     WalletModule,
     TwilioModule.forRoot({
       accountSid:process.env.TWILIO_ACCOUNT_SID,
       authToken:process.env.TWILIO_AUTH_TOKEN,
     }),
-    ProfileModule
   ],
   controllers: [AppController],
   providers: [AppService],
