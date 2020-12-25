@@ -1,4 +1,4 @@
-export const FOOD_LOVER_MESSAGES = {
+export const FOOD_CREATOR_MESSAGES = {
     USER_NOT_FOUND:"User not found",
     INVALID_OTP:"Invalid OTP",
     OTP_EXPIRED:"OTP expired",

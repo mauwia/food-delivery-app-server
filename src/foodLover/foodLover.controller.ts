@@ -64,6 +64,12 @@ export class FoodLoverController {
     );
     return response;
   }
+  @UseGuards(new JWTAuthGuard())  
+  @Post("/verifyPin")
+  async VerifyPin(@Req() request:Request){
+    const response=await this.foodLoverService.verifyPin(request)
+    return response
+  }
   @UseGuards(new JWTAuthGuard())
   @Post("/createTransactionPin")
   async CreateTransactionPin(@Req() request: Request) {
