@@ -6,6 +6,7 @@ import { AppService } from "./app.service";
 import { FoodLoverModule } from "./foodLover/foodLover.module";
 import { WalletModule } from './wallet/wallet.module';
 import { ProfileModule } from './profile/profile.module';
+import { FoodCreatorModule } from './food-creator/food-creator.module';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { ProfileModule } from './profile/profile.module';
       accountSid:process.env.TWILIO_ACCOUNT_SID,
       authToken:process.env.TWILIO_AUTH_TOKEN,
     }),
+    FoodCreatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
