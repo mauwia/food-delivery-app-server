@@ -3,7 +3,7 @@ import { getModelToken } from "@nestjs/mongoose";
 import { FoodLoverController } from "./foodLover.controller";
 import * as bcrypt from "bcryptjs";
 import { FoodLoverService } from "./foodLover.service";
-import { Request, response } from "express";
+import { Request} from "express";
 import { TwilioModule } from "nestjs-twilio";
 import { WalletService } from "../wallet/wallet.service";
 let OTPToken

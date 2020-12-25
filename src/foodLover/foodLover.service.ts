@@ -18,12 +18,14 @@ export class FoodLoverService {
     private readonly walletService: WalletService
   ) {}
   OTP = [];
-  private logger=new Logger('Food Lover')
+  private logger = new Logger("Food Lover");
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
-      const userExist = await this.foodLoverModel.findOne({
-        phoneNo: req.phoneNo,
-      }).populate("walletId", "publicKey");
+      const userExist = await this.foodLoverModel
+        .findOne({
+          phoneNo: req.phoneNo,
+        })
+        .populate("walletId", "publicKey");
       if (!userExist) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_EXIST;
       }
@@ -39,23 +41,23 @@ export class FoodLoverService {
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
-          phoneNo:userExist.phoneNo,
+          phoneNo: userExist.phoneNo,
           createdAt: new Date(),
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-        userExist.pinHash=!!userExist.pinHash
+        userExist.pinHash = !!userExist.pinHash;
         userExist.passHash = "";
         return { user: userExist, token, code: OTPCode.CodeDigit };
       }
-      userExist.pinHash=!!userExist.pinHash
+      userExist.pinHash = !!userExist.pinHash;
       userExist.passHash = "";
       return {
         user: userExist,
         token,
       };
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.UNAUTHORIZED,
@@ -91,19 +93,19 @@ export class FoodLoverService {
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
-          phoneNo:user.phoneNo,
+          phoneNo: user.phoneNo,
           createdAt: new Date(),
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
-        user.pinHash=!!user.pinHash
+        user.pinHash = !!user.pinHash;
         user.passHash = "";
-        return { token, user,code: OTPCode.CodeDigit };
+        return { token, user, code: OTPCode.CodeDigit };
       } else {
         throw FOOD_LOVER_MESSAGES.USER_EXIST;
       }
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -125,7 +127,7 @@ export class FoodLoverService {
       UserInfo.passHash = "";
       return { user: UserInfo };
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -146,7 +148,11 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // let { otp } = req.body;
-        let checked = utils.checkExpiry(this.OTP, req.body.otp,UserInfo.phoneNo);
+        let checked = utils.checkExpiry(
+          this.OTP,
+          req.body.otp,
+          UserInfo.phoneNo
+        );
         // let check = await this.checkSmsVerification(
         //   UserInfo.phoneNo,
         //   otp,
@@ -171,7 +177,7 @@ export class FoodLoverService {
         error == FOOD_LOVER_MESSAGES.INVALID_OTP ||
         error == FOOD_LOVER_MESSAGES.OTP_EXPIRED
       ) {
-      this.logger.error(error,error.stack)
+        this.logger.error(error, error.stack);
         throw new HttpException(
           {
             status: HttpStatus.UNAUTHORIZED,
@@ -180,15 +186,14 @@ export class FoodLoverService {
           },
           HttpStatus.UNAUTHORIZED
         );
-      } else
-      this.logger.error(error,error.stack)
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            msg: error,
-          },
-          HttpStatus.NOT_FOUND
-        );
+      } else this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
   }
   async resendOTP_and_forgetPasswordOtp(req) {
@@ -201,18 +206,21 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // await this.sendSMS(user.phoneNo, req.body.codeLength);
-        let CodeDigit = req.body.codeLength==6?Math.floor(100000 + Math.random() * 900000):Math.floor(1000 + Math.random() * 9000);
-            let OTPCode = {
-              CodeDigit,
-              phoneNo:UserInfo.phoneNo,
-              createdAt: new Date(),
-              expiresAt: utils.expiryCodeGenerator(),
-            };
-            this.OTP.push(OTPCode);
-            return {code: OTPCode.CodeDigit }
+        let CodeDigit =
+          req.body.codeLength == 6
+            ? Math.floor(100000 + Math.random() * 900000)
+            : Math.floor(1000 + Math.random() * 9000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo: UserInfo.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
+        return { code: OTPCode.CodeDigit };
       }
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -237,7 +245,7 @@ export class FoodLoverService {
         return { passwordChanged: true };
       }
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -250,16 +258,16 @@ export class FoodLoverService {
   async getUserRegisteredDevice(req) {
     try {
       const UserInfo = await this.foodLoverModel.find({
-        mobileRegisteredId:req.body.mobileRegisteredId
+        mobileRegisteredId: req.body.mobileRegisteredId,
       });
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         // console.log(UserInfo)
-        return { mobileRegisteredId: UserInfo.length>0 };
+        return { mobileRegisteredId: UserInfo.length > 0 };
       }
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -283,13 +291,42 @@ export class FoodLoverService {
         let getBalance = await this.walletService.getBalance(
           wallet.createAccount.address
         );
-        UserInfo.walletId=wallet.wallet_id
+        UserInfo.walletId = wallet.wallet_id;
         await UserInfo.save();
-        delete wallet.wallet_id
-        return { message: "Pin Saved", createAccount:wallet.createAccount, getBalance };
+        delete wallet.wallet_id;
+        return {
+          message: "Pin Saved",
+          createAccount: wallet.createAccount,
+          getBalance,
+        };
       }
     } catch (error) {
-      this.logger.error(error,error.stack)
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+  async verifyPin(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      }
+      if (!bcrypt.compareSync(req.body.pin, UserInfo.pinHash))
+        return { verified: false };
+      else {
+        return { verified: true };
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
