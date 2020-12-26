@@ -9,6 +9,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet"},
   subscribers: { type: Array },
   onlineStatus:{type:Boolean},
+  verified:{type:Boolean,default:false},
   avgRating:{type:Number},
   mobileRegisteredId: { type: String, required: true },
 });
@@ -20,6 +21,7 @@ export interface FoodCreator {
   imageUrl: string;
   businessName: string;
   walletId:string;
+  verified:boolean;
   subscribers:[];
   onlineStatus:boolean;
   avgRating:Number;
