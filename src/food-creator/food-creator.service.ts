@@ -41,9 +41,11 @@ export class FoodCreatorService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
+        userExist.pinHash = !!userExist.pinHash;
         userExist.passHash = "";
         return { user: userExist, token, code: OTPCode.CodeDigit };
       }
+      userExist.pinHash = !!userExist.pinHash;
       userExist.passHash = "";
       return {
         user: userExist,
@@ -83,6 +85,7 @@ export class FoodCreatorService {
           expiresAt: utils.expiryCodeGenerator(),
         };
         this.OTP.push(OTPCode);
+        user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user, code: OTPCode.CodeDigit };
       } else {
