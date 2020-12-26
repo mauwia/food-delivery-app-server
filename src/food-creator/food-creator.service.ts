@@ -317,4 +317,29 @@ export class FoodCreatorService {
       );
     }
   }
+  async addImportantDetails(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      UserInfo.businessName=req.body.businessName
+      UserInfo.location.push(req.body.location)
+      await UserInfo.save()
+      return {message:"Info Saved"}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
 }

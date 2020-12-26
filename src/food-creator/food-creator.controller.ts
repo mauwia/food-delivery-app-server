@@ -78,4 +78,10 @@ export class FoodCreatorController {
     );
     return response;
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/addImportantDetails")
+  async AddImportantDetails(@Req() request:Request){
+    const response=await this.foodCreatorService.addImportantDetails(request)
+    return response
+  }
 }
