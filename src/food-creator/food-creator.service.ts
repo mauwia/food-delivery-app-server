@@ -342,4 +342,28 @@ export class FoodCreatorService {
       );
     }
   }
+  async toggleStatus(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      UserInfo.onlineStatus=!UserInfo.onlineStatus
+      await UserInfo.save()
+      return {status:UserInfo.onlineStatus}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
 }
