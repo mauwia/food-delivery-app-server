@@ -6,10 +6,16 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
 const bcrypt = require("bcryptjs");
-const { BncClient, rpc } = require("@binance-chain/javascript-sdk");
-const rpcclient = new rpc("http://data-seed-pre-2-s1.binance.org:80");
-const client = new BncClient(rpcclient);
-client.chooseNetwork("testnet");
+const { BncClient, rpc, crypto } = require('@binance-chain/javascript-sdk');
+const axios = require('axios');
+​
+const api = "https://testnet-dex.binance.org/";
+const bnbClient = new BncClient(api);
+const httpClient = axios.create({ baseURL: api });
+​
+bnbClient.chooseNetwork("testnet");
+bnbClient.initChain();
+
 @Injectable()
 export class WalletService {
   constructor(
@@ -22,7 +28,7 @@ export class WalletService {
   async createWallet() {
     // const client = new BncClient("https://bsc-dataseed.binance.org/");
     try {
-      const createAccount = await client.createAccount();
+      const createAccount = await bnbClient.createAccount();
       let encryptedPrivateKey = bcrypt.hashSync(createAccount.privateKey, 8);
       let newWallet = new this.walletModel({
         encryptedPrivateKey,
@@ -37,18 +43,15 @@ export class WalletService {
   }
   async getBalance(publicAddress) {
     try {
-      let balance = await rpcclient.getBalance(
+      let balance = await bnbClient.getBalance(
         // "tbnb1fdl8ra8dq69s3wnafl954fcxssxkj994kl68lu",
         // "tbnb1m77y2ckxth0v08n9nrkqj292cp03h980ek69e7",
         publicAddress,
         "BNB"
       );
-      console.log("a===>", balance);
       return balance;
     } catch (e) {
-      if (e.message == WALLET_MESSAGES.ZERO_BALANCE)
-        return { balance: 0 };
-      return e;
+        return e;
     }
   }
   async withdrawNoshies(req) {
@@ -121,6 +124,7 @@ export class WalletService {
           recieverWallet,
           amount
         );
+        // this.transferTokens(recieverPublicKey,amount,"BNB","test Message")
         senderAssets.amount = senderAssets.amount - amount;
         await senderWallet.save();
         await this.createTransaction({
@@ -138,6 +142,7 @@ export class WalletService {
           senderWallet
         };
       } else {
+        this.transferTokens(recieverPublicKey,amount,"BNB","test Message")
         recieverAssets.amount = recieverAssets.amount + +amount;
         senderAssets.amount = senderAssets.amount - amount;
         await recieverWallet.save();
@@ -366,28 +371,41 @@ export class WalletService {
     let transaction = await this.transactionsModel.create(newTransaction);
     return transaction;
   }
+  async transferTokens(addressTo,amount,asset,message){
+    let privKey = "424e682aafe805cb1e8816c658ab73110e722931f4413f3043a13b879c4c4b77";
+  
+    bnbClient.setPrivateKey(privKey);
+    console.log("here")
+    let addressFrom = crypto.getAddressFromPrivateKey(privKey);
+    console.log(addressFrom)
+    const sequenceURL = `${api}api/v1/account/${addressFrom}/sequence`;
+    
+    httpClient
+      .get(sequenceURL)
+      .then((res) => {
+        const sequence = res.data.sequence || 0
+        return bnbClient.transfer(
+          addressFrom,
+          addressTo,
+          amount,
+          asset,
+          message,
+          sequence
+        )
+      })
+      .then((result) => {
+        console.log(result)
+        if (result.status === 200) {
+          console.log("success", result.result[0].hash)
+        } else {
+          console.error("error", result)
+        }
+      })
+      .catch((error) => {
+        console.error("error", error)
+      })
+  
+  }
 }
 
-// (async () => {
-//   let a: any
-//   const b = await client.createAccount();
-//  try{  a = await rpcclient.getBalance(
-//     // "tbnb1fdl8ra8dq69s3wnafl954fcxssxkj994kl68lu",
-//     // "tbnb1m77y2ckxth0v08n9nrkqj292cp03h980ek69e7",
-//     b.address,
-//     "BNB"
-//   );
-//   console.log("a===>",a);
-// }catch(e){
-//       if(e.message=="Cannot read property 'address' of null")
-//       console.log("Wallet empty")
-//   }
-//   console.log('b===>',b);
-// })();
-// // Transfer Tokens
-// client.transfer(fromAddress, toAddress, amount, asset, memo, sequence);
-// // Orders
-// client.placeOrder(address, symbol, side, price, quantity, sequence);
-// client.cancelOrder(fromAddress, symbols, orderIds, refids, sequence);
-// // Get Account
-// client.getAccount(address);
+
