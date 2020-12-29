@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Req,UseGuards } from "@nestjs/common";
-import { Request } from "express";
+import { request, Request } from "express";
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { WalletService } from "./wallet.service";
 
@@ -15,6 +15,10 @@ export class WalletController {
   async GetBalance(@Req() request: Request) {
     let response = await this.walletService.getBalance(request.body.address);
     return response;
+  }
+  @Post("/sendToken")
+  async SendToken(@Req()request:Request){
+    let response=await this.walletService.transferTokens(request.body.addressTo,request.body.amount,'BNB',"any")
   }
   @UseGuards(new JWTAuthGuard())
   @Post("/sendNoshies")
