@@ -30,13 +30,13 @@ export const WalletSchema = new mongoose.Schema({
   encryptedPrivateKey: { type: String },
   assets: [TokenSchema],
 });
-export interface Wallet {
+export interface Wallet extends mongoose.Document {
   walletAddress: string;
   publicKey: string;
   encryptedPrivateKey: string;
-  assets: [];
+  assets: Array<Token>;
 }
-export interface Transactions {
+export interface Transactions  extends mongoose.Document {
   transactionType: string;
   from: string;
   to: string;
@@ -48,4 +48,11 @@ export interface Transactions {
   tokenAmountInUsd: number;
   gasFeeInUsd: number;
 //   walletId:string
+}
+export interface Token extends mongoose.Document{
+
+  tokenAddress: string;
+  tokenSymbol: string;
+  tokenName: string;
+  amount: number;
 }

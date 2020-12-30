@@ -8,6 +8,7 @@ export const OrdersSchema = new mongoose.Schema({
         enum:["New","Accepted","Being Prepared","Prepared","InTransit","Decline"],
         required:true
     },
+    orderId:{type:String},
     locationTo:{address:{type:String}},
     locationFrom:{address:{type:String}},
     orderBill:{type:Number},
@@ -18,12 +19,13 @@ export const OrdersSchema = new mongoose.Schema({
     // chatRoom
     orderedFood:{}
 });
-export interface Orders{
+export interface Orders extends mongoose.Document{
     foodCreatorId:string;
     foodLoverId:string;
     foodDeliveryId:string;
     orderStatus:string;
     locationTo:string;
+    orderId:string;
     locationFrom:string;
     orderBill:number;
     promoCode:string;
