@@ -105,7 +105,7 @@ export class FoodCreatorService {
   async getCreatorInfo(req) {
     try {
       let { user } = req;
-      console.log(user)
+      // console.log(user)
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });

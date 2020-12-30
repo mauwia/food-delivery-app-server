@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import { Wallet } from "src/wallet/wallet.model";
 
 export const FoodLoverSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
@@ -12,13 +13,14 @@ export const FoodLoverSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
 });
 
-export interface FoodLover {
+export interface FoodLover extends mongoose.Document {
   phoneNo: string;
   passHash: string;
   verified: boolean;
+  pinHash:string|boolean
   location: [];
   imageUrl: string;
   username: string;
-  walletId:string
+  walletId:{[key:string]: any};
   mobileRegisteredId: string;
 }
