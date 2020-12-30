@@ -29,3 +29,9 @@ export const checkExpiry = (otpArray, OTPCode,phoneNo) => {
     throw e;
   }
 };
+
+export const pad=(n,width)=>{
+  let z = '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}

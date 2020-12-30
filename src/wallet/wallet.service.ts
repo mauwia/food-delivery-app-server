@@ -324,10 +324,12 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let transactions = await this.transactionsModel.find({
+      let {walletId}=UserInfo
+      let {publicKey}=walletId
+      let transactions  = await this.transactionsModel.find({
         $or: [
-          { to: UserInfo.walletId.publicKey },
-          { from: UserInfo.walletId.publicKey },
+          { to: publicKey },
+          { from:publicKey },
         ],
       });
       if (req.params.assetId) {

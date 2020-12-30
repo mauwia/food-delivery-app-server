@@ -8,6 +8,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { ProfileModule } from './profile/profile.module';
 import { FoodCreatorModule } from './food-creator/food-creator.module';
 import { OrdersModule } from './orders/orders.module';
+import { AppGateway } from "./app.gateway";
 
 
 @Module({
@@ -26,6 +27,6 @@ import { OrdersModule } from './orders/orders.module';
     OrdersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,AppGateway],
 })
 export class AppModule {}
