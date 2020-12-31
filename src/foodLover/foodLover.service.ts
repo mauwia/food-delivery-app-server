@@ -287,16 +287,15 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        let wallet = await this.walletService.createWallet();
+        let getWallet = await this.walletService.createWallet();
         let getBalance = await this.walletService.getBalance(
-          wallet.createAccount.address
+          getWallet.wallet._id
         );
-        UserInfo.walletId = wallet.wallet_id;
+
+        UserInfo.walletId = getWallet.wallet._id;
         await UserInfo.save();
-        delete wallet.wallet_id;
         return {
-          message: "Pin Saved",
-          createAccount: wallet.createAccount,
+            message: "Pin Saved Your Current Balance Is 0",
           getBalance,
         };
       }
