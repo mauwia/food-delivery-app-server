@@ -29,27 +29,30 @@ export class WalletService {
     // const client = new BncClient("https://bsc-dataseed.binance.org/");
     try {
       const createAccount = await bnbClient.createAccount();
-      let encryptedPrivateKey = bcrypt.hashSync(createAccount.privateKey, 8);
-      let newWallet = new this.walletModel({
-        encryptedPrivateKey,
-        publicKey: createAccount.address,
-      });
+      let newWallet = new this.walletModel({});
       let wallet = await this.walletModel.create(newWallet);
-      return { createAccount, wallet_id: wallet._id };
+      return { createAccount, wallet };
     } catch (error) {
       this.logger.error(error,error.stack)
       return error;
     }
   }
-  async getBalance(publicAddress) {
+  async getBalance(wallet_id) {
     try {
-      let balance = await bnbClient.getBalance(
-        // "tbnb1fdl8ra8dq69s3wnafl954fcxssxkj994kl68lu",
-        // "tbnb1m77y2ckxth0v08n9nrkqj292cp03h980ek69e7",
-        publicAddress,
-        "BNB"
-      );
-      return balance;
+      let wallet=await this.walletModel.findById(wallet_id)
+      if(wallet.assets.length){
+        return wallet.assets[0].amount
+      }
+      else{
+        return 0
+      }
+      // let balance = await bnbClient.getBalance(
+      //   // "tbnb1fdl8ra8dq69s3wnafl954fcxssxkj994kl68lu",
+      //   // "tbnb1m77y2ckxth0v08n9nrkqj292cp03h980ek69e7",
+      //   publicAddress,
+      //   "BNB"
+      // );
+      // return balance;
     } catch (e) {
         return e;
     }
@@ -63,11 +66,9 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { publicKey, tokenName, amount } = req.body;
+      let {  tokenName, amount } = req.body;
       // console.log(publicKey);
-      let wallet = await this.walletModel.findOne({
-        publicKey: publicKey,
-      });
+      let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
         throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
       }
@@ -76,7 +77,7 @@ export class WalletService {
       await wallet.save();
       await this.createTransaction({
         transactionType: "Withdraw",
-        from: publicKey,
+        from: UserInfo.phoneNo,
         amount,
         currency: tokenName,
         message: "Test message",
@@ -102,16 +103,16 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { senderPublicKey, recieverPublicKey, amount, tokenName } = req.body;
-      let senderWallet = await this.walletModel.findOne({
-        publicKey: senderPublicKey,
+      let { recieverPhoneNo,amount, tokenName } = req.body;
+      let senderWallet = await this.walletModel.findById(UserInfo.walletId);
+      const RecieverInfo = await this.foodLoverModel.findOne({
+        phoneNo: recieverPhoneNo,
       });
-      let recieverWallet = await this.walletModel.findOne({
-        publicKey: recieverPublicKey,
-      });
+      let recieverWallet = await this.walletModel.findById(RecieverInfo.walletId);
       if (!senderWallet || !recieverWallet) {
         throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
       }
+      // console.log(recieverWallet,senderWallet)
       let senderAssets = senderWallet.assets.find(
         (asset) => asset.tokenName == tokenName
       );
@@ -129,8 +130,8 @@ export class WalletService {
         await senderWallet.save();
         await this.createTransaction({
           transactionType: "Send",
-          from: senderPublicKey,
-          to: recieverPublicKey,
+          from: UserInfo.phoneNo,
+          to: RecieverInfo.phoneNo,
           amount: amount,
           currency: tokenName,
           message: "Test Message",
@@ -142,15 +143,14 @@ export class WalletService {
           senderWallet
         };
       } else {
-        this.transferTokens(recieverPublicKey,amount,"BNB","test Message")
         recieverAssets.amount = recieverAssets.amount + +amount;
         senderAssets.amount = senderAssets.amount - amount;
         await recieverWallet.save();
         await senderWallet.save();
         await this.createTransaction({
           transactionType: "Send",
-          from: senderPublicKey,
-          to: recieverPublicKey,
+          from: UserInfo.phoneNo,
+          to: RecieverInfo.phoneNo,
           amount: amount,
           currency: tokenName,
           message: "Test Message",
@@ -198,7 +198,7 @@ export class WalletService {
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash")
-          .populate("walletId", "publicKey");
+          // .populate("walletId", "publicKey");
         if (user) {
           common.push(user);
         }
@@ -220,14 +220,17 @@ export class WalletService {
       let { user } = req;
       const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
-      });
+      }).populate('walletId');
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { publicKey, amount, tokenName } = req.body;
-      let wallet = await this.walletModel.findOne({
-        publicKey: publicKey,
-      });
+      console.log(UserInfo)
+      let {  amount, tokenName } = req.body;
+      let wallet = await this.walletModel.findById(
+        UserInfo.walletId
+      );
+      // let wallet=UserInfo.walletId.assets
+      // console.log(wallet)
       if (!wallet) {
         throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
       }
@@ -238,7 +241,7 @@ export class WalletService {
           let token = await this.createAsset(tokenName, wallet, amount);
           await this.createTransaction({
             transactionType: source,
-            from: publicKey,
+            from: UserInfo.phoneNo,
             amount,
             currency: tokenName,
             message: "Test message",
@@ -250,9 +253,10 @@ export class WalletService {
         }
         asset.amount = asset.amount + amount;
         wallet.save();
+        // console.log(wallet)
         await this.createTransaction({
           transactionType: source,
-          from: publicKey,
+          from: UserInfo.phoneNo,
           amount,
           currency: tokenName,
           message: "Test message",
@@ -265,7 +269,7 @@ export class WalletService {
         let token = await this.createAsset(tokenName, wallet, amount);
         await this.createTransaction({
           transactionType: source,
-          from: publicKey,
+          from: UserInfo.phoneNo,
           amount,
           currency: tokenName,
           message: "Test message",
@@ -320,16 +324,16 @@ export class WalletService {
         .findOne({
           phoneNo: user.phoneNo,
         })
-        .populate("walletId", "publicKey");
+        .populate("walletId");
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let {walletId}=UserInfo
-      let {publicKey}=walletId
+      // let {publicKey}=walletId
       let transactions  = await this.transactionsModel.find({
         $or: [
-          { to: publicKey },
-          { from:publicKey },
+          { to: UserInfo.phoneNo},
+          { from:UserInfo.phoneNo },
         ],
       });
       if (req.params.assetId) {
@@ -355,7 +359,7 @@ export class WalletService {
   async createAsset(tokenName, wallet, amount) {
     try {
       let token = {
-        tokenAddress: "0x1w0iew9e39r3",
+        tokenAddress: "NOSH",
         tokenSymbol: tokenName,
         tokenName,
         amount: parseInt(amount),
@@ -373,41 +377,7 @@ export class WalletService {
     let transaction = await this.transactionsModel.create(newTransaction);
     return transaction;
   }
-  async transferTokens(addressTo,amount,asset,message){
-    let privKey = "424e682aafe805cb1e8816c658ab73110e722931f4413f3043a13b879c4c4b77";
-  
-    bnbClient.setPrivateKey(privKey);
-    console.log("here")
-    let addressFrom = crypto.getAddressFromPrivateKey(privKey);
-    console.log(addressFrom)
-    const sequenceURL = `${api}api/v1/account/${addressFrom}/sequence`;
-    
-    httpClient
-      .get(sequenceURL)
-      .then((res) => {
-        const sequence = res.data.sequence || 0
-        return bnbClient.transfer(
-          addressFrom,
-          addressTo,
-          amount,
-          asset,
-          message,
-          sequence
-        )
-      })
-      .then((result) => {
-        console.log(result)
-        if (result.status === 200) {
-          console.log("success", result.result[0].hash)
-        } else {
-          console.error("error", result)
-        }
-      })
-      .catch((error) => {
-        console.error("error", error)
-      })
-  
-  }
+
 }
 
 

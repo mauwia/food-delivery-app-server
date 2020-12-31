@@ -16,10 +16,6 @@ export class WalletController {
     let response = await this.walletService.getBalance(request.body.address);
     return response;
   }
-  @Post("/sendToken")
-  async SendToken(@Req()request:Request){
-    let response=await this.walletService.transferTokens(request.body.addressTo,request.body.amount,'BNB',"any")
-  }
   @UseGuards(new JWTAuthGuard())
   @Post("/sendNoshies")
   async SendNoshies(@Req()req:Request){
