@@ -6,7 +6,7 @@ import { FoodLoverService } from "./foodLover.service";
 import { FoodLoverSchema } from "./foodLover.model";
 import { JwtModule } from "@nestjs/jwt/dist/jwt.module";
 import { JwtStrategy } from "./jwt/jwt.strategy";
-import { WalletModule } from "src/wallet/wallet.module";
+import { WalletModule } from "../wallet/wallet.module";
 
 @Module({
   imports: [

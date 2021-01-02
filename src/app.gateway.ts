@@ -13,7 +13,7 @@ import {
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
   @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
+  handleMessage( payload: string): void {
     console.log(payload)
    this.server.emit('msgToClient', payload);
   }

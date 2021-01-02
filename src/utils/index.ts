@@ -1,3 +1,13 @@
+const axios = require('axios');
+​
+const url = "https://testnet-dex.binance.org/";
+// const url = "https://dex.binance.org/";
+​
+// const address = 'bnb1zdq592rftg7m7pwavp4gtl7s622s3e8njqlf9r'
+// const address = 'tbnb1lj3d8nwd4x86c7j33hfk5nwj47v4h9sc8q8ghq'
+let address='tbnb10p25yqtm8ple4yeeqx5w6uvr3mcvn8sdca6zmx'
+​
+let changeableUrl = `${url}api/v1/transactions?address=${address}`
 export const expiryCodeGenerator = () => {
   let minutesToAdd = 5;
   let currentDate = new Date();
@@ -34,4 +44,13 @@ export const pad=(n,width)=>{
   let z = '0';
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+export const getTransactions=async()=> {
+  let res
+  await axios.get(changeableUrl)
+      .then((response) => {
+          console.log(response.data);
+          res=response.data
+      });
+      return res
 }

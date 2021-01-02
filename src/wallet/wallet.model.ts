@@ -10,7 +10,7 @@ const TokenSchema = new mongoose.Schema({
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
-    enum: ["Send", "Request", "Withdraw", "By_Card", "By_Bank"],
+    enum: ["Send", "Request", "Withdraw", "By_Card", "By_Bank","By_Crypto"],
     required: true,
   },
   from: { type: String },
