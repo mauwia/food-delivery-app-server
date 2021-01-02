@@ -41,13 +41,16 @@ export class WalletService {
     }
   }
   async checkTransaction(req) {
-    cron.schedule('* * * * * *', () => {
+    // cron.schedule('*/5 * * * * *', async () => {
       console.log('running a task every minute');
-    });
-    let transactions=await utils.getTransactions()
-    let tx=transactions.tx.find(trans=>trans.memo==req.memo)
-    this.appGatway.handleMessage('hello')
-    return tx
+      // let transactions=await utils.getTransactions()
+      // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
+      // this.appGatway.handleMessage('hello')
+    // });
+    // let transactions=await utils.getTransactions()
+    // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
+    // this.appGatway.handleMessage('hello')
+    // return tx
   }
   async getBalance(wallet_id) {
     try {
