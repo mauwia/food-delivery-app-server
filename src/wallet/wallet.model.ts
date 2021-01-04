@@ -10,13 +10,14 @@ const TokenSchema = new mongoose.Schema({
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
-    enum: ["Send", "Request", "Withdraw", "By_Card", "By_Bank"],
+    enum: ["Send", "Request", "Withdraw", "By_Card", "By_Bank","By_Crypto"],
     required: true,
   },
   from: { type: String },
   to: { type: String },
   amount: { type: Number },
   currency: { type: String },
+  status:{type:String},
   timeStamp: { type: String, default: Date.now() },
   message: { type: String },
   transactionHash: { type: String },
@@ -44,6 +45,7 @@ export interface Transactions  extends mongoose.Document {
   currency: string;
   timeStamp: string;
   message: string;
+  status:string;
   transactionHash: string;
   tokenAmountInUsd: number;
   gasFeeInUsd: number;

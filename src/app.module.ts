@@ -27,6 +27,6 @@ import { AppGateway } from "./app.gateway";
     OrdersModule,
   ],
   controllers: [AppController],
-  providers: [AppService,AppGateway],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -6,6 +6,7 @@ import { TransactionsSchema, WalletSchema } from "./wallet.model";
 import { WalletService } from "./wallet.service";
 import { JwtStrategy } from "../foodLover/jwt/jwt.strategy";
 import { FoodLoverSchema} from "../foodLover/foodLover.model";
+import { AppGateway } from "../app.gateway";
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { FoodLoverSchema} from "../foodLover/foodLover.model";
     }),
   ],
   controllers: [WalletController],
-  providers: [WalletService, JwtStrategy],
+  providers: [WalletService, JwtStrategy,AppGateway],
   exports: [WalletService],
 })
 export class WalletModule {}
