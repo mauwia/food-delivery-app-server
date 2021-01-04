@@ -262,6 +262,7 @@ export class WalletService {
     // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
     // this.appGatway.handleMessage('hello')
     // return tx
+    return pendingTransaction
   }
   async payWithCrypto(req,pendingTransaction) {
     try {

@@ -17,6 +17,7 @@ import {
   private logger: Logger = new Logger('AppGateway');
   handleMessage(to: string, transaction: any): void {
   //  this.server.emit(payload.phoneNo, payload);
+  console.log(to,transaction)
   this.server
       .to(this.onlineUsers[to].socketId)
       .emit('recieve-transaction', transaction);
