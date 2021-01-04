@@ -247,8 +247,8 @@ export class WalletService {
         if (f) {
           console.log("he")
           console.log('111',req.user)
-          this.payWithCrypto(req,pendingTransaction)
-          this.appGatway.handleMessage(UserInfo.phoneNo,{msg:"SUCCESS"});
+          let response=await this.payWithCrypto(req,pendingTransaction)
+          this.appGatway.handleMessage(UserInfo.phoneNo,{response});
           f=0
         }
         console.log(tx);
@@ -292,7 +292,7 @@ export class WalletService {
           };
         }
         //if  NOSH asset exist
-        asset.amount = asset.amount + amount;
+        asset.amount = asset.amount + +amount;
         wallet.save();
         // console.log(wallet)
         let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
