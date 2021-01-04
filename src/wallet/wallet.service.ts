@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Logger } from "@nestjs/common";
 // import{ BncClient, rpc } from "@binance-chain/javascript-sdk";
-import * as utils from '../utils'
+import * as utils from "../utils";
 var cron = require("node-cron");
 
 import { Wallet, Transactions } from "./wallet.model";
@@ -25,7 +25,7 @@ export class WalletService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Transactions")
     private readonly transactionsModel: Model<Transactions>,
-    private readonly appGatway:AppGateway
+    private readonly appGatway: AppGateway
   ) {}
   private logger = new Logger("Wallet");
   async createWallet() {
@@ -40,18 +40,7 @@ export class WalletService {
       return error;
     }
   }
-  async checkTransaction(req) {
-    // cron.schedule('*/5 * * * * *', async () => {
-      console.log('running a task every minute');
-      // let transactions=await utils.getTransactions()
-      // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
-      // this.appGatway.handleMessage('hello')
-    // });
-    // let transactions=await utils.getTransactions()
-    // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
-    // this.appGatway.handleMessage('hello')
-    // return tx
-  }
+  
   async getBalance(wallet_id) {
     try {
       let wallet = await this.walletModel.findById(wallet_id);
@@ -94,7 +83,7 @@ export class WalletService {
         from: UserInfo.phoneNo,
         amount,
         currency: tokenName,
-        message: "Test message",
+        message:"",
       });
       return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
@@ -117,7 +106,7 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { receiverPhoneNo, amount, tokenName } = req.body;
+      let { receiverPhoneNo, amount, tokenName,message } = req.body;
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
       const ReceiverInfo = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
@@ -150,7 +139,7 @@ export class WalletService {
           to: ReceiverInfo.phoneNo,
           amount: amount,
           currency: tokenName,
-          message: "Test Message",
+          message,
         });
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -169,7 +158,7 @@ export class WalletService {
           to: ReceiverInfo.phoneNo,
           amount: amount,
           currency: tokenName,
-          message: "Test Message",
+          message,
         });
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -231,7 +220,50 @@ export class WalletService {
       );
     }
   }
-  async payWithCrypto(req) {
+  async checkTransaction(req) {
+    let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+    let pendingTransaction=await this.createTransaction({
+      transactionType: "By_Crypto",
+      from: UserInfo.phoneNo,
+      amount:req.body.amount,
+      currency: req.body.tokenName,
+      message: "Test message",
+      status:"PENDING"
+    });
+    let f=0
+    let task = cron.schedule("*/10 * * * * *", async () => {
+      console.log("running a task every 10 sec");
+      let transactions = await utils.getTransactions();
+      let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
+      console.log(tx)
+      if (tx) {
+        console.log("here")
+        if (f) {
+          console.log("he")
+          console.log('111',req.user)
+          this.payWithCrypto(req,pendingTransaction)
+          this.appGatway.handleMessage(UserInfo.phoneNo,{msg:"SUCCESS"});
+          f=0
+        }
+        console.log(tx);
+        task.stop();  
+      } else {
+        console.log("No transaction");
+        tx++
+      }
+    });
+    // let transactions=await utils.getTransactions()
+    // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
+    // this.appGatway.handleMessage('hello')
+    // return tx
+  }
+  async payWithCrypto(req,pendingTransaction) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -239,9 +271,6 @@ export class WalletService {
           phoneNo: user.phoneNo,
         })
         .populate("walletId");
-      if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
-      }
       let { amount, tokenName } = req.body;
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
@@ -250,43 +279,34 @@ export class WalletService {
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
+        //if asset exist but not NOSH one
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
-          await this.createTransaction({
-            transactionType: "By_Crypto",
-            from: UserInfo.phoneNo,
-            amount,
-            currency: tokenName,
-            message: "Test message",
-          });
+          let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
+          successTransaction.status="SUCCESSFUL"
+          await successTransaction.save()
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: token.amount,
           };
         }
+        //if  NOSH asset exist
         asset.amount = asset.amount + amount;
         wallet.save();
         // console.log(wallet)
-        await this.createTransaction({
-          transactionType: "By_Crypto",
-          from: UserInfo.phoneNo,
-          amount,
-          currency: tokenName,
-          message: "Test message",
-        });
+        let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
+          successTransaction.status="SUCCESSFUL"
+          await successTransaction.save()
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
         };
       } else {
+        // if no assets exist
         let token = await this.createAsset(tokenName, wallet, amount);
-        await this.createTransaction({
-          transactionType: "By_Crypto",
-          from: UserInfo.phoneNo,
-          amount,
-          currency: tokenName,
-          message: "Test message",
-        });
+        let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
+        successTransaction.status="SUCCESSFULL"
+        await successTransaction.save()
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: token.amount,
@@ -390,6 +410,9 @@ export class WalletService {
         .populate("walletId");
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      if(!UserInfo.walletId){
+        return {assets:[{tokenName:"NOSH",amount:0}]}
       }
       // console.log(UserInfo)
       return { assets: UserInfo.walletId.assets };

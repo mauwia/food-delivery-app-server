@@ -16,9 +16,10 @@ export class WalletController {
     let response = await this.walletService.getBalance(request.body.address);
     return response;
   }
-  @Get('/checkTransaction')
+  @UseGuards(new JWTAuthGuard())
+  @Post('/checkTransaction')
   async CheckTransaction(@Req() request:Request){
-    let response = await this.walletService.checkTransaction(request.body);
+    let response = await this.walletService.checkTransaction(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
