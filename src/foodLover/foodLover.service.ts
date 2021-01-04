@@ -291,7 +291,7 @@ export class FoodLoverService {
         let getBalance = await this.walletService.getBalance(
           getWallet.wallet._id
         );
-
+        // console.log(getWallet.wallet._id)
         UserInfo.walletId = getWallet.wallet._id;
         await UserInfo.save();
         return {
