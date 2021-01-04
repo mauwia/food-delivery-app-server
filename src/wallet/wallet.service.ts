@@ -236,7 +236,7 @@ export class WalletService {
       message: "Test message",
       status:"PENDING"
     });
-    let f=0
+    let f=1
     let task = cron.schedule("*/10 * * * * *", async () => {
       console.log("running a task every 10 sec");
       let transactions = await utils.getTransactions();
