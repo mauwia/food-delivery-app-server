@@ -341,9 +341,11 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { requestedTophoneNo, amount, message, tokenName } = req.body;
+      //Receiving Info of user to which we requested NOSH
       let requestReceiverUser = await this.foodLoverModel.findOne({
         phoneNo: requestedTophoneNo,
       });
+      //Wallet of user to which we requested NOSH
       let requestReceiverWallet = await this.walletModel.findById(
         requestReceiverUser.walletId
       );
@@ -356,6 +358,7 @@ export class WalletService {
         message,
         status: "PENDING",
       });
+      //PUSHING Request of NOSH in Wallet Schema of Request Receiver
       requestReceiverWallet.requestReceivedForNoshies.push({
         phoneNo: user.phoneNo,
         walletId: UserInfo.walletId,
@@ -389,16 +392,19 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { transactionId, action } = req.body;
+      //Wallet of User that will approve/decline  NOSH request
       let wallet = await this.walletModel.findById(UserInfo.walletId);
+      //Taking out thatt request from wallet which is going to be approve or reject 
       let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
         (request) => {
           return request.transactionId.toString() === transactionId;
         }
       );
+      //Deleting request in pending request array
       let newList = wallet.requestReceivedForNoshies.filter((request) => {
         return request.transactionId.toString() !== transactionId;
       });
-
+      //taking out that transaction which need approval
       let transaction = await this.transactionsModel.findById(transactionId);
       if (action === "ACCEPTED") {
         let receiverWallet = await this.walletModel.findById(
@@ -411,8 +417,8 @@ export class WalletService {
         let receiverAssets = receiverWallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
-        console.log('RRRRRRRRRR',receiverAssets,senderAssets)
         if (!receiverAssets) {
+          //IF ASSET NOSH NOT EXIST
           let newReceiverAsset = await this.createAsset(
             pendingNoshRequest.tokenName,
             receiverWallet,
@@ -433,6 +439,7 @@ export class WalletService {
             wallet,
           };
         } else {
+          //IF ASSET NOSH EXIST
           receiverAssets.amount =
             receiverAssets.amount + +pendingNoshRequest.amount;
           senderAssets.amount = senderAssets.amount - pendingNoshRequest.amount;
@@ -589,14 +596,14 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { walletId } = UserInfo;
+      // let { walletId } = UserInfo;
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
       });
-      if (req.params.assetId) {
-        let { assetId } = req.params;
+      if (req.body.transactionType) {
+        let { transactionType } = req.params;
         transactions = transactions.filter(
-          (transaction) => transaction.currency == assetId
+          (transaction) => transaction.transactionType == transactionType
         );
         return { transactions };
       }
