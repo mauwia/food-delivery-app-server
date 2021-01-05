@@ -80,9 +80,15 @@ export class WalletController {
     return response
   }
   @UseGuards(new JWTAuthGuard())
-  @Post('/getTransactionsByType')
+  @Get('/getTransactionsByAsset/:assetId')
   async GetAllTransactionsByAssets(@Req() req:Request){
     let response=await this.walletService.getTransactions(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get('/getAllRequest')
+  async GetTransactionOfRequest(@Req() req:Request){
+    let response=await this.walletService.getTransactionOfRequest(req)
     return response
   }
 }

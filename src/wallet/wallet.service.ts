@@ -584,6 +584,37 @@ export class WalletService {
       );
     }
   }
+  async getTransactionOfRequest(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let transactions = await this.transactionsModel.find({
+        $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
+      });
+        transactions = transactions.filter(
+          (transaction) => transaction.transactionType == "Noshies Request"
+        );
+        return { transactions };
+      
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async getTransactions(req) {
     try {
       // console.log(req.params)
@@ -596,14 +627,14 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      // let { walletId } = UserInfo;
+      let { walletId } = UserInfo;
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
       });
-      if (req.body.transactionType) {
-        let { transactionType } = req.params;
+      if (req.params.assetId) {
+        let { assetId } = req.params;
         transactions = transactions.filter(
-          (transaction) => transaction.transactionType == transactionType
+          (transaction) => transaction.currency == assetId
         );
         return { transactions };
       }
