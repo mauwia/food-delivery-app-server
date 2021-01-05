@@ -15,12 +15,17 @@ import {
   onlineUsers: { [key: string]: any } = {};
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
-  handleMessage(to: string, transaction: any): void {
+  handleReceiveTransaction(to: string, transaction: any): void {
   //  this.server.emit(payload.phoneNo, payload);
-  console.log(to,transaction)
+  // console.log(to,transaction)
   this.server
       .to(this.onlineUsers[to].socketId)
-      .emit('recieve-transaction', transaction);
+      .emit('receive-transaction', transaction);
+  }
+  handleRequestNoshies(to:string,transaction:any):void {
+    this.server
+      .to(this.onlineUsers[to].socketId)
+      .emit('noshies-request', transaction);
   }
   @SubscribeMessage('user-online')
   setUserOnline(client: Socket, payload: string): void {
@@ -41,6 +46,6 @@ import {
    this.logger.log(`Client connected: ${client.id}`);
    this.server
       .to(client.id)
-      .emit('newClientId',client.id);   
+      .emit('new-client-id',client.id);   
   }
  }
