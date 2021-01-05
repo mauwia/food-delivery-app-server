@@ -20,12 +20,12 @@ import {
   // console.log(to,transaction)
   this.server
       .to(this.onlineUsers[to].socketId)
-      .emit('recieve-transaction', transaction);
+      .emit('receive-transaction', transaction);
   }
   handleRequestNoshies(to:string,transaction:any):void {
     this.server
       .to(this.onlineUsers[to].socketId)
-      .emit('noshiesRequest', transaction);
+      .emit('noshies-request', transaction);
   }
   @SubscribeMessage('user-online')
   setUserOnline(client: Socket, payload: string): void {
@@ -46,6 +46,6 @@ import {
    this.logger.log(`Client connected: ${client.id}`);
    this.server
       .to(client.id)
-      .emit('newClientId',client.id);   
+      .emit('new-client-id',client.id);   
   }
  }
