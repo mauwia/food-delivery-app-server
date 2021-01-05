@@ -248,7 +248,7 @@ export class WalletService {
           console.log("he");
           console.log("111", req.user);
           let response = await this.payWithCrypto(req, pendingTransaction);
-          this.appGatway.handleMessage(UserInfo.phoneNo, { response });
+          this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, { response });
           f = 0;
         }
         console.log(tx);
@@ -365,6 +365,7 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
+      this.appGatway.handleRequestNoshies(requestedTophoneNo,transaction)
       return { message: "REQUEST SEND" };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -400,12 +401,10 @@ export class WalletService {
 
       let transaction = await this.transactionsModel.findById(transactionId);
       if (action === "ACCEPTED") {
-        console.log('ppenndddii',pendingNoshRequest)
         let receiverWallet = await this.walletModel.findById(
           pendingNoshRequest.walletId
         );
-        console.log('AAAAAAAAAAAaa',receiverWallet);
-        console.log("WWWWWWWWWW",wallet)
+
         let senderAssets = wallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
@@ -424,7 +423,9 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           transaction.status = action;
           await wallet.save();
-          await transaction.save();
+          let updatedTransaction=await transaction.save();
+          this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
+
           return {
             message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
             // senderAmount: senderAssets.amount,
@@ -439,7 +440,8 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           await receiverWallet.save();
           await wallet.save();
-          await transaction.save();
+          let updatedTransaction=await transaction.save();
+          this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
           return {
             message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
             // senderAmount: senderAssets.amount,
@@ -452,7 +454,8 @@ export class WalletService {
         transaction.status = action;
         wallet.requestReceivedForNoshies = newList;
         await wallet.save();
-        await transaction.save();
+        let updatedTransaction=await transaction.save();
+        this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
         return {
           message: "Transaction decline",
         };
