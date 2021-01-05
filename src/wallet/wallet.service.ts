@@ -40,7 +40,7 @@ export class WalletService {
       return error;
     }
   }
-  
+
   async getBalance(wallet_id) {
     try {
       let wallet = await this.walletModel.findById(wallet_id);
@@ -73,17 +73,17 @@ export class WalletService {
       // console.log(publicKey);
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
-        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
       }
       let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
       asset.amount = asset.amount - amount;
       await wallet.save();
       await this.createTransaction({
-        transactionType: "Withdraw",
+        transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
         amount,
         currency: tokenName,
-        message:"",
+        message: "",
       });
       return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
@@ -106,7 +106,7 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { receiverPhoneNo, amount, tokenName,message } = req.body;
+      let { receiverPhoneNo, amount, tokenName, message } = req.body;
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
       const ReceiverInfo = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
@@ -115,7 +115,7 @@ export class WalletService {
         ReceiverInfo.walletId
       );
       if (!senderWallet || !receiverWallet) {
-        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
       }
       // console.log(receiverWallet,senderWallet)
       let senderAssets = senderWallet.assets.find(
@@ -134,7 +134,7 @@ export class WalletService {
         senderAssets.amount = senderAssets.amount - amount;
         await senderWallet.save();
         await this.createTransaction({
-          transactionType: "Send",
+          transactionType: "Sent Noshies",
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -153,7 +153,7 @@ export class WalletService {
         await receiverWallet.save();
         await senderWallet.save();
         await this.createTransaction({
-          transactionType: "Send",
+          transactionType: "Sent Noshies",
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -222,49 +222,49 @@ export class WalletService {
   }
   async checkTransaction(req) {
     let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
-        phoneNo: user.phoneNo,
-      });
-      if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
-      }
-    let pendingTransaction=await this.createTransaction({
-      transactionType: "By_Crypto",
+    const UserInfo = await this.foodLoverModel.findOne({
+      phoneNo: user.phoneNo,
+    });
+    if (!UserInfo) {
+      throw WALLET_MESSAGES.USER_NOT_FOUND;
+    }
+    let pendingTransaction = await this.createTransaction({
+      transactionType: "Bought Noshies By Crypto",
       from: UserInfo.phoneNo,
-      amount:req.body.amount,
+      amount: req.body.amount,
       currency: req.body.tokenName,
       message: "Test message",
-      status:"PENDING"
+      status: "PENDING",
     });
-    let f=1
+    let f = 1;
     let task = cron.schedule("*/10 * * * * *", async () => {
       console.log("running a task every 10 sec");
       let transactions = await utils.getTransactions();
       let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
-      console.log(tx)
+      console.log(tx);
       if (tx) {
-        console.log("here")
+        console.log("here");
         if (f) {
-          console.log("he")
-          console.log('111',req.user)
-          let response=await this.payWithCrypto(req,pendingTransaction)
-          this.appGatway.handleMessage(UserInfo.phoneNo,{response});
-          f=0
+          console.log("he");
+          console.log("111", req.user);
+          let response = await this.payWithCrypto(req, pendingTransaction);
+          this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, { response });
+          f = 0;
         }
         console.log(tx);
-        task.stop();  
+        task.stop();
       } else {
         console.log("No transaction");
-        tx++
+        tx++;
       }
     });
     // let transactions=await utils.getTransactions()
     // let tx=transactions.tx.find(trans=>trans.memo==req.memo)
     // this.appGatway.handleMessage('hello')
     // return tx
-    return pendingTransaction
+    return pendingTransaction;
   }
-  async payWithCrypto(req,pendingTransaction) {
+  async payWithCrypto(req, pendingTransaction) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -275,7 +275,7 @@ export class WalletService {
       let { amount, tokenName } = req.body;
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
-        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
       }
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
@@ -283,9 +283,11 @@ export class WalletService {
         //if asset exist but not NOSH one
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
-          let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
-          successTransaction.status="SUCCESSFUL"
-          await successTransaction.save()
+          let successTransaction = await this.transactionsModel.findById(
+            pendingTransaction._id
+          );
+          successTransaction.status = "SUCCESSFUL";
+          await successTransaction.save();
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: token.amount,
@@ -295,9 +297,11 @@ export class WalletService {
         asset.amount = asset.amount + +amount;
         wallet.save();
         // console.log(wallet)
-        let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
-          successTransaction.status="SUCCESSFUL"
-          await successTransaction.save()
+        let successTransaction = await this.transactionsModel.findById(
+          pendingTransaction._id
+        );
+        successTransaction.status = "SUCCESSFUL";
+        await successTransaction.save();
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
@@ -305,9 +309,11 @@ export class WalletService {
       } else {
         // if no assets exist
         let token = await this.createAsset(tokenName, wallet, amount);
-        let successTransaction=await this.transactionsModel.findById(pendingTransaction._id)
-        successTransaction.status="SUCCESSFULL"
-        await successTransaction.save()
+        let successTransaction = await this.transactionsModel.findById(
+          pendingTransaction._id
+        );
+        successTransaction.status = "SUCCESSFULL";
+        await successTransaction.save();
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: token.amount,
@@ -325,6 +331,155 @@ export class WalletService {
       );
     }
   }
+  async requestNoshies(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let { requestedTophoneNo, amount, message, tokenName } = req.body;
+      //Receiving Info of user to which we requested NOSH
+      let requestReceiverUser = await this.foodLoverModel.findOne({
+        phoneNo: requestedTophoneNo,
+      });
+      //Wallet of user to which we requested NOSH
+      let requestReceiverWallet = await this.walletModel.findById(
+        requestReceiverUser.walletId
+      );
+      let transaction = await this.createTransaction({
+        transactionType: "Noshies Request",
+        from: UserInfo.phoneNo,
+        to: requestedTophoneNo,
+        amount,
+        currency: tokenName,
+        message,
+        status: "PENDING",
+      });
+      //PUSHING Request of NOSH in Wallet Schema of Request Receiver
+      requestReceiverWallet.requestReceivedForNoshies.push({
+        phoneNo: user.phoneNo,
+        walletId: UserInfo.walletId,
+        amount,
+        message,
+        tokenName,
+        transactionId: transaction._id,
+      });
+      await requestReceiverWallet.save();
+      this.appGatway.handleRequestNoshies(requestedTophoneNo,transaction)
+      return { message: "REQUEST SEND" };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+  async approveRequest(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let { transactionId, action } = req.body;
+      //Wallet of User that will approve/decline  NOSH request
+      let wallet = await this.walletModel.findById(UserInfo.walletId);
+      //Taking out thatt request from wallet which is going to be approve or reject 
+      let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
+        (request) => {
+          return request.transactionId.toString() === transactionId;
+        }
+      );
+      //Deleting request in pending request array
+      let newList = wallet.requestReceivedForNoshies.filter((request) => {
+        return request.transactionId.toString() !== transactionId;
+      });
+      //taking out that transaction which need approval
+      let transaction = await this.transactionsModel.findById(transactionId);
+      if (action === "ACCEPTED") {
+        let receiverWallet = await this.walletModel.findById(
+          pendingNoshRequest.walletId
+        );
+
+        let senderAssets = wallet.assets.find(
+          (asset) => asset.tokenName == pendingNoshRequest.tokenName
+        );
+        let receiverAssets = receiverWallet.assets.find(
+          (asset) => asset.tokenName == pendingNoshRequest.tokenName
+        );
+        if (!receiverAssets) {
+          //IF ASSET NOSH NOT EXIST
+          let newReceiverAsset = await this.createAsset(
+            pendingNoshRequest.tokenName,
+            receiverWallet,
+            pendingNoshRequest.amount
+          );
+          // this.transferTokens(receiverPublicKey,amount,"BNB","test Message")
+          senderAssets.amount = senderAssets.amount - pendingNoshRequest.amount;
+          wallet.requestReceivedForNoshies = newList;
+          transaction.status = action;
+          await wallet.save();
+          let updatedTransaction=await transaction.save();
+          this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
+
+          return {
+            message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
+            // senderAmount: senderAssets.amount,
+            // receiverAmount: newReceiverAsset.amount,
+            wallet,
+          };
+        } else {
+          //IF ASSET NOSH EXIST
+          receiverAssets.amount =
+            receiverAssets.amount + +pendingNoshRequest.amount;
+          senderAssets.amount = senderAssets.amount - pendingNoshRequest.amount;
+          transaction.status = action;
+          wallet.requestReceivedForNoshies = newList;
+          await receiverWallet.save();
+          await wallet.save();
+          let updatedTransaction=await transaction.save();
+          this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
+          return {
+            message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
+            // senderAmount: senderAssets.amount,
+            // receiverAmount: receiverAssets.amount,
+            wallet,
+          };
+        }
+      }
+      if (action === "DECLINED") {
+        transaction.status = action;
+        wallet.requestReceivedForNoshies = newList;
+        await wallet.save();
+        let updatedTransaction=await transaction.save();
+        this.appGatway.handleRequestNoshies(pendingNoshRequest.phoneNo,updatedTransaction)
+        return {
+          message: "Transaction decline",
+        };
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+
   async addNoshiesByCard(req, source) {
     try {
       let { user } = req;
@@ -342,7 +497,7 @@ export class WalletService {
       // let wallet=UserInfo.walletId.assets
       // console.log(wallet)
       if (!wallet) {
-        throw WALLET_MESSAGES.PUBLIC_KEY_NOT_FOUND;
+        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
       }
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
@@ -412,14 +567,45 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      if(!UserInfo.walletId){
-        return {assets:[{tokenName:"NOSH",amount:0}]}
+      if (!UserInfo.walletId) {
+        return { assets: [{ tokenName: "NOSH", amount: 0 }] };
       }
       // console.log(UserInfo)
       return { assets: UserInfo.walletId.assets };
     } catch (error) {
       this.logger.error(error, error.stack);
       // console.log(error)
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
+  async getTransactionOfRequest(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+      if (!UserInfo) {
+        throw WALLET_MESSAGES.USER_NOT_FOUND;
+      }
+      let transactions = await this.transactionsModel.find({
+        $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
+      });
+        transactions = transactions.filter(
+          (transaction) => transaction.transactionType == "Noshies Request"
+        );
+        return { transactions };
+      
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -442,7 +628,6 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { walletId } = UserInfo;
-      // let {publicKey}=walletId
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
       });

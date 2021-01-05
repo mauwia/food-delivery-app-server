@@ -10,7 +10,7 @@ const TokenSchema = new mongoose.Schema({
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
-    enum: ["Send", "Request", "Withdraw", "By_Card", "By_Bank","By_Crypto"],
+    enum: ["Sent Noshies", "Noshies Request", "Withdrawal to Bank", "Bought Noshies By Card", "Bought Noshies By Bank","Bought Noshies By Crypto"],
     required: true,
   },
   from: { type: String },
@@ -30,12 +30,14 @@ export const WalletSchema = new mongoose.Schema({
   publicKey: { type: String },
   encryptedPrivateKey: { type: String },
   assets: [TokenSchema],
+  requestReceivedForNoshies:{type:Array}
 });
 export interface Wallet extends mongoose.Document {
   walletAddress: string;
   publicKey: string;
   encryptedPrivateKey: string;
   assets: Array<Token>;
+  requestReceivedForNoshies:Array<any>;
 }
 export interface Transactions  extends mongoose.Document {
   transactionType: string;
