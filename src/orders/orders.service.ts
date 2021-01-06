@@ -96,6 +96,9 @@ export class OrdersService {
       );
     }
   }
+  async getOrderHistory(req){
+    
+  }
   async checkPromo(req) {
     try {
       let { user } = req;

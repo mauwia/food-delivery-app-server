@@ -397,28 +397,34 @@ export class WalletService {
       //Wallet of User that will approve/decline  NOSH request
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       //Taking out thatt request from wallet which is going to be approve or reject 
+      console.log(wallet)
       let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
         (request) => {
           return request.transactionId.toString() === transactionId;
         }
       );
+      console.log(pendingNoshRequest)
       //Deleting request in pending request array
       let newList = wallet.requestReceivedForNoshies.filter((request) => {
         return request.transactionId.toString() !== transactionId;
       });
+      console.log(newList)
       //taking out that transaction which need approval
       let transaction = await this.transactionsModel.findById(transactionId);
+      console.log(transaction)
       if (action === "ACCEPTED") {
         let receiverWallet = await this.walletModel.findById(
           pendingNoshRequest.walletId
         );
-
+          console.log(receiverWallet)
         let senderAssets = wallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
+        console.log(senderAssets)
         let receiverAssets = receiverWallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
+        console.log(receiverAssets)
         if (!receiverAssets) {
           //IF ASSET NOSH NOT EXIST
           let newReceiverAsset = await this.createAsset(
