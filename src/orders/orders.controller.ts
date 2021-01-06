@@ -17,4 +17,10 @@ export class OrdersController {
     let response = this.ordersService.checkPromo(request);
     return response;
   }
+  @UseGuards(new JWTAuthGuard())
+  @Get('/getOrders')
+  async GetOrders(@Req() request:Request){
+    let response=this.ordersService.getOrders(request)
+    return response
+    }
 }
