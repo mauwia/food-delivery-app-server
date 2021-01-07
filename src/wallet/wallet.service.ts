@@ -308,19 +308,7 @@ export class WalletService {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
         };
-      } else {
-        // if no assets exist
-        let token = await this.createAsset(tokenName, wallet, amount);
-        let successTransaction = await this.transactionsModel.findById(
-          pendingTransaction._id
-        );
-        successTransaction.status = "SUCCESSFULL";
-        await successTransaction.save();
-        return {
-          message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-          totalAmount: token.amount,
-        };
-      }
+      } 
     } catch (error) {
       this.logger.error(error, error.stack);
       console.log(error);

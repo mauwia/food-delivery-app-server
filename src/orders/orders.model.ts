@@ -16,6 +16,7 @@ export const OrdersSchema = new mongoose.Schema({
     timeTaken:{type: String, default: Date.now()},
     promoCode:{type:String},
     deliveryCharges:{type:Number},
+    timestamp:{type:String,default:Date.now()},
     // chatRoom
     orderedFood:{type:Object}
 });
@@ -24,6 +25,7 @@ export interface Orders extends mongoose.Document{
     foodLoverId:string;
     foodDeliveryId:string;
     orderStatus:string;
+    timestamp:string;
     locationTo:string;
     orderId:string;
     locationFrom:string;

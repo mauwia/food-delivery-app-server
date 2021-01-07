@@ -96,8 +96,63 @@ export class OrdersService {
       );
     }
   }
+  async updateOrderStatus(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "USER_NOT_FOUND";
+      }
+      let {orderID,status}=req.body
+      let order=await this.ordersModel.findById(orderID)
+      order.orderStatus=status
+      let updatedOrder=await order.save()
+      return {updatedOrder}
+
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async getOrderHistory(req){
-    
+    try{
+      let {user}=req;
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "USER_NOT_FOUND";
+      }
+      const resultsPerPage = 3;
+      let  page = req.params.page >= 1 ? req.params.page : 1;
+      page = page - 1 
+      let Orders = await this.ordersModel.find({
+         foodCreatorId: UserInfo._id 
+      }).sort({orderId:"desc"})
+      .limit(resultsPerPage)
+      .skip(resultsPerPage*page)
+      return { Orders }
+
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
   }
   async checkPromo(req) {
     try {

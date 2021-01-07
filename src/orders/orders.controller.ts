@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { OrdersService } from "./orders.service";
 import { request, Request } from "express";
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
@@ -23,4 +23,17 @@ export class OrdersController {
     let response=this.ordersService.getOrders(request)
     return response
     }
+  @UseGuards (new JWTAuthGuard())
+  @Get('/getOrdersHistory/:page')
+  async GetOrdersHistory(@Req() request:Request){
+    let response=this.ordersService.getOrderHistory(request)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Put('/updateOrderStatus')
+  async UpdateOrderStatus(@Req() request:Request){
+    let response=this.ordersService.updateOrderStatus(request)
+    return response
+  }
+  
 }

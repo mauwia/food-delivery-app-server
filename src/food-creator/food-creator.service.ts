@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { WalletService } from "src/wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
@@ -12,7 +13,8 @@ dotenv.config();
 export class FoodCreatorService {
   constructor(
     @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    private readonly walletService:WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -275,10 +277,15 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        
-        await UserInfo.save();
+        let getWallet = await this.walletService.createWallet();
+        let getBalance = await this.walletService.getBalance(
+          getWallet.wallet._id
+        );
+        // console.log(getWallet.wallet._id)
+        UserInfo.walletId = getWallet.wallet._id;
         return {
-          message: "Pin Saved",
+            message: "Pin Saved Your Current Balance Is 0",
+          getBalance,
         };
       }
     } catch (error) {

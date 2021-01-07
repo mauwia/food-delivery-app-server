@@ -5,6 +5,8 @@ export const FoodLoverSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String, default: null },
+  countryCode:{type:String},
+  countryName:{type:String},
   location: { type: Array },
   imageUrl: { type: String, default: null },
   username: { type: String, default: null },
@@ -17,7 +19,9 @@ export interface FoodLover extends mongoose.Document {
   phoneNo: string;
   passHash: string;
   verified: boolean;
-  pinHash:string|boolean
+  pinHash:string|boolean;
+  countryCode:string;
+  countryName:string;
   location: [];
   imageUrl: string;
   username: string;
