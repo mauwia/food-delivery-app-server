@@ -27,6 +27,16 @@ import {
       .to(this.onlineUsers[to].socketId)
       .emit('noshies-request', transaction);
   }
+  handleApproveRequestNoshies(to:string,transaction:any):void {
+    this.server
+      .to(this.onlineUsers[to].socketId)
+      .emit('approve-noshies-request', transaction);
+  }
+  handlesendNoshies(to:string,transaction:any):void {
+    this.server
+      .to(this.onlineUsers[to].socketId)
+      .emit('send-noshies', transaction);
+  }
   @SubscribeMessage('user-online')
   setUserOnline(client: Socket, payload: string): void {
     const data = JSON.parse(payload);
