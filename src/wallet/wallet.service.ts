@@ -9,6 +9,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
+import { FoodCreator } from "src/food-creator/food-creator.model";
 // const bcrypt = require("bcryptjs");
 // const { BncClient, rpc, crypto } = require("@binance-chain/javascript-sdk");
 const axios = require("axios");
@@ -25,6 +26,7 @@ export class WalletService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Transactions")
     private readonly transactionsModel: Model<Transactions>,
+    @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
     private readonly appGatway: AppGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -100,17 +102,27 @@ export class WalletService {
   async sendNoshies(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
+      let UserInfo:any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if(!UserInfo){
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { receiverPhoneNo, amount, tokenName, message } = req.body;
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
-      const ReceiverInfo = await this.foodLoverModel.findOne({
+      let ReceiverInfo:any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
       });
+      if(!ReceiverInfo){
+         ReceiverInfo = await this.foodCreatorModel.findOne({
+          phoneNo: receiverPhoneNo,
+        });
+      }
       let receiverWallet = await this.walletModel.findById(
         ReceiverInfo.walletId
       );
