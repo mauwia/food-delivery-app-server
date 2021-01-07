@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { FoodLover } from "src/foodLover/foodLover.model";
 import { WalletService } from "src/wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
@@ -14,6 +15,8 @@ export class FoodCreatorService {
   constructor(
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("FoodLover")
+    private readonly foodLoverModel:Model<FoodLover>,
     private readonly walletService:WalletService
   ) {}
   OTP = [];
@@ -66,10 +69,16 @@ export class FoodCreatorService {
   }
   async signupCreator(req) {
     try {
-      const uniqueNumber = await this.foodCreatorModel.findOne({
+      let uniqueNumber = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
       });
-      if (!uniqueNumber) {
+      let uniqueNumberInLover
+      if(!uniqueNumber){
+          uniqueNumberInLover=await this.foodLoverModel.findOne({
+          phoneNo: req.phoneNo,
+        })
+      }
+      if (!uniqueNumber && !uniqueNumberInLover) {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
         const newUser = new this.foodCreatorModel(req);

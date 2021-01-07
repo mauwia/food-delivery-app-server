@@ -6,6 +6,7 @@ import { FoodLover } from "./foodLover.model";
 import { FOOD_LOVER_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
+import { FoodCreator } from "src/food-creator/food-creator.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -14,6 +15,7 @@ dotenv.config();
 export class FoodLoverService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
+    @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
@@ -78,8 +80,14 @@ export class FoodLoverService {
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });
+      let uniqueNumberInCreator
+      if(!uniqueNumber){
+        uniqueNumberInCreator=await this.foodCreatorModel.findOne({
+          phoneNo:req.phoneNo
+        })
+      }
       // console.log(uniqueNumber)
-      if (!uniqueNumber) {
+      if (!uniqueNumber && !uniqueNumberInCreator) {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
 
