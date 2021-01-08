@@ -9,6 +9,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
+import { FoodCreator } from "src/food-creator/food-creator.model";
 // const bcrypt = require("bcryptjs");
 // const { BncClient, rpc, crypto } = require("@binance-chain/javascript-sdk");
 const axios = require("axios");
@@ -25,6 +26,7 @@ export class WalletService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Transactions")
     private readonly transactionsModel: Model<Transactions>,
+    @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
     private readonly appGatway: AppGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -100,17 +102,28 @@ export class WalletService {
   async sendNoshies(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
+      let UserInfo:any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if(!UserInfo){
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { receiverPhoneNo, amount, tokenName, message } = req.body;
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
-      const ReceiverInfo = await this.foodLoverModel.findOne({
+      let ReceiverInfo:any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
       });
+      if(!ReceiverInfo){
+         ReceiverInfo = await this.foodCreatorModel.findOne({
+          phoneNo: receiverPhoneNo,
+        });
+      }
+      console.log(ReceiverInfo)
       let receiverWallet = await this.walletModel.findById(
         ReceiverInfo.walletId
       );
@@ -257,7 +270,7 @@ export class WalletService {
         task.stop();
       } else {
         console.log("No transaction");
-        tx++;
+        // tx++;
       }
     });
     // let transactions=await utils.getTransactions()
@@ -308,19 +321,7 @@ export class WalletService {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
         };
-      } else {
-        // if no assets exist
-        let token = await this.createAsset(tokenName, wallet, amount);
-        let successTransaction = await this.transactionsModel.findById(
-          pendingTransaction._id
-        );
-        successTransaction.status = "SUCCESSFULL";
-        await successTransaction.save();
-        return {
-          message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-          totalAmount: token.amount,
-        };
-      }
+      } 
     } catch (error) {
       this.logger.error(error, error.stack);
       console.log(error);
@@ -397,28 +398,34 @@ export class WalletService {
       //Wallet of User that will approve/decline  NOSH request
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       //Taking out thatt request from wallet which is going to be approve or reject 
+      console.log(wallet)
       let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
         (request) => {
           return request.transactionId.toString() === transactionId;
         }
       );
+      console.log(pendingNoshRequest)
       //Deleting request in pending request array
       let newList = wallet.requestReceivedForNoshies.filter((request) => {
         return request.transactionId.toString() !== transactionId;
       });
+      console.log(newList)
       //taking out that transaction which need approval
       let transaction = await this.transactionsModel.findById(transactionId);
+      console.log(transaction)
       if (action === "ACCEPTED") {
         let receiverWallet = await this.walletModel.findById(
           pendingNoshRequest.walletId
         );
-
+          console.log(receiverWallet)
         let senderAssets = wallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
+        console.log(senderAssets)
         let receiverAssets = receiverWallet.assets.find(
           (asset) => asset.tokenName == pendingNoshRequest.tokenName
         );
+        console.log(receiverAssets)
         if (!receiverAssets) {
           //IF ASSET NOSH NOT EXIST
           let newReceiverAsset = await this.createAsset(
