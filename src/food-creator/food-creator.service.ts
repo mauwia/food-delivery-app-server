@@ -292,6 +292,7 @@ export class FoodCreatorService {
         );
         // console.log(getWallet.wallet._id)
         UserInfo.walletId = getWallet.wallet._id;
+        await UserInfo.save()
         return {
             message: "Pin Saved Your Current Balance Is 0",
           getBalance,

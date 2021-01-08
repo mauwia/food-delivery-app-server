@@ -123,6 +123,7 @@ export class WalletService {
           phoneNo: receiverPhoneNo,
         });
       }
+      console.log(ReceiverInfo)
       let receiverWallet = await this.walletModel.findById(
         ReceiverInfo.walletId
       );
