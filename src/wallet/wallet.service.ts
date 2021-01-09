@@ -322,9 +322,8 @@ export class WalletService {
           );
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
-          return {
-            successTransaction
-          };
+          return  successTransaction
+        ;
         }
         //if  NOSH asset exist
         asset.amount = asset.amount + +amount;
@@ -335,9 +334,8 @@ export class WalletService {
         );
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
-        return {
-          successTransaction
-        };
+        return successTransaction
+        
       }
     } catch (error) {
       this.logger.error(error, error.stack);
