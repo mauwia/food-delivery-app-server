@@ -323,8 +323,7 @@ export class WalletService {
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
           return {
-            message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-            totalAmount: token.amount,
+            successTransaction
           };
         }
         //if  NOSH asset exist
@@ -337,8 +336,7 @@ export class WalletService {
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
         return {
-          message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-          totalAmount: asset.amount,
+          successTransaction
         };
       }
     } catch (error) {
