@@ -7,6 +7,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   pinHash:{type:String},
   location: { type: Array },
   imageUrl: { type: String, default: null },
+  countryCode:{type:String},
+  countryName:{type:String},
   businessName: { type: String, default: null },
   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet"},
   subscribers: { type: Array },
@@ -23,6 +25,8 @@ export interface FoodCreator extends mongoose.Document {
   location: Array<string>;
   imageUrl: string;
   businessName: string;
+  countryCode:{type:String},
+  countryName:{type:String},
   walletId:string;
   verified:boolean;
   pinHash:boolean;

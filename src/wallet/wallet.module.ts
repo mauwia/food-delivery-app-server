@@ -7,6 +7,7 @@ import { WalletService } from "./wallet.service";
 import { JwtStrategy } from "../foodLover/jwt/jwt.strategy";
 import { FoodLoverSchema} from "../foodLover/foodLover.model";
 import { AppGateway } from "../app.gateway";
+import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AppGateway } from "../app.gateway";
       { name: "Wallet", schema: WalletSchema },
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "Transactions", schema: TransactionsSchema },
+      {name:"FoodCreator",schema:FoodCreatorSchema}
     ]),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

@@ -9,6 +9,7 @@ import { ProfileModule } from './profile/profile.module';
 import { FoodCreatorModule } from './food-creator/food-creator.module';
 import { OrdersModule } from './orders/orders.module';
 import { AppGateway } from "./app.gateway";
+import { MenuModule } from './menu/menu.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { AppGateway } from "./app.gateway";
     }),
     FoodCreatorModule,
     OrdersModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],
