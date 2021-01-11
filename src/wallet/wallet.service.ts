@@ -213,12 +213,14 @@ export class WalletService {
       // ];
       // console.log(numb)
       const common = [];
+      console.log(contacts.length)
       for (let i = 0; i < contacts.length; i++) {
         const user = await this.foodLoverModel
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash");
+          console.log(i,user)
         // .populate("walletId", "publicKey");
         if (user) {
           common.push(user);

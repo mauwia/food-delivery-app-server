@@ -60,17 +60,18 @@ export class MenuService {
     }
   }
   async addMenuItem(req) {
-    let { user } = req;
+    try{let { user } = req;
     const UserInfo = await this.foodCreatorModel.findOne({
       phoneNo: user.phoneNo,
     });
     if (!UserInfo) {
-      throw "USER_NOT_FOUND";
+      throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
     }
     let { menuName, menuItem } = req.body;
     let menu = await this.menuModel.findOne({
       $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
     });
+    
     if (menu) {
       let newMenuItem = new this.menuItemsModel(menuItem);
       let MenuItem = await this.menuItemsModel.create(newMenuItem);
@@ -78,17 +79,77 @@ export class MenuService {
       await menu.save();
       return { MenuItem };
     }
+    else{
+      throw { msg: "MENU_NOT_FOUND", status: HttpStatus.NOT_FOUND };
+    }
+  }catch(error){
+    this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+  }
   }
   async deleteMenu(req) {
     try {
       let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
-      phoneNo: user.phoneNo,
-    });
-    if (!UserInfo) {
-      throw "USER_NOT_FOUND";
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
+      }
+      let { menuName } = req.body;
+      let deletedMenu = await this.menuModel.findOneAndDelete({
+        $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
+      });
+      console.log(deletedMenu);
+      return { message: "Menu Deleted" };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
     }
-    let {menuName}=req.body
-    } catch (error) {}
+  }
+  async editMenuItem(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
+      }
+      let {menuId,imageUrls,itemName,description,preparationTime,price,discount}=req.body
+      let menuItem=await this.menuItemsModel.findById(menuId)
+      let updatedMenuItem=await this.menuItemsModel.findOneAndUpdate({_id:menuId},{
+        $set:{
+          imageUrls:imageUrls||menuItem.imageUrls,
+          itemName:itemName||menuItem.itemName,
+          description:description||menuItem.description,
+          preparationTime:preparationTime||menuItem.preparationTime,
+          price:price||menuItem.price,
+          discount:discount||menuItem.discount
+        }
+      })
+      return {message:"WALLET UPDATED"}
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
   }
 }
