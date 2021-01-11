@@ -269,8 +269,7 @@ export class WalletService {
           if (
             parseFloat(req.body.bnb) <=parseFloat(tx.value)
           ) {
-            let response = await this.payWithCrypto(req, pendingTransaction);
-            response.transactionHash=tx.txHash
+            let response = await this.payWithCrypto(req, pendingTransaction,tx.txHash);
             this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
               response,
             });
@@ -301,7 +300,7 @@ export class WalletService {
     // return tx
     return pendingTransaction;
   }
-  async payWithCrypto(req, pendingTransaction) {
+  async payWithCrypto(req, pendingTransaction,txHash) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -323,6 +322,7 @@ export class WalletService {
           let successTransaction = await this.transactionsModel.findById(
             pendingTransaction._id
           );
+          successTransaction.transactionHash=txHash
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
           return  successTransaction
@@ -335,6 +335,7 @@ export class WalletService {
         let successTransaction = await this.transactionsModel.findById(
           pendingTransaction._id
         );
+        successTransaction.transactionHash=txHash
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
         return successTransaction
