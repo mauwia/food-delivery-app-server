@@ -30,5 +30,11 @@ export class MenuController {
         let response=await this.menuService.editMenuItem(request)
         return response
     }
+    @UseGuards(new JWTAuthGuard())
+    @Get('/getMenu/:creatorID')
+    async getMenuWithCreatorID(@Req() request:Request){
+        let response=await this.menuService.getMenuWithCreatorId(request)
+        return response
+    }
 
 }

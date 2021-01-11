@@ -257,6 +257,7 @@ export class WalletService {
     let f = 1;
     let task = cron.schedule("*/10 * * * * *", async () => {
       console.log("running a task every 10 sec");
+      console.log("USER",UserInfo.phoneNo)
       let transactions = await utils.getTransactions();
       let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
       // console.log("=========>" , parseFloat(req.body.bnb) <=parseFloat(tx.value),0.00046900<=0.00136900);
@@ -269,7 +270,7 @@ export class WalletService {
             parseFloat(req.body.bnb) <=parseFloat(tx.value)
           ) {
             let response = await this.payWithCrypto(req, pendingTransaction);
-  
+            response.transactionHash=tx.txHash
             this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
               response,
             });

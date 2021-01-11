@@ -93,6 +93,26 @@ export class MenuService {
       );
   }
   }
+  async getMenuWithCreatorId(req){
+    try{
+    let { user } = req;
+    let UserInfo:any = await this.foodCreatorModel.findOne({
+      phoneNo: user.phoneNo,
+    });
+    if(!UserInfo)
+    UserInfo=await this.foodLoverModel.findOne({
+      phoneNo:user.phoneNo
+    })
+    if (!UserInfo) {
+      throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
+    }
+      let menu=await this.menuModel.find({foodCreatorId:req.params.creatorID}).populate("menuItems")
+      return {menu}
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
   async deleteMenu(req) {
     try {
       let { user } = req;

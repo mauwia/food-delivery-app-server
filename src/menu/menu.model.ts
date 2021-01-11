@@ -2,7 +2,7 @@ import * as mongoose from "mongoose";
 
 export const MenuSchema=new mongoose.Schema({
     foodCreatorId:{type:mongoose.Schema.Types.ObjectId,ref:"FoodCreator"},
-    menuItems:[{type:mongoose.Schema.Types.ObjectId,ref:"MenuItem"}],
+    menuItems:[{type:mongoose.Schema.Types.ObjectId,ref:"MenuItems"}],
     menuName:{type:String}
     
 })
