@@ -170,13 +170,21 @@ export class FoodLoverService {
         //   validated: check.valid,
         //   message: check.status,
         // };
+        console.log(checked)
         if (!checked.validated) {
           throw checked.message;
         } else {
           if (req.user) {
             UserInfo.verified = req.user ? true : false;
+            let getWallet = await this.walletService.createWallet();
+            let getBalance = await this.walletService.getBalance(
+              getWallet.wallet._id
+            );
+            // console.log(getWallet.wallet._id)
+            UserInfo.walletId = getWallet.wallet._id;
           }
           await UserInfo.save();
+          console.log(UserInfo.walletId)
           return checked;
         }
       }
@@ -295,16 +303,11 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        let getWallet = await this.walletService.createWallet();
-        let getBalance = await this.walletService.getBalance(
-          getWallet.wallet._id
-        );
-        // console.log(getWallet.wallet._id)
-        UserInfo.walletId = getWallet.wallet._id;
+      
         await UserInfo.save();
         return {
             message: "Pin Saved Your Current Balance Is 0",
-          getBalance,
+        
         };
       }
     } catch (error) {
