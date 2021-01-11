@@ -10,6 +10,7 @@ import { FoodCreatorModule } from './food-creator/food-creator.module';
 import { OrdersModule } from './orders/orders.module';
 import { AppGateway } from "./app.gateway";
 import { MenuModule } from './menu/menu.module';
+import { ChatModule } from './chat/chat.module';
 
 
 @Module({
@@ -27,6 +28,7 @@ import { MenuModule } from './menu/menu.module';
     FoodCreatorModule,
     OrdersModule,
     MenuModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
