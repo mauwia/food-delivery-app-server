@@ -213,12 +213,14 @@ export class WalletService {
       // ];
       // console.log(numb)
       const common = [];
+      console.log(contacts.length)
       for (let i = 0; i < contacts.length; i++) {
         const user = await this.foodLoverModel
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash");
+          console.log(i,user)
         // .populate("walletId", "publicKey");
         if (user) {
           common.push(user);
@@ -255,6 +257,7 @@ export class WalletService {
     let f = 1;
     let task = cron.schedule("*/10 * * * * *", async () => {
       console.log("running a task every 10 sec");
+      console.log("USER",UserInfo.phoneNo)
       let transactions = await utils.getTransactions();
       let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
       // console.log("=========>" , parseFloat(req.body.bnb) <=parseFloat(tx.value),0.00046900<=0.00136900);
@@ -266,8 +269,7 @@ export class WalletService {
           if (
             parseFloat(req.body.bnb) <=parseFloat(tx.value)
           ) {
-            let response = await this.payWithCrypto(req, pendingTransaction);
-  
+            let response = await this.payWithCrypto(req, pendingTransaction,tx.txHash);
             this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
               response,
             });
@@ -298,7 +300,7 @@ export class WalletService {
     // return tx
     return pendingTransaction;
   }
-  async payWithCrypto(req, pendingTransaction) {
+  async payWithCrypto(req, pendingTransaction,txHash) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -320,6 +322,7 @@ export class WalletService {
           let successTransaction = await this.transactionsModel.findById(
             pendingTransaction._id
           );
+          successTransaction.transactionHash=txHash
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
           return  successTransaction
@@ -332,6 +335,7 @@ export class WalletService {
         let successTransaction = await this.transactionsModel.findById(
           pendingTransaction._id
         );
+        successTransaction.transactionHash=txHash
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
         return successTransaction
