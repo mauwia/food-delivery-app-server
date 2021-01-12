@@ -54,3 +54,7 @@ export const getTransactions=async()=> {
       });
       return res
 }
+export const bnbToNosh =async ()=>{
+    let bnbToUsd=await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd")
+    console.log(bnbToUsd)
+  }

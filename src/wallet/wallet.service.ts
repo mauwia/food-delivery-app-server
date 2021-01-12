@@ -278,6 +278,7 @@ export class WalletService {
             let failedTransaction = await this.transactionsModel.findById(
               pendingTransaction._id
             );
+            failedTransaction.transactionHash=tx.txHash
             failedTransaction.status = "FAILED";
             console.log(failedTransaction.status)
             failedTransaction.save();

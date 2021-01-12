@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { pad } from './utils';
+import { pad,bnbToNosh } from './utils';
 
 @Injectable()
 export class AppService {
@@ -7,10 +7,12 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
-  getUniqueNumber(){
+  getUniqueNumber = async ()=>{
+    // await bnbToNosh()
     let incrementOrder= +this.uniqueNumber+1
     // console.log(incrementOrder)
     this.uniqueNumber= pad(incrementOrder,this.uniqueNumber.length)
-    return {uniqueNumber:this.uniqueNumber}
+    let date=Date.now()
+    return {uniqueNumber:date.toString().substr(4)}
   }
 }
