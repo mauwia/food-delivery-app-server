@@ -8,10 +8,10 @@ export class AppService {
     return 'Hello World!';
   }
   getUniqueNumber = async ()=>{
-    // await bnbToNosh()
-    let incrementOrder= +this.uniqueNumber+1
-    // console.log(incrementOrder)
-    this.uniqueNumber= pad(incrementOrder,this.uniqueNumber.length)
+    await bnbToNosh()
+    // let incrementOrder= +this.uniqueNumber+1
+    // // console.log(incrementOrder)
+    // this.uniqueNumber= pad(incrementOrder,this.uniqueNumber.length)
     let date=Date.now()
     return {uniqueNumber:date.toString().substr(4)}
   }
