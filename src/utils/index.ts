@@ -54,3 +54,10 @@ export const getTransactions=async()=> {
       });
       return res
 }
+export const bnbToNosh =async ()=>{
+    let bnbToUsd=await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd")
+    let UsdToNGN=await axios.get("https://free.currconv.com/api/v7/convert?q=NGN_USD&compact=ultra&apiKey=43b461102cb29d164c9b")
+    let conversion=bnbToUsd.data.binancecoin.usd/UsdToNGN.data.NGN_USD
+    // console.log(conversion*0.2)
+    return conversion
+  }

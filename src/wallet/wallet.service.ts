@@ -260,32 +260,16 @@ export class WalletService {
       console.log("USER",UserInfo.phoneNo)
       let transactions = await utils.getTransactions();
       let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
-      // console.log("=========>" , parseFloat(req.body.bnb) <=parseFloat(tx.value),0.00046900<=0.00136900);
       console.log(tx);
       if (tx) {
         console.log("here");
         if (f) {
           // if(parseFloat(req.body.bnb))
-          if (
-            parseFloat(req.body.bnb) <=parseFloat(tx.value)
-          ) {
-            let response = await this.payWithCrypto(req, pendingTransaction,tx.txHash);
+            let response = await this.payWithCrypto(req, pendingTransaction,tx);
             this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
               response,
             });
             f = 0;
-          } else {
-            let failedTransaction = await this.transactionsModel.findById(
-              pendingTransaction._id
-            );
-            failedTransaction.status = "FAILED";
-            console.log(failedTransaction.status)
-            failedTransaction.save();
-            this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
-              response: failedTransaction,
-            });
-            f = 0;
-          }
         }
         console.log(tx);
         task.stop();
@@ -300,7 +284,7 @@ export class WalletService {
     // return tx
     return pendingTransaction;
   }
-  async payWithCrypto(req, pendingTransaction,txHash) {
+  async payWithCrypto(req, pendingTransaction,tx) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -308,7 +292,7 @@ export class WalletService {
           phoneNo: user.phoneNo,
         })
         .populate("walletId");
-      let { amount, tokenName } = req.body;
+      let { tokenName } = req.body;
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
         throw WALLET_MESSAGES.WALLET_NOT_FOUND;
@@ -317,12 +301,15 @@ export class WalletService {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
         //if asset exist but not NOSH one
+        let converted=await utils.bnbToNosh()
+        let amount=tx.value*converted
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
           let successTransaction = await this.transactionsModel.findById(
             pendingTransaction._id
           );
-          successTransaction.transactionHash=txHash
+          successTransaction.amount=amount
+          successTransaction.transactionHash=tx.txHash
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
           return  successTransaction
@@ -335,7 +322,7 @@ export class WalletService {
         let successTransaction = await this.transactionsModel.findById(
           pendingTransaction._id
         );
-        successTransaction.transactionHash=txHash
+        successTransaction.transactionHash=tx.txHash
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
         return successTransaction
@@ -547,6 +534,7 @@ export class WalletService {
             amount,
             currency: tokenName,
             message: "Test message",
+            status:"ACCEPTED"
           });
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -562,6 +550,7 @@ export class WalletService {
           amount,
           currency: tokenName,
           message: "Test message",
+          status:"ACCEPTED"
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -575,6 +564,7 @@ export class WalletService {
           amount,
           currency: tokenName,
           message: "Test message",
+          status:"ACCEPTED"
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
