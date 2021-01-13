@@ -78,9 +78,12 @@ export class FoodCreatorService {
           phoneNo: req.phoneNo,
         })
       }
+      
       if (!uniqueNumber && !uniqueNumberInLover) {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
+        // const denver = { type: 'Point', coordinates: [-104.9903, 39.7392] };
+        // req.location=denver
         const newUser = new this.foodCreatorModel(req);
         const user = await this.foodCreatorModel.create(newUser);
         const token = jwt.sign(

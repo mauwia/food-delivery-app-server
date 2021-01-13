@@ -22,7 +22,16 @@ export class MenuService {
     if (!UserInfo) {
       throw "USER_NOT_FOUND";
     }
-    let foodCreator = await this.foodCreatorModel.find({});
+    let {long,latt}=req.body
+    let foodCreator = await this.foodCreatorModel.find({location: {
+      $near: {
+       $maxDistance: 1000,
+       $geometry: {
+        type: "Point",
+        coordinates: [long, latt]
+       }
+      }
+     }});
     return { foodCreator };
   }
   async addMenu(req) {

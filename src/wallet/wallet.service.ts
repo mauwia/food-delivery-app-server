@@ -72,7 +72,7 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { tokenName, amount } = req.body;
+      let { tokenName, amount,timeStamp } = req.body;
       // console.log(publicKey);
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
@@ -82,6 +82,7 @@ export class WalletService {
       asset.amount = asset.amount - amount;
       await wallet.save();
       await this.createTransaction({
+        timeStamp,
         transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
         amount,
@@ -114,7 +115,7 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { receiverPhoneNo, amount, tokenName, message } = req.body;
+      let { receiverPhoneNo, amount, tokenName, message,timeStamp } = req.body;
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
       let ReceiverInfo: any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
@@ -149,6 +150,7 @@ export class WalletService {
         await senderWallet.save();
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
+          timeStamp,
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -169,6 +171,7 @@ export class WalletService {
         await senderWallet.save();
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
+          timeStamp,
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -249,6 +252,7 @@ export class WalletService {
     let  fiveMinutesFromNow = new Date().getTime() + 300000;
     
     let pendingTransaction = await this.createTransaction({
+      timeStamp:req.body.timeStamp,
       transactionType: "Bought Noshies By Crypto",
       from: UserInfo.phoneNo,
       amount: req.body.amount,
@@ -358,7 +362,7 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      let { requestedTophoneNo, amount, message, tokenName } = req.body;
+      let { requestedTophoneNo, amount, message, tokenName,timeStamp } = req.body;
       //Receiving Info of user to which we requested NOSH
       let requestReceiverUser = await this.foodLoverModel.findOne({
         phoneNo: requestedTophoneNo,
@@ -369,6 +373,7 @@ export class WalletService {
       );
       let transaction = await this.createTransaction({
         transactionType: "Noshies Request",
+        timeStamp,
         from: UserInfo.phoneNo,
         to: requestedTophoneNo,
         amount,
@@ -525,7 +530,7 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       // console.log(UserInfo)
-      let { amount, tokenName } = req.body;
+      let { amount, tokenName,timeStamp } = req.body;
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       // let wallet=UserInfo.walletId.assets
       // console.log(wallet)
@@ -539,11 +544,12 @@ export class WalletService {
           let token = await this.createAsset(tokenName, wallet, amount);
           await this.createTransaction({
             transactionType: source,
+            timeStamp,
             from: UserInfo.phoneNo,
             amount,
             currency: tokenName,
             message: "Test message",
-            status:"ACCEPTED"
+            status:"SUCCESSFULL"
           });
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -555,11 +561,12 @@ export class WalletService {
         // console.log(wallet)
         await this.createTransaction({
           transactionType: source,
+          timeStamp,
           from: UserInfo.phoneNo,
           amount,
           currency: tokenName,
           message: "Test message",
-          status:"ACCEPTED"
+          status:"SUCCESSFUL"
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -570,10 +577,11 @@ export class WalletService {
         await this.createTransaction({
           transactionType: source,
           from: UserInfo.phoneNo,
+          timeStamp,
           amount,
           currency: tokenName,
           message: "Test message",
-          status:"ACCEPTED"
+          status:"SUCCESSFULL"
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
