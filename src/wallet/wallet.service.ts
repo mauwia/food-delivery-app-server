@@ -246,10 +246,13 @@ export class WalletService {
     if (!UserInfo) {
       throw WALLET_MESSAGES.USER_NOT_FOUND;
     }
+    let  fiveMinutesFromNow = new Date().getTime() + 300000;
+    
     let pendingTransaction = await this.createTransaction({
       transactionType: "Bought Noshies By Crypto",
       from: UserInfo.phoneNo,
       amount: req.body.amount,
+      memo:req.body.memo,
       currency: req.body.tokenName,
       message: "Test message",
       status: "PENDING",
@@ -265,7 +268,7 @@ export class WalletService {
         console.log("here");
         if (f) {
           // if(parseFloat(req.body.bnb))
-            let response = await this.payWithCrypto(req, pendingTransaction,tx);
+            let response = await this.payWithCrypto(req, pendingTransaction,tx,fiveMinutesFromNow);
             this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
               response,
             });
@@ -284,7 +287,7 @@ export class WalletService {
     // return tx
     return pendingTransaction;
   }
-  async payWithCrypto(req, pendingTransaction,tx) {
+  async payWithCrypto(req, pendingTransaction,tx,fiveMinutesFromNow) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -301,8 +304,14 @@ export class WalletService {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
         //if asset exist but not NOSH one
+        let amount
+        if(Date.now()>fiveMinutesFromNow){
         let converted=await utils.bnbToNosh()
-        let amount=tx.value*converted
+        amount=tx.value*converted
+        }
+        else{
+        amount=tx.value*req.body.converted
+        }
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
           let successTransaction = await this.transactionsModel.findById(
