@@ -5,7 +5,7 @@ import { FoodLover } from "src/foodLover/foodLover.model";
 import { WalletService } from "src/wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
-import { FoodCreator } from "./food-creator.model";
+import { FoodCreator,Location } from "./food-creator.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -17,6 +17,8 @@ export class FoodCreatorService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
     private readonly foodLoverModel:Model<FoodLover>,
+    @InjectModel("Location")
+    private readonly locationModel:Model<Location>,
     private readonly walletService:WalletService
   ) {}
   OTP = [];
@@ -78,14 +80,20 @@ export class FoodCreatorService {
           phoneNo: req.phoneNo,
         })
       }
-      
       if (!uniqueNumber && !uniqueNumberInLover) {
         req.passHash = bcrypt.hashSync(req.password, 8);
         delete req.password;
         // const denver = { type: 'Point', coordinates: [-104.9903, 39.7392] };
         // req.location=denver
         const newUser = new this.foodCreatorModel(req);
+       
         const user = await this.foodCreatorModel.create(newUser);
+        // const newLocation=new this.locationModel({
+        //   foodCreatorId:user._id,
+        //   address:req.address,
+        //   location:req.location
+        // })
+        // const location=await this.locationModel.create(newLocation)
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
@@ -347,7 +355,7 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.businessName=req.body.businessName
-      UserInfo.location.push(req.body.location)
+      // UserInfo.location.push(req.body.location)
       await UserInfo.save()
       return {message:"Info Saved"}
     }
