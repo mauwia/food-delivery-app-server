@@ -88,12 +88,6 @@ export class FoodCreatorService {
         const newUser = new this.foodCreatorModel(req);
        
         const user = await this.foodCreatorModel.create(newUser);
-        // const newLocation=new this.locationModel({
-        //   foodCreatorId:user._id,
-        //   address:req.address,
-        //   location:req.location
-        // })
-        // const location=await this.locationModel.create(newLocation)
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
@@ -124,6 +118,35 @@ export class FoodCreatorService {
       );
     }
   }
+  async addCreatorLocation(req){
+    try{
+      let { user } = req;
+      // console.log(user)
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+       const newLocation=new this.locationModel({
+          foodCreatorId:UserInfo._id,
+          address:req.body.address,
+          location:req.body.location
+        })
+        const location=await this.locationModel.create(newLocation)
+        return {message:"location added"}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          msg: error,
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
   async getCreatorInfo(req) {
     try {
       let { user } = req;
@@ -134,6 +157,8 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
+      let location=await this.locationModel.find({foodCreatorId:UserInfo._id})
+      UserInfo.location=location
       UserInfo.passHash = "";
       return { user: UserInfo };
     } catch (error) {

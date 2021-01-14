@@ -5,7 +5,7 @@ export const OrdersSchema = new mongoose.Schema({
     foodDeliveryId:mongoose.Schema.Types.ObjectId,
     orderStatus:{
         type:String,
-        enum:["New","Accepted","Being Prepared","Prepared","InTransit","Decline"],
+        enum:["New","Accepted","Being Prepared","Prepared","InTransit","Decline","Cancel","Complete"],
         required:true
     },
     orderId:{type:String},
