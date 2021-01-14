@@ -58,10 +58,13 @@ export class AppGateway
   afterInit(server: Server) {
     this.logger.log("Init");
   }
+  
   handleDisconnect(client: Socket) {
+    delete this.onlineUsers[client.handshake.query.userNo]
     this.logger.log(`Client disconnected: ${client.id}`);
   }
   handleConnection(client: Socket, ...args: any[]) {
+    console.log(client.handshake.query.userNo)
     this.socket_id = client.id;
     this.logger.log(`Client connected: ${client.id}`);
     this.server.to(client.id).emit("new-client-id", client.id);

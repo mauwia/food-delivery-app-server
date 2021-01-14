@@ -25,22 +25,27 @@ export class MenuService {
       throw "USER_NOT_FOUND";
     }
     let {long,latt}=req.body
-    let foodCreator = await this.locationModel.find({location: {
+    let nearByFoodCreators = await this.locationModel.find({location: {
       $near: {
-       $maxDistance: 10000,
+       $maxDistance: 1000,
        $geometry: {
         type: "Point",
-        coordinates: [long, latt]
+        coordinates: [latt, long]
        }
       }
-     }});
-    return { foodCreator };
+     }}).populate('foodCreatorId',"-pinHash -passHash");
+    //  let FoodCreatorwithMenu=[]
+    //  for(let i=0;i<nearByFoodCreators.length;i++){
+    //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
+    //     .push(menu)
+    //  }
+    return { nearByFoodCreators };
   }
   async addMenu(req) {
     try {
       let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
-        phoneNo: user.phoneNo,
+        phoneNo: user.phoneNo
       });
       if (!UserInfo) {
         throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
