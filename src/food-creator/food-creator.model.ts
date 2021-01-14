@@ -35,6 +35,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
 });
 export interface FoodCreator extends mongoose.Document {
+  location: Location[];
   phoneNo: string;
   passHash: string;
   // location: Array<any>;

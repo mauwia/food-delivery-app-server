@@ -56,7 +56,7 @@ export const getTransactions=async()=> {
 }
 export const bnbToNosh =async ()=>{
     let bnbToUsd=await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd")
-    let UsdToNGN=await axios.get("https://free.currconv.com/api/v7/convert?q=NGN_USD&compact=ultra&apiKey=43b461102cb29d164c9b")
+    let UsdToNGN=await axios.get("https://free.currconv.com/api/v7/convert?q=NGN_USD&compact=ultra&apiKey=3ba38ffc2ca4fed58ba5")
     let conversion=bnbToUsd.data.binancecoin.usd/UsdToNGN.data.NGN_USD
     // console.log(conversion)
     console.log(Date.now())
