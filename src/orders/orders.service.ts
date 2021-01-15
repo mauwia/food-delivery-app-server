@@ -64,6 +64,7 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated)
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -125,12 +126,12 @@ export class OrdersService {
       let order = await this.ordersModel.findById(orderID).populate(orderStatusReciever,"phoneNo");
       order.orderStatus = status;
       let updatedOrder = await order.save();
-      let {phoneNo}=order.foodLoverId
-      console.log(phoneNo)
-      // let sendStatusToPhoneNo = orderStatusReciever==="foodLoverId"
-      // ? order.foodLoverId.phoneNo
-      // : order.foodCreatorId.phoneNo;
-      // this.ordersGateway.handleupdateStatus(sendStatusToPhoneNo,updatedOrder)
+      // let {phoneNo}=order.foodLoverId
+      let sendStatusToPhoneNo = orderStatusReciever==="foodLoverId"
+      ? order.foodLoverId.phoneNo
+      : order.foodCreatorId.phoneNo;
+      console.log(sendStatusToPhoneNo)
+      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo,updatedOrder)
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);

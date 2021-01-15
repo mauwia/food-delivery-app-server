@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
   FoodCreatorSchema,
-  // LocationSchema,
+  LocationSchema,
 } from "src/food-creator/food-creator.model";
 import { FoodLoverSchema } from "src/foodLover/foodLover.model";
 import { MenuController } from "./menu.controller";
@@ -16,7 +16,7 @@ import { MenuService } from "./menu.service";
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "MenuItems", schema: MenuItemSchema },
-      // { name: "Location", schema: LocationSchema },
+      { name: "Location", schema: LocationSchema },
     ]),
   ],
   controllers: [MenuController],

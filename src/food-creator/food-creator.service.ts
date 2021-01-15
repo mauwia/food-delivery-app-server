@@ -5,7 +5,7 @@ import { FoodLover } from "src/foodLover/foodLover.model";
 import { WalletService } from "src/wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
-import { FoodCreator} from "./food-creator.model";
+import { FoodCreator,Location} from "./food-creator.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -17,6 +17,8 @@ export class FoodCreatorService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
     private readonly foodLoverModel:Model<FoodLover>,
+    @InjectModel("Location") private readonly locationModel:Model<Location>,
+
     private readonly walletService:WalletService
   ) {}
   OTP = [];
@@ -116,35 +118,35 @@ export class FoodCreatorService {
       );
     }
   }
-  // async addCreatorLocation(req){
-  //   try{
-  //     let { user } = req;
-  //     // console.log(user)
-  //     const UserInfo = await this.foodCreatorModel.findOne({
-  //       phoneNo: user.phoneNo,
-  //     });
-  //     if (!UserInfo) {
-  //       throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
-  //     }
-  //      const newLocation=new this.locationModel({
-  //         foodCreatorId:UserInfo._id,
-  //         address:req.body.address,
-  //         location:req.body.location
-  //       })
-  //       const location=await this.locationModel.create(newLocation)
-  //       return {message:"location added"}
-  //   }
-  //   catch(error){
-  //     this.logger.error(error, error.stack);
-  //     throw new HttpException(
-  //       {
-  //         status: HttpStatus.BAD_REQUEST,
-  //         msg: error,
-  //       },
-  //       HttpStatus.BAD_REQUEST
-  //     );
-  //   }
-  // }
+  async addCreatorLocation(req){
+    try{
+      let { user } = req;
+      // console.log(user)
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+       const newLocation=new this.locationModel({
+          foodCreatorId:UserInfo._id,
+          address:req.body.address,
+          location:req.body.location
+        })
+        const location=await this.locationModel.create(newLocation)
+        return {message:"location added"}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          msg: error,
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
   async getCreatorInfo(req) {
     try {
       let { user } = req;
