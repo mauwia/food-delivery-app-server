@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { pad } from "src/utils";
+import { OrdersGateway } from "./orders.gateway";
 import { Orders } from "./orders.model";
 @Injectable()
 export class OrdersService {
@@ -11,8 +12,9 @@ export class OrdersService {
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>
-  ) { }
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    private readonly ordersGateway:OrdersGateway
+  ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
     try {
@@ -24,12 +26,16 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let { body } = req;
-      let createdOrders = [];
+      let createdOrders=[]
+      // let createdOrders = await Promise.all(body.orders.map(order => {
+      //   return this.addOrders(order);
+      // }));
+      // console.log('Promise One',createdOrders)
       for (let i = 0; i < body.orders.length; i++) {
-        let ordercreate = await this.addOrders(body.orders[i])
-        createdOrders.push(ordercreate)
+        let ordercreate = await this.addOrders(body.orders[i]);
+        createdOrders.push(ordercreate);
       }
-      console.log(createdOrders)
+      console.log(createdOrders);
       return { orders: createdOrders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -58,9 +64,8 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      return orderCreated
-    }
-    catch (error) {
+      return orderCreated;
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -81,11 +86,13 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let Orders = await this.ordersModel.find({
-        $and: [{ foodCreatorId: UserInfo._id }, { orderStatus: { $ne: 'Decline' } }]
-      })
-      return { Orders }
-    }
-    catch (error) {
+        $and: [
+          { foodCreatorId: UserInfo._id },
+          { orderStatus: { $ne: "Decline" } },
+        ],
+      });
+      return { Orders };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -96,28 +103,34 @@ export class OrdersService {
       );
     }
   }
-  async updateOrderStatus(req){
-    try{
+  async updateOrderStatus(req) {
+    try {
       let { user } = req;
-      let UserInfo:any = await this.foodCreatorModel.findOne({
-        phoneNo: user.phoneNo,
-      });
-      if(!UserInfo){
-        UserInfo= await this.foodLoverModel.findOne({
+      let UserInfo: any = await this.foodCreatorModel
+        .findOne({
           phoneNo: user.phoneNo,
-        });
+        })
+        .populate("foodLoverId", "phoneNo");
+      if (!UserInfo) {
+        UserInfo = await this.foodLoverModel
+          .findOne({
+            phoneNo: user.phoneNo,
+          })
+          .populate("foodCreatorId", "phoneNo");
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let {orderID,status}=req.body
-      let order=await this.ordersModel.findById(orderID)
-      order.orderStatus=status
-      let updatedOrder=await order.save()
-      return {updatedOrder}
-
-    }
-    catch(error){
+      let sendStatusToPhoneNo = UserInfo.foodLoverId.phoneNo
+        ? UserInfo.foodLoverId.phoneNo
+        : UserInfo.foodCreatorId.phoneNo;
+      let { orderID, status } = req.body;
+      let order = await this.ordersModel.findById(orderID);
+      order.orderStatus = status;
+      let updatedOrder = await order.save();
+      this.ordersGateway.handleupdateStatus(sendStatusToPhoneNo,updatedOrder)
+      return { updatedOrder };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -128,9 +141,9 @@ export class OrdersService {
       );
     }
   }
-  async getOrderHistory(req){
-    try{
-      let {user}=req;
+  async getOrderHistory(req) {
+    try {
+      let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -138,17 +151,17 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       const resultsPerPage = 3;
-      let  page = req.params.page >= 1 ? req.params.page : 1;
-      page = page - 1 
-      let Orders = await this.ordersModel.find({
-         foodCreatorId: UserInfo._id 
-      }).sort({orderId:"desc"})
-      .limit(resultsPerPage)
-      .skip(resultsPerPage*page)
-      return { Orders }
-
-    }
-    catch(error){
+      let page = req.params.page >= 1 ? req.params.page : 1;
+      page = page - 1;
+      let Orders = await this.ordersModel
+        .find({
+          foodCreatorId: UserInfo._id,
+        })
+        .sort({ orderId: "desc" })
+        .limit(resultsPerPage)
+        .skip(resultsPerPage * page);
+      return { Orders };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {

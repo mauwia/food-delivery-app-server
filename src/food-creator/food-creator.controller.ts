@@ -84,12 +84,12 @@ export class FoodCreatorController {
     const response=await this.foodCreatorService.addImportantDetails(request)
     return response
   }
-  @UseGuards(new JWTAuthGuard())
-  @Post("/addCreatorLocation")
-  async AddCreatorLocation(@Req() request:Request){
-    const response=await this.foodCreatorService.addCreatorLocation(request)
-    return response
-  }
+  // @UseGuards(new JWTAuthGuard())
+  // @Post("/addCreatorLocation")
+  // async AddCreatorLocation(@Req() request:Request){
+  //   const response=await this.foodCreatorService.addCreatorLocation(request)
+  //   return response
+  // }
   @UseGuards(new JWTAuthGuard())
   @Get("/toggleStatus")
   async ToggleStatus(@Req() request:Request){
