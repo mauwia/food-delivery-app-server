@@ -53,7 +53,6 @@ export class ChatService {
   }
 
   async getChatroomMessages(chatroomId) {
-    console.log(chatroomId)
     try {
       const messages = await this.messageModel.find({
         chatroomId: chatroomId
