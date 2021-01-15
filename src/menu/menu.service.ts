@@ -164,7 +164,9 @@ export class MenuService {
         throw { msg: "USER_NOT_FOUND", status: HttpStatus.NOT_FOUND };
       }
       let {menuItemId,imageUrls,itemName,description,preparationTime,price,discount}=req.body
+      console.log(req.body)
       let menuItem=await this.menuItemsModel.findById(menuItemId)
+      console.log(menuItem)
       let updatedMenuItem=await this.menuItemsModel.findOneAndUpdate({_id:menuItemId},{
         $set:{
           imageUrls:imageUrls||menuItem.imageUrls,
@@ -175,7 +177,7 @@ export class MenuService {
           discount:discount||menuItem.discount
         }
       })
-      return {message:"WALLET UPDATED"}
+      return {message:"MENU UPDATED"}
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
