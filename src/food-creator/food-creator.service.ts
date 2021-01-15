@@ -378,7 +378,7 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.businessName=req.body.businessName
-      // UserInfo.location.push(req.body.location)
+      UserInfo.location.push(req.body.location)
       await UserInfo.save()
       return {message:"Info Saved"}
     }

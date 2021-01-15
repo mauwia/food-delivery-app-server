@@ -106,29 +106,31 @@ export class OrdersService {
   async updateOrderStatus(req) {
     try {
       let { user } = req;
+      let orderStatusReciever='foodLoverId'
       let UserInfo: any = await this.foodCreatorModel
         .findOne({
           phoneNo: user.phoneNo,
         })
-        .populate("foodLoverId", "phoneNo");
       if (!UserInfo) {
         UserInfo = await this.foodLoverModel
           .findOne({
             phoneNo: user.phoneNo,
           })
-          .populate("foodCreatorId", "phoneNo");
+          orderStatusReciever="foodCreatorId"
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let sendStatusToPhoneNo = UserInfo.foodLoverId.phoneNo
-        ? UserInfo.foodLoverId.phoneNo
-        : UserInfo.foodCreatorId.phoneNo;
       let { orderID, status } = req.body;
-      let order = await this.ordersModel.findById(orderID);
+      let order = await this.ordersModel.findById(orderID).populate(orderStatusReciever,"phoneNo");
       order.orderStatus = status;
       let updatedOrder = await order.save();
-      this.ordersGateway.handleupdateStatus(sendStatusToPhoneNo,updatedOrder)
+      let {phoneNo}=order.foodLoverId
+      console.log(phoneNo)
+      // let sendStatusToPhoneNo = orderStatusReciever==="foodLoverId"
+      // ? order.foodLoverId.phoneNo
+      // : order.foodCreatorId.phoneNo;
+      // this.ordersGateway.handleupdateStatus(sendStatusToPhoneNo,updatedOrder)
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
