@@ -36,11 +36,11 @@ export class MenuController {
         let response=await this.menuService.getMenuWithCreatorId(request)
         return response
     }
-    @UseGuards(new JWTAuthGuard())
-    @Get("/getAllCreators")
-    async GetAllCreators(@Req() request:Request){
-        let response=await this.menuService.getAllCreators(request)
-        return response
-    }
+    // @UseGuards(new JWTAuthGuard())
+    // @Get("/getAllCreators")
+    // async GetAllCreators(@Req() request:Request){
+    //     let response=await this.menuService.getAllCreators(request)
+    //     return response
+    // }
 
 }
