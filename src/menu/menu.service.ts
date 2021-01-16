@@ -201,16 +201,16 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let { editMenuName, menuId } = req.body;
+      let { menuName, menuId } = req.body;
       let updatedMenu = await this.menuModel.findByIdAndUpdate(
         menuId,
         {
           $set: {
-            menuName: editMenuName,
+            menuName: menuName,
           },
         },
         { new: true }
-      );
+      ).populate("menuItems");
       return { updatedMenu };
     } catch (error) {
       this.logger.error(error, error.stack);
