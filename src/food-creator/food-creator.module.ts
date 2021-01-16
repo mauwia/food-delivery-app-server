@@ -10,7 +10,6 @@ import { FoodLoverSchema } from "src/foodLover/foodLover.model";
   imports: [
     MongooseModule.forFeature([
       { name: "FoodCreator", schema: FoodCreatorSchema },
-      // { name: "Location", schema: LocationSchema },
       { name: "FoodLover", schema: FoodLoverSchema },
     ]),
     JwtModule.register({

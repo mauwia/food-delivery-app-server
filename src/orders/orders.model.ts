@@ -21,8 +21,8 @@ export const OrdersSchema = new mongoose.Schema({
     orderedFood:{type:Object}
 });
 export interface Orders extends mongoose.Document{
-    foodCreatorId:string;
-    foodLoverId:string;
+    foodCreatorId:any;
+    foodLoverId:any;
     orderStatus:string;
     timestamp:string;
     locationTo:any;

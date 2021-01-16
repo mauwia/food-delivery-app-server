@@ -19,13 +19,21 @@ import {
     afterInit(server: Server) {
       this.logger.log("Init");
     }
-    handleupdateStatus(to: string, order: any): void {
+    handleUpdateStatus(to: string, order: any): void {
 
       if (this.onlineUsers[to]) {
         console.log(this.socket_id)
         this.server
           .to(this.onlineUsers[to].socketId)
           .emit("update-order-status", order);
+      }
+    }
+    handleAddOrder(to:string,order:any):void {
+      if (this.onlineUsers[to]) {
+        console.log(this.socket_id)
+        this.server
+          .to(this.onlineUsers[to].socketId)
+          .emit("add-order", order);
       }
     }
     handleDisconnect(client: Socket) {
