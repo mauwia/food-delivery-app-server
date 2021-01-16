@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose'
 export const OrdersSchema = new mongoose.Schema({
     foodLoverId:{type:mongoose.Schema.Types.ObjectId,ref:"FoodLover"},
     foodCreatorId:{type:mongoose.Schema.Types.ObjectId,ref:"FoodCreator"},
-    foodDeliveryId:mongoose.Schema.Types.ObjectId,
+    // foodDeliveryId:mongoose.Schema.Types.ObjectId,
     orderStatus:{
         type:String,
         enum:["New","Accepted","Being Prepared","Prepared","InTransit","Decline","Cancel","Complete"],
@@ -21,14 +21,13 @@ export const OrdersSchema = new mongoose.Schema({
     orderedFood:{type:Object}
 });
 export interface Orders extends mongoose.Document{
-    foodCreatorId:string;
-    foodLoverId:string;
-    foodDeliveryId:string;
+    foodCreatorId:any;
+    foodLoverId:any;
     orderStatus:string;
     timestamp:string;
-    locationTo:string;
+    locationTo:any;
     orderId:string;
-    locationFrom:string;
+    locationFrom:any;
     orderBill:number;
     promoCode:string;
     deliveryCharges:number;

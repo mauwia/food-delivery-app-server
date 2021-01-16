@@ -48,13 +48,6 @@ export class AppGateway
         .emit("send-noshies", transaction);
     }
   }
-  @SubscribeMessage("user-online")
-  setUserOnline(client: Socket, payload: string): void {
-    const data = JSON.parse(payload);
-    this.onlineUsers[data.phoneNo] = { ...data, socketId: this.socket_id };
-    console.log(this.onlineUsers);
-    // client.emit('online-users', this.onlineUsers);
-  }
   afterInit(server: Server) {
     this.logger.log("Init");
   }
@@ -62,11 +55,12 @@ export class AppGateway
   handleDisconnect(client: Socket) {
     delete this.onlineUsers[client.handshake.query.userNo]
     this.logger.log(`Client disconnected: ${client.id}`);
+    console.log(this.onlineUsers);
   }
   handleConnection(client: Socket, ...args: any[]) {
     console.log(client.handshake.query.userNo)
-    this.socket_id = client.id;
-    this.logger.log(`Client connected: ${client.id}`);
-    this.server.to(client.id).emit("new-client-id", client.id);
+    let {userNo}=client.handshake.query
+    this.onlineUsers[userNo] = { phoneNo:userNo, socketId: client.id };
+    console.log(this.onlineUsers);
   }
 }

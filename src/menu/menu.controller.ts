@@ -25,6 +25,12 @@ export class MenuController {
         return response
     }
     @UseGuards(new JWTAuthGuard())
+    @Delete('/deleteMenuItem')
+    async DeleteMenuItem(@Req() request:Request){
+        let response=await this.menuService.deleteMenuItem(request)
+        return response
+    }
+    @UseGuards(new JWTAuthGuard())
     @Put('/editMenuItem')
     async EditMenuItem(@Req() request:Request){
         let response=await this.menuService.editMenuItem(request)
@@ -35,6 +41,12 @@ export class MenuController {
     async getMenuWithCreatorID(@Req() request:Request){
         let response=await this.menuService.getMenuWithCreatorId(request)
         return response
+    }
+    @UseGuards(new JWTAuthGuard())
+    @Put('/editMenu')
+    async EditMenu(@Req() request:Request){
+        let response=await this.menuService.editMenu(request)
+        return response 
     }
     @UseGuards(new JWTAuthGuard())
     @Get("/getAllCreators")
