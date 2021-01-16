@@ -1,9 +1,12 @@
 import * as mongoose from "mongoose";
 
-export const LocationSchema = new mongoose.Schema({
-  foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
-  address: { type: String },
+
+export const FoodCreatorSchema = new mongoose.Schema({
+  phoneNo: { type: String, required: true, unique: true },
+  passHash: { type: String, required: true },
+  pinHash: { type: String },
   location: {
+    address: { type: String },
     type: {
       type: String, // Don't do `{ location: { type: String } }`
       enum: ["Point"], // 'location.type' must be 'Point'
@@ -14,13 +17,6 @@ export const LocationSchema = new mongoose.Schema({
       required: true,
     },
   },
-});
-LocationSchema.index({ location: "2dsphere" });
-export const FoodCreatorSchema = new mongoose.Schema({
-  phoneNo: { type: String, required: true, unique: true },
-  passHash: { type: String, required: true },
-  pinHash: { type: String },
-  location: [LocationSchema],
   // location: { type: Array },
   imageUrl: { type: String, default: null },
   countryCode: { type: String },
@@ -34,6 +30,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   avgRating: { type: Number },
   mobileRegisteredId: { type: String, required: true },
 });
+FoodCreatorSchema.index({ location: "2dsphere" })
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
   phoneNo: string;
@@ -52,8 +49,4 @@ export interface FoodCreator extends mongoose.Document {
   mobileRegisteredId: string;
   totalOrders: string;
 }
-export interface Location extends mongoose.Document {
-  foodCreatorId: string;
-  address: string;
-  location: any;
-}
+
