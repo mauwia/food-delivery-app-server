@@ -116,6 +116,7 @@ export class WalletService {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
       let { receiverPhoneNo, amount, tokenName, message,timeStamp } = req.body;
+      console.log(UserInfo)
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
       let ReceiverInfo: any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
@@ -216,6 +217,7 @@ export class WalletService {
       // ];
       // console.log(numb)
       const common = [];
+      console.log(contacts)
       console.log(contacts.length)
       for (let i = 0; i < contacts.length; i++) {
         const user = await this.foodLoverModel
@@ -381,6 +383,7 @@ export class WalletService {
         message,
         status: "PENDING",
       });
+      // console.log(transaction)
       //PUSHING Request of NOSH in Wallet Schema of Request Receiver
       requestReceiverWallet.requestReceivedForNoshies.push({
         phoneNo: user.phoneNo,
@@ -421,7 +424,7 @@ export class WalletService {
       console.log(wallet);
       let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
         (request) => {
-          return request.transactionId.toString() === transactionId;
+          return request.transactionId.toString() === transactionId;  
         }
       );
       console.log(pendingNoshRequest);
@@ -434,6 +437,7 @@ export class WalletService {
       let transaction = await this.transactionsModel.findById(transactionId);
       console.log(transaction);
       if (action === "ACCEPTED") {
+        console.log(pendingNoshRequest)
         let receiverWallet = await this.walletModel.findById(
           pendingNoshRequest.walletId
         );
@@ -529,8 +533,9 @@ export class WalletService {
       if (!UserInfo) {
         throw WALLET_MESSAGES.USER_NOT_FOUND;
       }
-      // console.log(UserInfo)
+      console.log(UserInfo)
       let { amount, tokenName,timeStamp } = req.body;
+      // console.log()
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       // let wallet=UserInfo.walletId.assets
       // console.log(wallet)

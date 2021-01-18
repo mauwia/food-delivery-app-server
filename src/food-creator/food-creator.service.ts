@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { FoodLover } from "src/foodLover/foodLover.model";
-import { WalletService } from "src/wallet/wallet.service";
+import { FoodLover } from "../foodLover/foodLover.model";
+import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator} from "./food-creator.model";
@@ -92,17 +92,17 @@ export class FoodCreatorService {
           process.env.JWT_ACCESS_TOKEN_SECRET
         );
         // await this.sendSMS(req.phoneNo);
-        let CodeDigit = Math.floor(100000 + Math.random() * 900000);
-        let OTPCode = {
-          CodeDigit,
-          phoneNo: user.phoneNo,
-          createdAt: new Date(),
-          expiresAt: utils.expiryCodeGenerator(),
-        };
-        this.OTP.push(OTPCode);
+        // let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+        // let OTPCode = {
+        //   CodeDigit,
+        //   phoneNo: user.phoneNo,
+        //   createdAt: new Date(),
+        //   expiresAt: utils.expiryCodeGenerator(),
+        // };
+        // this.OTP.push(OTPCode);
         user.pinHash = !!user.pinHash;
         user.passHash = "";
-        return { token, user, code: OTPCode.CodeDigit };
+        return { token, user, };
       } else {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST;
       }
@@ -172,6 +172,9 @@ export class FoodCreatorService {
         } else {
           if (req.user) {
             UserInfo.verified = req.user ? true : false;
+            let getWallet = await this.walletService.createWallet();
+            // console.log(getWallet.wallet._id)
+            UserInfo.walletId = getWallet.wallet._id;
           }
           await UserInfo.save();
           return checked;
@@ -244,6 +247,9 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
+        if (bcrypt.compareSync(req.password, UserInfo.passHash)) {
+          throw FOOD_CREATOR_MESSAGES.EXIST_PASS;
+        }
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
         await UserInfo.save();
@@ -292,16 +298,9 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        let getWallet = await this.walletService.createWallet();
-        let getBalance = await this.walletService.getBalance(
-          getWallet.wallet._id
-        );
-        // console.log(getWallet.wallet._id)
-        UserInfo.walletId = getWallet.wallet._id;
         await UserInfo.save()
         return {
             message: "Pin Saved Your Current Balance Is 0",
-          getBalance,
         };
       }
     } catch (error) {
@@ -354,7 +353,15 @@ export class FoodCreatorService {
       // UserInfo.location.push(req.body.location)
       UserInfo.location=req.body.location
       await UserInfo.save()
-      return {message:"Info Saved"}
+      let CodeDigit = Math.floor(100000 + Math.random() * 900000);
+        let OTPCode = {
+          CodeDigit,
+          phoneNo: user.phoneNo,
+          createdAt: new Date(),
+          expiresAt: utils.expiryCodeGenerator(),
+        };
+        this.OTP.push(OTPCode);
+      return {message:"Info Saved",code: OTPCode.CodeDigit }
     }
     catch(error){
       this.logger.error(error, error.stack);
