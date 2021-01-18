@@ -27,7 +27,6 @@ export class FoodLoverService {
         .findOne({
           phoneNo: req.phoneNo,
         })
-        .populate("walletId", "publicKey");
       if (!userExist) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_EXIST;
       }

@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { FoodLover } from "src/foodLover/foodLover.model";
-import { WalletService } from "src/wallet/wallet.service";
+import { FoodLover } from "../foodLover/foodLover.model";
+import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator} from "./food-creator.model";
@@ -247,6 +247,9 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
+        if (bcrypt.compareSync(req.password, UserInfo.passHash)) {
+          throw FOOD_CREATOR_MESSAGES.EXIST_PASS;
+        }
         UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
         delete req.body.password;
         await UserInfo.save();
