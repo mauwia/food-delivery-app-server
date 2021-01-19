@@ -40,7 +40,7 @@ export class MenuService {
             },
           },
         })
-        .populate("foodCreatorId", "-pinHash -passHash");
+        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -totalOrders");
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
       //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
