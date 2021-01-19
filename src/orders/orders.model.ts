@@ -31,4 +31,5 @@ export interface Orders extends mongoose.Document{
     orderBill:number;
     promoCode:string;
     deliveryCharges:number;
+    orderedFood:any;
 }
