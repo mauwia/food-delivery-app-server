@@ -32,7 +32,7 @@ export class MenuService {
         .find({
           location: {
             $near: {
-              $maxDistance: 1000,
+              $maxDistance: 5000,
               $geometry: {
                 type: "Point",
                 coordinates: [lat, lng],
