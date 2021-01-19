@@ -46,7 +46,7 @@ export class ProfileService {
             throw PROFILE_MESSAGES.NUMBER_IN_USE;
           }
         }
-  
+        console.log(model)
         const userProfile = await model.findOne({
           phoneNo: user.phoneNo,
         });
@@ -73,7 +73,10 @@ export class ProfileService {
             },
           );
           updatedProfile.pinHash = !!updatedProfile.pinHash
-          return updatedProfile;
+          console.log(updatedProfile)
+          return response.status(200).json({
+            updatedProfile
+          });
         } else {
           throw PROFILE_MESSAGES.USER_NOT_FOUND
         }
