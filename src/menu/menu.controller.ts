@@ -49,7 +49,7 @@ export class MenuController {
         return response 
     }
     @UseGuards(new JWTAuthGuard())
-    @Get("/getAllCreators")
+    @Post("/getAllCreators")
     async GetAllCreators(@Req() request:Request){
         let response=await this.menuService.getAllCreators(request)
         return response

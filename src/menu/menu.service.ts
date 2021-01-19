@@ -27,7 +27,7 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let { long, latt } = req.body;
+      let { lng, lat } = req.body;
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           location: {
@@ -35,7 +35,7 @@ export class MenuService {
               $maxDistance: 1000,
               $geometry: {
                 type: "Point",
-                coordinates: [latt, long],
+                coordinates: [lat, lng],
               },
             },
           },
@@ -202,15 +202,17 @@ export class MenuService {
         };
       }
       let { menuName, menuId } = req.body;
-      let updatedMenu = await this.menuModel.findByIdAndUpdate(
-        menuId,
-        {
-          $set: {
-            menuName: menuName,
+      let updatedMenu = await this.menuModel
+        .findByIdAndUpdate(
+          menuId,
+          {
+            $set: {
+              menuName: menuName,
+            },
           },
-        },
-        { new: true }
-      ).populate("menuItems");
+          { new: true }
+        )
+        .populate("menuItems");
       return { updatedMenu };
     } catch (error) {
       this.logger.error(error, error.stack);
