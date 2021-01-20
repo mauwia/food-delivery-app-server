@@ -27,20 +27,21 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let { long, latt } = req.body;
+      let { lng, lat } = req.body;
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           location: {
             $near: {
-              $maxDistance: 1000,
+              $maxDistance: 5000,
               $geometry: {
                 type: "Point",
-                coordinates: [latt, long],
+                coordinates: [lat, lng],
               },
             },
           },
         })
-        .populate("foodCreatorId", "-pinHash -passHash");
+        // console.log(nearByFoodCreators)
+        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -totalOrders");
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
       //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
@@ -202,15 +203,17 @@ export class MenuService {
         };
       }
       let { menuName, menuId } = req.body;
-      let updatedMenu = await this.menuModel.findByIdAndUpdate(
-        menuId,
-        {
-          $set: {
-            menuName: menuName,
+      let updatedMenu = await this.menuModel
+        .findByIdAndUpdate(
+          menuId,
+          {
+            $set: {
+              menuName: menuName,
+            },
           },
-        },
-        { new: true }
-      ).populate("menuItems");
+          { new: true }
+        )
+        .populate("menuItems");
       return { updatedMenu };
     } catch (error) {
       this.logger.error(error, error.stack);

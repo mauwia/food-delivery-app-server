@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { FoodCreator } from "src/food-creator/food-creator.model";
-import { FoodLover } from "src/foodLover/foodLover.model";
-import { pad } from "src/utils";
+import { FoodCreator } from "../food-creator/food-creator.model";
+import { FoodLover } from "../foodLover/foodLover.model";
+import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import { Orders } from "./orders.model";
 @Injectable()
