@@ -50,7 +50,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
     receiverId: string,
     chatroomId: string,
     message: string,
-    orderId: string }) {
+    orderId: string,
+    isFoodCreatorMessage: boolean }) {
     try {
       // check that chatroom has been created in the DB
       const chatroom = this.chatroomModel.findOne({
