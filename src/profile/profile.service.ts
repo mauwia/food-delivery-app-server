@@ -39,14 +39,21 @@ export class ProfileService {
 
       try {
         if (body.phoneNo) {
-          const numberExists = await model.findOne({
+          let numberInLover;
+          let numberInCreator;
+          
+          numberInLover = await this.foodLoverModel.findOne({
             phoneNo: body.phoneNo,
           });
-          if (numberExists) {
+          if(!numberInLover) {
+            numberInCreator = await this.foodCreatorModel.findOne({
+              phoneNo: body.phoneNo,
+            });
+          }
+          if (numberInLover || numberInCreator) {
             throw PROFILE_MESSAGES.NUMBER_IN_USE;
           }
         }
-        console.log(model)
         const userProfile = await model.findOne({
           phoneNo: user.phoneNo,
         });
@@ -108,7 +115,7 @@ export class ProfileService {
         
         let userProfile = await model.findOne({
           phoneNo: user.phoneNo,
-        });``
+        });
 
         if (userProfile) {
           userProfile.passHash = bcrypt.hashSync(body.password, 8);
