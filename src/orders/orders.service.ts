@@ -13,7 +13,7 @@ export class OrdersService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    private readonly ordersGateway:OrdersGateway
+    private readonly ordersGateway: OrdersGateway
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -26,7 +26,7 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let { body } = req;
-      let createdOrders=[]
+      let createdOrders = [];
       // let createdOrders = await Promise.all(body.orders.map(order => {
       //   return this.addOrders(order);
       // }));
@@ -64,7 +64,7 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated)
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -80,18 +80,29 @@ export class OrdersService {
   async getOrders(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodCreatorModel.findOne({
+      let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
       let Orders = await this.ordersModel.find({
         $and: [
-          { foodCreatorId: UserInfo._id },
-          { orderStatus:  { $nin: [ "Decline", "Complete" ] } },
+          // { foodCreatorId: UserInfo._id },
+          {
+            $or: [
+              { foodLoverId: UserInfo._id },
+              { foodCreatorId: UserInfo._id },
+            ],
+          },
+          { orderStatus: { $nin: ["Decline", "Complete"] } },
         ],
-      });
+      }).populate("foodLoverId","username");
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -107,31 +118,32 @@ export class OrdersService {
   async updateOrderStatus(req) {
     try {
       let { user } = req;
-      let orderStatusReciever='foodLoverId'
-      let UserInfo: any = await this.foodCreatorModel
-        .findOne({
-          phoneNo: user.phoneNo,
-        })
+      let orderStatusReciever = "foodLoverId";
+      let UserInfo: any = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
       if (!UserInfo) {
-        UserInfo = await this.foodLoverModel
-          .findOne({
-            phoneNo: user.phoneNo,
-          })
-          orderStatusReciever="foodCreatorId"
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+        orderStatusReciever = "foodCreatorId";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
       let { orderID, status } = req.body;
-      let order = await this.ordersModel.findById(orderID).populate(orderStatusReciever,"phoneNo");
+      let order = await this.ordersModel
+        .findById(orderID)
+        .populate(orderStatusReciever, "phoneNo");
       order.orderStatus = status;
       let updatedOrder = await order.save();
       // let {phoneNo}=order.foodLoverId
-      let sendStatusToPhoneNo = orderStatusReciever==="foodLoverId"
-      ? order.foodLoverId.phoneNo
-      : order.foodCreatorId.phoneNo;
-      console.log(sendStatusToPhoneNo)
-      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo,updatedOrder)
+      let sendStatusToPhoneNo =
+        orderStatusReciever === "foodLoverId"
+          ? order.foodLoverId.phoneNo
+          : order.foodCreatorId.phoneNo;
+      console.log(sendStatusToPhoneNo);
+      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);

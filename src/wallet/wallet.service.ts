@@ -70,13 +70,19 @@ export class WalletService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
-      let { tokenName, amount,timeStamp } = req.body;
+      let { tokenName, amount, timeStamp } = req.body;
       // console.log(publicKey);
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
-        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
+          throw {
+          msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
       asset.amount = asset.amount - amount;
@@ -94,10 +100,10 @@ export class WalletService {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -113,10 +119,13 @@ export class WalletService {
         });
       }
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
-      let { receiverPhoneNo, amount, tokenName, message,timeStamp } = req.body;
-      console.log(UserInfo)
+      let { receiverPhoneNo, amount, tokenName, message, timeStamp } = req.body;
+      console.log(UserInfo);
       let senderWallet = await this.walletModel.findById(UserInfo.walletId);
       let ReceiverInfo: any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
@@ -191,10 +200,10 @@ export class WalletService {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -206,7 +215,10 @@ export class WalletService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       // const numb = [
       //   "2222222",
@@ -217,15 +229,15 @@ export class WalletService {
       // ];
       // console.log(numb)
       const common = [];
-      console.log(contacts)
-      console.log(contacts.length)
+      console.log(contacts);
+      console.log(contacts.length);
       for (let i = 0; i < contacts.length; i++) {
         const user = await this.foodLoverModel
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash");
-          console.log(i,user)
+        console.log(i, user);
         // .populate("walletId", "publicKey");
         if (user) {
           common.push(user);
@@ -236,10 +248,10 @@ export class WalletService {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -249,16 +261,19 @@ export class WalletService {
       phoneNo: user.phoneNo,
     });
     if (!UserInfo) {
-      throw WALLET_MESSAGES.USER_NOT_FOUND;
+      throw {
+        msg: WALLET_MESSAGES.USER_NOT_FOUND,
+        status: HttpStatus.NOT_FOUND,
+      };
     }
-    let  fiveMinutesFromNow = new Date().getTime() + 300000;
-    
+    let fiveMinutesFromNow = new Date().getTime() + 300000;
+
     let pendingTransaction = await this.createTransaction({
-      timeStamp:req.body.timeStamp,
+      timeStamp: req.body.timeStamp,
       transactionType: "Bought Noshies By Crypto",
       from: UserInfo.phoneNo,
       amount: req.body.amount,
-      memo:req.body.memo,
+      memo: req.body.memo,
       currency: req.body.tokenName,
       message: "Test message",
       status: "PENDING",
@@ -266,7 +281,7 @@ export class WalletService {
     let f = 1;
     let task = cron.schedule("*/10 * * * * *", async () => {
       console.log("running a task every 10 sec");
-      console.log("USER",UserInfo.phoneNo)
+      console.log("USER", UserInfo.phoneNo);
       let transactions = await utils.getTransactions();
       let tx = transactions.tx.find((trans) => trans.memo == req.body.memo);
       console.log(tx);
@@ -274,11 +289,16 @@ export class WalletService {
         console.log("here");
         if (f) {
           // if(parseFloat(req.body.bnb))
-            let response = await this.payWithCrypto(req, pendingTransaction,tx,fiveMinutesFromNow);
-            this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
-              response,
-            });
-            f = 0;
+          let response = await this.payWithCrypto(
+            req,
+            pendingTransaction,
+            tx,
+            fiveMinutesFromNow
+          );
+          this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
+            response,
+          });
+          f = 0;
         }
         console.log(tx);
         task.stop();
@@ -293,7 +313,7 @@ export class WalletService {
     // return tx
     return pendingTransaction;
   }
-  async payWithCrypto(req, pendingTransaction,tx,fiveMinutesFromNow) {
+  async payWithCrypto(req, pendingTransaction, tx, fiveMinutesFromNow) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -304,31 +324,32 @@ export class WalletService {
       let { tokenName } = req.body;
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
-        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
         //if asset exist but not NOSH one
-        let amount
-        if(Date.now()>fiveMinutesFromNow){
-        let converted=await utils.bnbToNosh()
-        amount=tx.value*converted
-        }
-        else{
-        amount=tx.value*req.body.converted
+        let amount;
+        if (Date.now() > fiveMinutesFromNow) {
+          let converted = await utils.bnbToNosh();
+          amount = tx.value * converted;
+        } else {
+          amount = tx.value * req.body.converted;
         }
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
           let successTransaction = await this.transactionsModel.findById(
             pendingTransaction._id
           );
-          successTransaction.amount=amount
-          successTransaction.transactionHash=tx.txHash
+          successTransaction.amount = amount;
+          successTransaction.transactionHash = tx.txHash;
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
-          return  successTransaction
-        ;
+          return successTransaction;
         }
         //if  NOSH asset exist
         asset.amount = asset.amount + +amount;
@@ -337,21 +358,19 @@ export class WalletService {
         let successTransaction = await this.transactionsModel.findById(
           pendingTransaction._id
         );
-        successTransaction.transactionHash=tx.txHash
+        successTransaction.transactionHash = tx.txHash;
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
-        return successTransaction
-        
+        return successTransaction;
       }
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log(error);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -362,9 +381,18 @@ export class WalletService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
-      let { requestedTophoneNo, amount, message, tokenName,timeStamp } = req.body;
+      let {
+        requestedTophoneNo,
+        amount,
+        message,
+        tokenName,
+        timeStamp,
+      } = req.body;
       //Receiving Info of user to which we requested NOSH
       let requestReceiverUser = await this.foodLoverModel.findOne({
         phoneNo: requestedTophoneNo,
@@ -398,13 +426,12 @@ export class WalletService {
       return { message: "REQUEST SEND" };
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log(error);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -415,7 +442,10 @@ export class WalletService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       let { transactionId, action } = req.body;
       //Wallet of User that will approve/decline  NOSH request
@@ -424,7 +454,7 @@ export class WalletService {
       console.log(wallet);
       let pendingNoshRequest = wallet.requestReceivedForNoshies.find(
         (request) => {
-          return request.transactionId.toString() === transactionId;  
+          return request.transactionId.toString() === transactionId;
         }
       );
       console.log(pendingNoshRequest);
@@ -437,7 +467,7 @@ export class WalletService {
       let transaction = await this.transactionsModel.findById(transactionId);
       console.log(transaction);
       if (action === "ACCEPTED") {
-        console.log(pendingNoshRequest)
+        console.log(pendingNoshRequest);
         let receiverWallet = await this.walletModel.findById(
           pendingNoshRequest.walletId
         );
@@ -511,13 +541,12 @@ export class WalletService {
       }
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log(error);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -531,16 +560,22 @@ export class WalletService {
         })
         .populate("walletId");
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
-      console.log(UserInfo)
-      let { amount, tokenName,timeStamp } = req.body;
+      console.log(UserInfo);
+      let { amount, tokenName, timeStamp } = req.body;
       // console.log()
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       // let wallet=UserInfo.walletId.assets
       // console.log(wallet)
       if (!wallet) {
-        throw WALLET_MESSAGES.WALLET_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
@@ -554,7 +589,7 @@ export class WalletService {
             amount,
             currency: tokenName,
             message: "Test message",
-            status:"SUCCESSFULL"
+            status: "SUCCESSFULL",
           });
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -571,7 +606,7 @@ export class WalletService {
           amount,
           currency: tokenName,
           message: "Test message",
-          status:"SUCCESSFUL"
+          status: "SUCCESSFUL",
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -586,7 +621,7 @@ export class WalletService {
           amount,
           currency: tokenName,
           message: "Test message",
-          status:"SUCCESSFULL"
+          status: "SUCCESSFULL",
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -595,13 +630,12 @@ export class WalletService {
       }
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log(error);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -614,7 +648,10 @@ export class WalletService {
         })
         .populate("walletId");
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       if (!UserInfo.walletId) {
         return { assets: [{ tokenName: "NOSH", amount: 0 }] };
@@ -623,13 +660,12 @@ export class WalletService {
       return { assets: UserInfo.walletId.assets };
     } catch (error) {
       this.logger.error(error, error.stack);
-      // console.log(error)
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -642,7 +678,10 @@ export class WalletService {
         })
         .populate("walletId");
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
@@ -655,10 +694,10 @@ export class WalletService {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -672,7 +711,10 @@ export class WalletService {
         })
         .populate("walletId");
       if (!UserInfo) {
-        throw WALLET_MESSAGES.USER_NOT_FOUND;
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
       let { walletId } = UserInfo;
       let transactions = await this.transactionsModel.find({
@@ -690,10 +732,10 @@ export class WalletService {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -711,7 +753,13 @@ export class WalletService {
       return token;
     } catch (error) {
       this.logger.error(error, error.stack);
-      return error;
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
     }
   }
 

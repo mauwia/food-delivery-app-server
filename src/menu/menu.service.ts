@@ -157,7 +157,14 @@ export class MenuService {
         .populate("menuItems");
       return { menu };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
     }
   }
   async deleteMenu(req) {
