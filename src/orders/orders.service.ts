@@ -89,7 +89,7 @@ export class OrdersService {
       let Orders = await this.ordersModel.find({
         $and: [
           { foodCreatorId: UserInfo._id },
-          { orderStatus: { $ne: "Decline" } },
+          { orderStatus:  { $nin: [ "Decline", "Complete" ] } },
         ],
       });
       return { Orders };

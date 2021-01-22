@@ -1,6 +1,5 @@
 import * as mongoose from "mongoose";
 
-
 export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
@@ -10,7 +9,6 @@ export const FoodCreatorSchema = new mongoose.Schema({
     type: {
       type: String, // Don't do `{ location: { type: String } }`
       enum: ["Point"], // 'location.type' must be 'Point'
-    
     },
     coordinates: {
       type: [Number],
@@ -29,8 +27,9 @@ export const FoodCreatorSchema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
   avgRating: { type: Number },
   mobileRegisteredId: { type: String, required: true },
+  fcmRegistrationToken: { type: Array },
 });
-FoodCreatorSchema.index({ location: "2dsphere" })
+FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
   phoneNo: string;
@@ -48,5 +47,5 @@ export interface FoodCreator extends mongoose.Document {
   avgRating: Number;
   mobileRegisteredId: string;
   totalOrders: string;
+  fcmRegistrationToken: Array<any>;
 }
-
