@@ -80,6 +80,7 @@ export class OrdersService {
   async getOrders(req) {
     try {
       let { user } = req;
+      let getOrdersReciever = "foodCreatorId";
       let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -87,6 +88,7 @@ export class OrdersService {
         UserInfo = await this.foodLoverModel.findOne({
           phoneNo: user.phoneNo,
         });
+       getOrdersReciever = "foodLoverId";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -102,7 +104,7 @@ export class OrdersService {
           },
           { orderStatus: { $nin: ["Decline", "Complete"] } },
         ],
-      }).populate("foodLoverId","username");
+      }).populate(getOrdersReciever,"username");
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
