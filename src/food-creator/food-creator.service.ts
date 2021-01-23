@@ -5,7 +5,7 @@ import { FoodLover } from "../foodLover/foodLover.model";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
-import { FoodCreator} from "./food-creator.model";
+import { FoodCreator } from "./food-creator.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -16,9 +16,9 @@ export class FoodCreatorService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
-    private readonly foodLoverModel:Model<FoodLover>,
+    private readonly foodLoverModel: Model<FoodLover>,
 
-    private readonly walletService:WalletService
+    private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -73,11 +73,11 @@ export class FoodCreatorService {
       let uniqueNumber = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
       });
-      let uniqueNumberInLover
-      if(!uniqueNumber){
-          uniqueNumberInLover=await this.foodLoverModel.findOne({
+      let uniqueNumberInLover;
+      if (!uniqueNumber) {
+        uniqueNumberInLover = await this.foodLoverModel.findOne({
           phoneNo: req.phoneNo,
-        })
+        });
       }
       if (!uniqueNumber && !uniqueNumberInLover) {
         req.passHash = bcrypt.hashSync(req.password, 8);
@@ -85,7 +85,7 @@ export class FoodCreatorService {
         // const denver = { type: 'Point', coordinates: [-104.9903, 39.7392] };
         // req.location=denver
         const newUser = new this.foodCreatorModel(req);
-       
+
         const user = await this.foodCreatorModel.create(newUser);
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
@@ -102,7 +102,7 @@ export class FoodCreatorService {
         // this.OTP.push(OTPCode);
         user.pinHash = !!user.pinHash;
         user.passHash = "";
-        return { token, user, };
+        return { token, user };
       } else {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST;
       }
@@ -240,29 +240,34 @@ export class FoodCreatorService {
   }
   async addNewPassword(req) {
     try {
-      let user = req.user ? req.user : req.body;
       const UserInfo = await this.foodCreatorModel.findOne({
-        phoneNo: user.phoneNo,
+        phoneNo: req.body.phoneNo,
       });
+
       if (!UserInfo) {
-        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
-      } else {
-        if (bcrypt.compareSync(req.password, UserInfo.passHash)) {
-          throw FOOD_CREATOR_MESSAGES.EXIST_PASS;
-        }
-        UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
-        delete req.body.password;
-        await UserInfo.save();
-        return { passwordChanged: true };
+        throw {
+          msg: FOOD_CREATOR_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
+      if (bcrypt.compareSync(req.body.password, UserInfo.passHash)) {
+        throw  {
+          msg: FOOD_CREATOR_MESSAGES.EXIST_PASS,
+          status: HttpStatus.NOT_ACCEPTABLE,
+        };
+      }
+      UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
+      delete req.body.password;
+      await UserInfo.save();
+      return { passwordChanged: true };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }
@@ -298,9 +303,9 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-        await UserInfo.save()
+        await UserInfo.save();
         return {
-            message: "Pin Saved Your Current Balance Is 0",
+          message: "Pin Saved Your Current Balance Is 0",
         };
       }
     } catch (error) {
@@ -339,8 +344,8 @@ export class FoodCreatorService {
       );
     }
   }
-  async addImportantDetails(req){
-    try{
+  async addImportantDetails(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
@@ -348,22 +353,21 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      UserInfo.businessName=req.body.businessName
+      UserInfo.businessName = req.body.businessName;
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
-      UserInfo.location=req.body.location
-      await UserInfo.save()
+      UserInfo.location = req.body.location;
+      await UserInfo.save();
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
-        let OTPCode = {
-          CodeDigit,
-          phoneNo: user.phoneNo,
-          createdAt: new Date(),
-          expiresAt: utils.expiryCodeGenerator(),
-        };
-        this.OTP.push(OTPCode);
-      return {message:"Info Saved",code: OTPCode.CodeDigit }
-    }
-    catch(error){
+      let OTPCode = {
+        CodeDigit,
+        phoneNo: user.phoneNo,
+        createdAt: new Date(),
+        expiresAt: utils.expiryCodeGenerator(),
+      };
+      this.OTP.push(OTPCode);
+      return { message: "Info Saved", code: OTPCode.CodeDigit };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -374,8 +378,8 @@ export class FoodCreatorService {
       );
     }
   }
-  async toggleStatus(req){
-    try{
+  async toggleStatus(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
@@ -383,11 +387,10 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      UserInfo.onlineStatus=!UserInfo.onlineStatus
-      await UserInfo.save()
-      return {status:UserInfo.onlineStatus}
-    }
-    catch(error){
+      UserInfo.onlineStatus = !UserInfo.onlineStatus;
+      await UserInfo.save();
+      return { status: UserInfo.onlineStatus };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
