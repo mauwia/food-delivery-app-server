@@ -81,6 +81,7 @@ export class OrdersService {
     try {
       let { user } = req;
       let getOrdersReciever = "foodLoverId";
+      let name='username'
       let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -89,6 +90,7 @@ export class OrdersService {
           phoneNo: user.phoneNo,
         });
       getOrdersReciever = "foodCreatorId";
+      name='businessName'
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -104,7 +106,7 @@ export class OrdersService {
           },
           { orderStatus: { $nin: ["Decline", "Complete"] } },
         ],
-      }).populate(getOrdersReciever,"username");
+      }).populate(getOrdersReciever,name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
