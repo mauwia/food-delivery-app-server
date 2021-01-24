@@ -79,7 +79,7 @@ export class WalletService {
       // console.log(publicKey);
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
-          throw {
+        throw {
           msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
           status: HttpStatus.NOT_FOUND,
         };
@@ -211,9 +211,14 @@ export class WalletService {
     try {
       let { user } = req;
       let { contacts } = req.body;
-      const UserInfo = await this.foodLoverModel.findOne({
+      let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw {
           msg: WALLET_MESSAGES.USER_NOT_FOUND,
@@ -237,10 +242,19 @@ export class WalletService {
             $or: [{ phoneNo: contacts[i] }],
           })
           .select("-passHash -pinHash");
-        console.log(i, user);
+        // console.log(i, user);
         // .populate("walletId", "publicKey");
         if (user) {
           common.push(user);
+        }
+        const anotherUser = await this.foodCreatorModel
+          .findOne({
+            $or: [{ phoneNo: contacts[i] }],
+          })
+          .select("-passHash -pinHash");
+        // .populate("walletId", "publicKey");
+        if (anotherUser) {
+          common.push(anotherUser);
         }
       }
       return { contacts: common };
