@@ -23,7 +23,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   subscribers: { type: Array },
   onlineStatus: { type: Boolean, default: true },
-  totalOrders: { type: String, default: "000" },
+  totalOrders: { type: String, default: "00000" },
   verified: { type: Boolean, default: false },
   avgRating: { type: Number },
   mobileRegisteredId: { type: String, required: true },

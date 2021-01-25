@@ -17,7 +17,7 @@ export class OrdersService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
-    private readonly walletService:WalletService,
+    private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -37,7 +37,7 @@ export class OrdersService {
       // }));
       // console.log('Promise One',createdOrders)
       for (let i = 0; i < body.orders.length; i++) {
-        let ordercreate = await this.addOrders(body.orders[i],UserInfo);
+        let ordercreate = await this.addOrders(body.orders[i], UserInfo);
         createdOrders.push(ordercreate);
       }
       console.log(createdOrders);
@@ -54,7 +54,7 @@ export class OrdersService {
     }
   }
 
-  async addOrders(order,UserInfo) {
+  async addOrders(order, UserInfo) {
     try {
       let foodCreator = await this.foodCreatorModel.findOne({
         _id: order.foodCreatorId,
@@ -65,39 +65,6 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
-      let senderWallet = await this.walletModel.findById(UserInfo.walletId);
-      let receiverWallet = await this.walletModel.findById(foodCreator.walletId);
-      let senderAssets = senderWallet.assets.find(
-        (asset) => asset.tokenName == order.tokenName
-      );
-      console.log(senderAssets)
-      let receiverAssets = receiverWallet.assets.find(
-        (asset) => asset.tokenName == order.tokenName
-      );
-      let orderBillSixty=order.orderBill*0.6
-      let orderBillForty=order.orderBill*0.4
-      console.log(orderBillSixty,orderBillForty)
-      if (!receiverAssets) {
-      
-        let token:any = {
-          tokenAddress: "NOSH",
-          tokenSymbol: order.tokenName,
-          tokenName:order.tokenName,
-          amount: orderBillSixty,
-        };
-        console.log(token)
-        receiverWallet.assets.push(token);
-        receiverWallet.escrow=receiverWallet.escrow+ +orderBillForty
-        await receiverWallet.save();
-        senderAssets.amount = senderAssets.amount - order.orderBill;
-        await senderWallet.save();
-      }else{
-        receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
-        receiverWallet.escrow=receiverWallet.escrow+ +orderBillForty
-        senderAssets.amount = senderAssets.amount - order.orderBill;
-        await receiverWallet.save();
-        await senderWallet.save();
-      }
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
@@ -178,7 +145,13 @@ export class OrdersService {
       let { orderID, status } = req.body;
       let order = await this.ordersModel
         .findById(orderID)
-        .populate(orderStatusReciever, "phoneNo");
+        .populate(orderStatusReciever, "phoneNo walletId");
+      await this.changeBalanceAccordingToStatus(
+        status,
+        order,
+        orderStatusReciever,
+        UserInfo
+      );
       order.orderStatus = status;
       let updatedOrder = await order.save();
       // let {phoneNo}=order.foodLoverId
@@ -198,6 +171,69 @@ export class OrdersService {
         },
         HttpStatus.NOT_FOUND
       );
+    }
+  }
+  async changeBalanceAccordingToStatus(
+    status,
+    order,
+    orderStatusReciever,
+    orderStatusSender
+  ) {
+    try {
+      if (status === "Accepted") {
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodLoverId.walletId
+        );
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
+        );
+        let senderAssets = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        if(senderAssets.amount<order.orderBill){
+          throw "Insufficient Nosh For Order"  
+        }
+        let receiverAssets = statusSenderWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let orderBillSixty = order.orderBill * 0.6;
+        let orderBillForty = order.orderBill * 0.4;
+        if (!receiverAssets) {
+          let token: any = {
+            tokenAddress: "NOSH",
+            tokenSymbol: order.tokenName,
+            tokenName: order.tokenName,
+            amount: orderBillSixty,
+          };
+          console.log(token);
+          statusSenderWallet.assets.push(token);
+          statusSenderWallet.escrow = statusSenderWallet.escrow + +orderBillForty;
+          await statusSenderWallet.save();
+          senderAssets.amount = senderAssets.amount - order.orderBill;
+          await statusRecieverWallet.save();
+        } else {
+          receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
+          statusSenderWallet.escrow = statusSenderWallet.escrow + +orderBillForty;
+          senderAssets.amount = senderAssets.amount - order.orderBill;
+          await statusSenderWallet.save();
+          await statusRecieverWallet.save();
+        }
+      }
+      else if(status === "Complete"){
+        let orderBillForty = order.orderBill * 0.4;
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodCreatorId.walletId
+        );
+        let asset = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        asset.amount=asset.amount + +orderBillForty
+        statusRecieverWallet.escrow=statusRecieverWallet.escrow-orderBillForty
+        await statusRecieverWallet.save()
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw error
     }
   }
   async getOrderHistory(req) {
