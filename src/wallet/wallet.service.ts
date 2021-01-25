@@ -656,11 +656,18 @@ export class WalletService {
   async getAllAssets(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel
+      let UserInfo: any = await this.foodLoverModel
         .findOne({
           phoneNo: user.phoneNo,
         })
         .populate("walletId");
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel
+          .findOne({
+            phoneNo: user.phoneNo,
+          })
+          .populate("walletId");
+      }
       if (!UserInfo) {
         throw {
           msg: WALLET_MESSAGES.USER_NOT_FOUND,
@@ -719,11 +726,18 @@ export class WalletService {
     try {
       // console.log(req.params)
       let { user } = req;
-      const UserInfo = await this.foodLoverModel
+      let UserInfo:any = await this.foodLoverModel
         .findOne({
           phoneNo: user.phoneNo,
         })
         .populate("walletId");
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel
+          .findOne({
+            phoneNo: user.phoneNo,
+          })
+          .populate("walletId");
+      }
       if (!UserInfo) {
         throw {
           msg: WALLET_MESSAGES.USER_NOT_FOUND,
