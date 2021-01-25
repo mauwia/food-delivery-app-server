@@ -31,6 +31,7 @@ export const WalletSchema = new mongoose.Schema({
   publicKey: { type: String },
   encryptedPrivateKey: { type: String },
   assets: [TokenSchema],
+  escrow:{type:Number,default:0},
   requestReceivedForNoshies:{type:Array}
 });
 export interface Wallet extends mongoose.Document {
@@ -38,6 +39,7 @@ export interface Wallet extends mongoose.Document {
   publicKey: string;
   encryptedPrivateKey: string;
   assets: Array<Token>;
+  escrow:number;
   requestReceivedForNoshies:Array<any>;
 }
 export interface Transactions  extends mongoose.Document {

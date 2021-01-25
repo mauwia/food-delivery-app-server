@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { Wallet } from "src/wallet/wallet.model";
+import { WalletModule } from "src/wallet/wallet.module";
+import { WalletService } from "src/wallet/wallet.service";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { pad } from "../utils";
@@ -13,6 +16,8 @@ export class OrdersService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
+    private readonly walletService:WalletService,
     private readonly ordersGateway: OrdersGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -32,7 +37,7 @@ export class OrdersService {
       // }));
       // console.log('Promise One',createdOrders)
       for (let i = 0; i < body.orders.length; i++) {
-        let ordercreate = await this.addOrders(body.orders[i]);
+        let ordercreate = await this.addOrders(body.orders[i],UserInfo);
         createdOrders.push(ordercreate);
       }
       console.log(createdOrders);
@@ -49,7 +54,7 @@ export class OrdersService {
     }
   }
 
-  async addOrders(order) {
+  async addOrders(order,UserInfo) {
     try {
       let foodCreator = await this.foodCreatorModel.findOne({
         _id: order.foodCreatorId,
@@ -60,6 +65,39 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
+      let senderWallet = await this.walletModel.findById(UserInfo.walletId);
+      let receiverWallet = await this.walletModel.findById(foodCreator.walletId);
+      let senderAssets = senderWallet.assets.find(
+        (asset) => asset.tokenName == order.tokenName
+      );
+      console.log(senderAssets)
+      let receiverAssets = receiverWallet.assets.find(
+        (asset) => asset.tokenName == order.tokenName
+      );
+      let orderBillSixty=order.orderBill*0.6
+      let orderBillForty=order.orderBill*0.4
+      console.log(orderBillSixty,orderBillForty)
+      if (!receiverAssets) {
+      
+        let token:any = {
+          tokenAddress: "NOSH",
+          tokenSymbol: order.tokenName,
+          tokenName:order.tokenName,
+          amount: orderBillSixty,
+        };
+        console.log(token)
+        receiverWallet.assets.push(token);
+        receiverWallet.escrow=receiverWallet.escrow+ +orderBillForty
+        await receiverWallet.save();
+        senderAssets.amount = senderAssets.amount - order.orderBill;
+        await senderWallet.save();
+      }else{
+        receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
+        receiverWallet.escrow=receiverWallet.escrow+ +orderBillForty
+        senderAssets.amount = senderAssets.amount - order.orderBill;
+        await receiverWallet.save();
+        await senderWallet.save();
+      }
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
@@ -81,32 +119,34 @@ export class OrdersService {
     try {
       let { user } = req;
       let getOrdersReciever = "foodLoverId";
-      let name='username'
-      let UserInfo:any = await this.foodCreatorModel.findOne({
+      let name = "username";
+      let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         UserInfo = await this.foodLoverModel.findOne({
           phoneNo: user.phoneNo,
         });
-      getOrdersReciever = "foodCreatorId";
-      name='businessName'
+        getOrdersReciever = "foodCreatorId";
+        name = "businessName";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let Orders = await this.ordersModel.find({
-        $and: [
-          // { foodCreatorId: UserInfo._id },
-          {
-            $or: [
-              { foodLoverId: UserInfo._id },
-              { foodCreatorId: UserInfo._id },
-            ],
-          },
-          { orderStatus: { $nin: ["Decline", "Complete"] } },
-        ],
-      }).populate(getOrdersReciever,name);
+      let Orders = await this.ordersModel
+        .find({
+          $and: [
+            // { foodCreatorId: UserInfo._id },
+            {
+              $or: [
+                { foodLoverId: UserInfo._id },
+                { foodCreatorId: UserInfo._id },
+              ],
+            },
+            { orderStatus: { $nin: ["Decline", "Complete"] } },
+          ],
+        })
+        .populate(getOrdersReciever, name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);

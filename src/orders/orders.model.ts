@@ -27,6 +27,7 @@ export const OrdersSchema = new mongoose.Schema({
     required: true,
   },
   orderId: { type: String },
+  tokenName: { type: String },
   locationTo: { address: { type: String } },
   locationFrom: { address: { type: String } },
   orderBill: { type: Number },
@@ -45,6 +46,7 @@ export interface Orders extends mongoose.Document {
   orderStatus: string;
   timestamp: string;
   locationTo: any;
+  tokenName: string;
   orderId: string;
   locationFrom: any;
   orderBill: number;

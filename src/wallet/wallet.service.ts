@@ -678,7 +678,7 @@ export class WalletService {
         return { assets: [{ tokenName: "NOSH", amount: 0 }] };
       }
       // console.log(UserInfo)
-      return { assets: UserInfo.walletId.assets };
+      return { assets: UserInfo.walletId.assets,escrow:UserInfo.walletId.escrow };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
