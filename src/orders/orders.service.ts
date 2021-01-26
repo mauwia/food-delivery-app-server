@@ -190,8 +190,8 @@ export class OrdersService {
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        if(senderAssets.amount<order.orderBill){
-          throw "Insufficient Nosh For Order"  
+        if (senderAssets.amount < order.orderBill) {
+          throw "Insufficient Nosh For Order";
         }
         let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
@@ -207,19 +207,20 @@ export class OrdersService {
           };
           console.log(token);
           statusSenderWallet.assets.push(token);
-          statusSenderWallet.escrow = statusSenderWallet.escrow + +orderBillForty;
+          statusSenderWallet.escrow =
+            statusSenderWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
           senderAssets.amount = senderAssets.amount - order.orderBill;
           await statusRecieverWallet.save();
         } else {
           receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
-          statusSenderWallet.escrow = statusSenderWallet.escrow + +orderBillForty;
+          statusSenderWallet.escrow =
+            statusSenderWallet.escrow + +orderBillForty;
           senderAssets.amount = senderAssets.amount - order.orderBill;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
-      }
-      else if(status === "Complete"){
+      } else if (status === "Complete") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
@@ -227,13 +228,35 @@ export class OrdersService {
         let asset = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        asset.amount=asset.amount + +orderBillForty
-        statusRecieverWallet.escrow=statusRecieverWallet.escrow-orderBillForty
+        asset.amount = asset.amount + +orderBillForty;
+        statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow - orderBillForty;
+        await statusRecieverWallet.save();
+      } else if (status === "Cancel") {
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodCreatorId.walletId
+        );
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
+        );
+        let FC_Assets = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let FL_Assets = statusSenderWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let orderBillSixty = order.orderBill * 0.6;
+        let orderBillForty = order.orderBill * 0.4;
+        statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow - orderBillForty;
+        FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
+        FL_Assets.amount = FL_Assets.amount + orderBillSixty;
         await statusRecieverWallet.save()
+        await statusSenderWallet.save()
       }
     } catch (error) {
       this.logger.error(error, error.stack);
-      throw error
+      throw error;
     }
   }
   async getOrderHistory(req) {
