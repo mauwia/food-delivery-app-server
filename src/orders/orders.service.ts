@@ -110,7 +110,7 @@ export class OrdersService {
                 { foodCreatorId: UserInfo._id },
               ],
             },
-            { orderStatus: { $nin: ["Decline", "Complete"] } },
+            { orderStatus: { $nin: ["Decline", "Order Completed", "Cancel"] } },
           ],
         })
         .populate(getOrdersReciever, name);
@@ -248,8 +248,8 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
         FL_Assets.amount = FL_Assets.amount + orderBillSixty;
-        await statusRecieverWallet.save()
-        await statusSenderWallet.save()
+        await statusRecieverWallet.save();
+        await statusSenderWallet.save();
       }
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -271,6 +271,15 @@ export class OrdersService {
       let Orders = await this.ordersModel
         .find({
           foodCreatorId: UserInfo._id,
+          orderStatus: {
+            $nin: [
+              "New",
+              "Accepted",
+              "Being Prepared",
+              "Prepared",
+              "InTransit",
+            ],
+          },
         })
         .sort({ orderId: "desc" })
         .limit(resultsPerPage)
