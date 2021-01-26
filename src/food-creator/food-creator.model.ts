@@ -16,6 +16,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
     },
   },
   // location: { type: Array },
+  creatorFoodType:{type:String},
   imageUrl: { type: String, default: null },
   countryCode: { type: String },
   countryName: { type: String },
@@ -32,6 +33,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
 FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
+  creatorFoodType:string;
   phoneNo: string;
   passHash: string;
   location: any;

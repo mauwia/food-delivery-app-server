@@ -22,7 +22,7 @@ export const OrdersSchema = new mongoose.Schema({
       "InTransit",
       "Decline",
       "Cancel",
-      "Complete",
+      "Order Completed",
     ],
     required: true,
   },

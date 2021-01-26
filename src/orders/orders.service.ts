@@ -190,9 +190,6 @@ export class OrdersService {
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        if (senderAssets.amount < order.orderBill) {
-          throw "Insufficient Nosh For Order";
-        }
         let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -220,7 +217,7 @@ export class OrdersService {
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
-      } else if (status === "Complete") {
+      } else if (status === "Order Completed") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
