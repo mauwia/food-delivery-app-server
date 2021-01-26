@@ -3,7 +3,7 @@ import {
   Get,
 } from "@nestjs/common";
 import { AppService } from "./app.service";
-import { pad } from "./utils";
+// import { pad } from "./utils";
 @Controller()
 // @UseGuards(new JWTAuthGuard())
 export class AppController {
