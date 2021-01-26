@@ -247,26 +247,34 @@ export class FoodLoverService {
   }
   async addNewPassword(req) {
     try {
-      let user = req.user ? req.user : req.body;
       const UserInfo = await this.foodLoverModel.findOne({
-        phoneNo: user.phoneNo,
+        phoneNo: req.body.phoneNo,
       });
+
       if (!UserInfo) {
-        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
-      } else {
-        UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
-        delete req.body.password;
-        await UserInfo.save();
-        return { passwordChanged: true };
+        throw {
+          msg: FOOD_LOVER_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
       }
+      if (bcrypt.compareSync(req.body.password, UserInfo.passHash)) {
+        throw  {
+          msg: FOOD_LOVER_MESSAGES.EXIST_PASS,
+          status: HttpStatus.NOT_ACCEPTABLE,
+        };
+      }
+      UserInfo.passHash = bcrypt.hashSync(req.body.password, 8);
+      delete req.body.password;
+      await UserInfo.save();
+      return { passwordChanged: true };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          msg: error,
+          status: error.status,
+          msg: error.msg,
         },
-        HttpStatus.NOT_FOUND
+        error.status
       );
     }
   }

@@ -40,6 +40,7 @@ export class MenuService {
             },
           },
         })
+        // console.log(nearByFoodCreators)
         .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -totalOrders");
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
@@ -156,7 +157,14 @@ export class MenuService {
         .populate("menuItems");
       return { menu };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
     }
   }
   async deleteMenu(req) {

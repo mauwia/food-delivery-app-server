@@ -7,7 +7,7 @@ import { MenuService } from "./menu.service";
 describe("MenuController", () => {
   let menuController: MenuController;
   let Menu = {
-    _id:"12345678",
+    _id: "12345678",
     foodCreatorId: "js92je920020211",
     menuItems: ["123456789", "987654321"],
     menuName: "Chicken",
@@ -28,6 +28,8 @@ describe("MenuController", () => {
   class foodCreatorModel {
     constructor() {}
     static findOne = jest.fn().mockResolvedValue(foodCreator);
+    static find = jest.fn().mockReturnValue(foodCreatorModel);
+    static select = jest.fn().mockResolvedValue([foodCreator]);
   }
   class MenuModel {
     constructor() {}
@@ -35,14 +37,14 @@ describe("MenuController", () => {
     // static findOne=jest.fn().mockResolvedValue(null) //for addMenu
     static findOne = jest.fn().mockResolvedValue({ ...Menu, save: jest.fn() }); //for addMenuItem
     static findByIdAndUpdate = jest.fn().mockImplementation((body) => {
-      if(body===Menu._id){
-        Menu.menuName="Burger"
+      if (body === Menu._id) {
+        Menu.menuName = "Burger";
       }
       return MenuModel;
     });
-    static findOneAndUpdate=jest.fn().mockResolvedValue(Menu)
+    static findOneAndUpdate = jest.fn().mockResolvedValue(Menu);
     static populate = jest.fn().mockResolvedValue(Menu);
-    static findOneAndDelete = jest.fn().mockResolvedValue(Menu)
+    static findOneAndDelete = jest.fn().mockResolvedValue(Menu);
   }
   class MenuItemModel {
     constructor() {}
@@ -52,10 +54,9 @@ describe("MenuController", () => {
     static findOne = jest
       .fn()
       .mockResolvedValue({ ...MenuItem, save: jest.fn() });
-    static findById=jest.fn().mockResolvedValue(MenuItem)
-    static findOneAndUpdate=jest.fn().mockResolvedValue(MenuItem)
-    static findOneAndDelete = jest.fn().mockResolvedValue(MenuItem)
-
+    static findById = jest.fn().mockResolvedValue(MenuItem);
+    static findOneAndUpdate = jest.fn().mockResolvedValue(MenuItem);
+    static findOneAndDelete = jest.fn().mockResolvedValue(MenuItem);
   }
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -122,23 +123,23 @@ describe("MenuController", () => {
     // expect(Menu.menuItems[2]).toBe("1233456")
   });
   test("editMenu", async () => {
-//     let req = ({
-//       user: {
-//         phoneNo: "123456789",
-//       },
-//       body: {
-//         menuName: "Burger",
-//         menuId: "12345678",
-//       },
-//     } as unknown) as Request;
-//     let response = await menuController.EditMenu(req);
-//     expect(response.updatedMenu).toStrictEqual({
-//       _id: '12345678',
-//       foodCreatorId: 'js92je920020211',
-//       menuItems: [ '123456789', '987654321' ],
-//       menuName: 'Burger'
-//     }
-// )
+    //     let req = ({
+    //       user: {
+    //         phoneNo: "123456789",
+    //       },
+    //       body: {
+    //         menuName: "Burger",
+    //         menuId: "12345678",
+    //       },
+    //     } as unknown) as Request;
+    //     let response = await menuController.EditMenu(req);
+    //     expect(response.updatedMenu).toStrictEqual({
+    //       _id: '12345678',
+    //       foodCreatorId: 'js92je920020211',
+    //       menuItems: [ '123456789', '987654321' ],
+    //       menuName: 'Burger'
+    //     }
+    // )
   });
   test("editMenuItem", async () => {
     // let req = ({
@@ -151,9 +152,9 @@ describe("MenuController", () => {
     //   },
     // } as unknown) as Request;
     // let response = await menuController.EditMenuItem(req);
-  //  console.log(response)
+    //  console.log(response)
   });
-  test("deleteMenu",async ()=>{
+  test("deleteMenu", async () => {
     //   let req = ({
     //   user: {
     //     phoneNo: "123456789",
@@ -164,8 +165,8 @@ describe("MenuController", () => {
     // } as unknown) as Request;
     // let response = await menuController.DeleteMenu(req);
     // expect(response.message).toBe("Menu Deleted")
-  })
-  test("deleteMenuItem",async ()=>{
+  });
+  test("deleteMenuItem", async () => {
     // let req = ({
     //   user: {
     //     phoneNo: "123456789",
@@ -177,21 +178,21 @@ describe("MenuController", () => {
     // } as unknown) as Request;
     // let response = await menuController.DeleteMenuItem(req);
     //     expect(response.message).toBe("Menu Item Deleted")
-  })
-  test("getAllCreators",async ()=>{
-     let req = ({
+  });
+  test("getAllCreators", async () => {
+    let req = ({
       user: {
         phoneNo: "123456789",
       },
       body: {
-       long:27.234556,
-       latt:69.060920
+        lng: 27.234556,
+        lat: 69.06092,
       },
-      params:{
-        creatorID:"123456789"
-      }
+      params: {
+        creatorID: "123456789",
+      },
     } as unknown) as Request;
     let response = await menuController.GetAllCreators(req);
-    //     expect(response.message).toBe("Menu Item Deleted")
-  })
+        expect(response.nearByFoodCreators).toStrictEqual([ { phoneNo: '123456789', _id: 'testId1234' } ])
+  });
 });

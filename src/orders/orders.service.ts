@@ -1,9 +1,12 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { FoodCreator } from "src/food-creator/food-creator.model";
-import { FoodLover } from "src/foodLover/foodLover.model";
-import { pad } from "src/utils";
+import { Wallet } from "src/wallet/wallet.model";
+import { WalletModule } from "src/wallet/wallet.module";
+import { WalletService } from "src/wallet/wallet.service";
+import { FoodCreator } from "../food-creator/food-creator.model";
+import { FoodLover } from "../foodLover/foodLover.model";
+import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import { Orders } from "./orders.model";
 @Injectable()
@@ -13,7 +16,9 @@ export class OrdersService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    private readonly ordersGateway:OrdersGateway
+    @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
+    private readonly walletService: WalletService,
+    private readonly ordersGateway: OrdersGateway
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -26,13 +31,13 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let { body } = req;
-      let createdOrders=[]
+      let createdOrders = [];
       // let createdOrders = await Promise.all(body.orders.map(order => {
       //   return this.addOrders(order);
       // }));
       // console.log('Promise One',createdOrders)
       for (let i = 0; i < body.orders.length; i++) {
-        let ordercreate = await this.addOrders(body.orders[i]);
+        let ordercreate = await this.addOrders(body.orders[i], UserInfo);
         createdOrders.push(ordercreate);
       }
       console.log(createdOrders);
@@ -49,7 +54,7 @@ export class OrdersService {
     }
   }
 
-  async addOrders(order) {
+  async addOrders(order, UserInfo) {
     try {
       let foodCreator = await this.foodCreatorModel.findOne({
         _id: order.foodCreatorId,
@@ -64,7 +69,7 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated)
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -80,18 +85,35 @@ export class OrdersService {
   async getOrders(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodCreatorModel.findOne({
+      let getOrdersReciever = "foodLoverId";
+      let name = "username";
+      let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+        getOrdersReciever = "foodCreatorId";
+        name = "businessName";
+      }
+      if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let Orders = await this.ordersModel.find({
-        $and: [
-          { foodCreatorId: UserInfo._id },
-          { orderStatus: { $ne: "Decline" } },
-        ],
-      });
+      let Orders = await this.ordersModel
+        .find({
+          $and: [
+            // { foodCreatorId: UserInfo._id },
+            {
+              $or: [
+                { foodLoverId: UserInfo._id },
+                { foodCreatorId: UserInfo._id },
+              ],
+            },
+            { orderStatus: { $nin: ["Decline", "Order Completed", "Cancel"] } },
+          ],
+        })
+        .populate(getOrdersReciever, name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -107,31 +129,38 @@ export class OrdersService {
   async updateOrderStatus(req) {
     try {
       let { user } = req;
-      let orderStatusReciever='foodLoverId'
-      let UserInfo: any = await this.foodCreatorModel
-        .findOne({
-          phoneNo: user.phoneNo,
-        })
+      let orderStatusReciever = "foodLoverId";
+      let UserInfo: any = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
       if (!UserInfo) {
-        UserInfo = await this.foodLoverModel
-          .findOne({
-            phoneNo: user.phoneNo,
-          })
-          orderStatusReciever="foodCreatorId"
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+        orderStatusReciever = "foodCreatorId";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
       let { orderID, status } = req.body;
-      let order = await this.ordersModel.findById(orderID).populate(orderStatusReciever,"phoneNo");
+      let order = await this.ordersModel
+        .findById(orderID)
+        .populate(orderStatusReciever, "phoneNo walletId");
+      await this.changeBalanceAccordingToStatus(
+        status,
+        order,
+        orderStatusReciever,
+        UserInfo
+      );
       order.orderStatus = status;
       let updatedOrder = await order.save();
       // let {phoneNo}=order.foodLoverId
-      let sendStatusToPhoneNo = orderStatusReciever==="foodLoverId"
-      ? order.foodLoverId.phoneNo
-      : order.foodCreatorId.phoneNo;
-      console.log(sendStatusToPhoneNo)
-      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo,updatedOrder)
+      let sendStatusToPhoneNo =
+        orderStatusReciever === "foodLoverId"
+          ? order.foodLoverId.phoneNo
+          : order.foodCreatorId.phoneNo;
+      console.log(sendStatusToPhoneNo);
+      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -142,6 +171,89 @@ export class OrdersService {
         },
         HttpStatus.NOT_FOUND
       );
+    }
+  }
+  async changeBalanceAccordingToStatus(
+    status,
+    order,
+    orderStatusReciever,
+    orderStatusSender
+  ) {
+    try {
+      if (status === "Accepted") {
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodLoverId.walletId
+        );
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
+        );
+        let senderAssets = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let receiverAssets = statusSenderWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let orderBillSixty = order.orderBill * 0.6;
+        let orderBillForty = order.orderBill * 0.4;
+        if (!receiverAssets) {
+          let token: any = {
+            tokenAddress: "NOSH",
+            tokenSymbol: order.tokenName,
+            tokenName: order.tokenName,
+            amount: orderBillSixty,
+          };
+          console.log(token);
+          statusSenderWallet.assets.push(token);
+          statusSenderWallet.escrow =
+            statusSenderWallet.escrow + +orderBillForty;
+          await statusSenderWallet.save();
+          senderAssets.amount = senderAssets.amount - order.orderBill;
+          await statusRecieverWallet.save();
+        } else {
+          receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
+          statusSenderWallet.escrow =
+            statusSenderWallet.escrow + +orderBillForty;
+          senderAssets.amount = senderAssets.amount - order.orderBill;
+          await statusSenderWallet.save();
+          await statusRecieverWallet.save();
+        }
+      } else if (status === "Order Completed") {
+        let orderBillForty = order.orderBill * 0.4;
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodCreatorId.walletId
+        );
+        let asset = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        asset.amount = asset.amount + +orderBillForty;
+        statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow - orderBillForty;
+        await statusRecieverWallet.save();
+      } else if (status === "Cancel") {
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodCreatorId.walletId
+        );
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
+        );
+        let FC_Assets = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let FL_Assets = statusSenderWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let orderBillSixty = order.orderBill * 0.6;
+        let orderBillForty = order.orderBill * 0.4;
+        statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow - orderBillForty;
+        FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
+        FL_Assets.amount = FL_Assets.amount + orderBillSixty;
+        await statusRecieverWallet.save();
+        await statusSenderWallet.save();
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw error;
     }
   }
   async getOrderHistory(req) {
@@ -159,6 +271,15 @@ export class OrdersService {
       let Orders = await this.ordersModel
         .find({
           foodCreatorId: UserInfo._id,
+          orderStatus: {
+            $nin: [
+              "New",
+              "Accepted",
+              "Being Prepared",
+              "Prepared",
+              "InTransit",
+            ],
+          },
         })
         .sort({ orderId: "desc" })
         .limit(resultsPerPage)
