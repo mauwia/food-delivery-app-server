@@ -1,6 +1,5 @@
 import * as mongoose from "mongoose";
 
-
 export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
@@ -10,7 +9,6 @@ export const FoodCreatorSchema = new mongoose.Schema({
     type: {
       type: String, // Don't do `{ location: { type: String } }`
       enum: ["Point"], // 'location.type' must be 'Point'
-    
     },
     coordinates: {
       type: [Number],
@@ -18,6 +16,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
     },
   },
   // location: { type: Array },
+  creatorFoodType:{type:String},
   imageUrl: { type: String, default: null },
   countryCode: { type: String },
   countryName: { type: String },
@@ -25,14 +24,16 @@ export const FoodCreatorSchema = new mongoose.Schema({
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   subscribers: { type: Array },
   onlineStatus: { type: Boolean, default: true },
-  totalOrders: { type: String, default: "000" },
+  totalOrders: { type: String, default: "00000" },
   verified: { type: Boolean, default: false },
   avgRating: { type: Number },
   mobileRegisteredId: { type: String, required: true },
+  fcmRegistrationToken: { type: Array },
 });
-FoodCreatorSchema.index({ location: "2dsphere" })
+FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
+  creatorFoodType:string;
   phoneNo: string;
   passHash: string;
   location: any;
@@ -48,5 +49,5 @@ export interface FoodCreator extends mongoose.Document {
   avgRating: Number;
   mobileRegisteredId: string;
   totalOrders: string;
+  fcmRegistrationToken: Array<any>;
 }
-
