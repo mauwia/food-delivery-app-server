@@ -108,7 +108,10 @@ export class FoodLoverService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user, code: OTPCode.CodeDigit };
-      } else {
+      }else if (uniqueNumberInCreator){
+        throw FOOD_LOVER_MESSAGES.USER_EXIST_IN_FC;
+      } 
+      else {
         throw FOOD_LOVER_MESSAGES.USER_EXIST;
       }
     } catch (error) {
