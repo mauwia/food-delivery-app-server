@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { Controller, Put, Req, UseGuards, Patch, Query, Res } from '@nestjs/common';
+import { Request } from "express";
+import { Controller, Put, Req, UseGuards, Patch, Query } from '@nestjs/common';
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { ProfileService } from './profile.service';
 
@@ -9,15 +9,15 @@ export class ProfileController {
 
   @UseGuards(new JWTAuthGuard())
   @Put('/updateProfile')
-  async updateProfile(@Req() req: Request, @Res() res: Response, @Query() query) {
-    const response = await this.profileService.updateProfile(req, res, query);
+  async updateProfile(@Req() req: Request, @Query() query) {
+    const response = await this.profileService.updateProfile(req, query);
     return response;
   }
 
   @UseGuards(new JWTAuthGuard())
   @Patch('/updatePassword')
-  async updatePassword(@Req() req: Request, @Res() res: Response, @Query() query) { 
-    const response = await this.profileService.updatePassword(req, res, query);
+  async updatePassword(@Req() req: Request, @Query() query) { 
+    const response = await this.profileService.updatePassword(req, query);
     return response;
   }
 }
