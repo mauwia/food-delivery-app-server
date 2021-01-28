@@ -25,6 +25,7 @@ export class ProfileService {
       imageUrl: string,
       location: [],
       mobileRegisteredId: string,
+      email:string,
       pin: string,
     } } = request;
     let userType = query.user as string;
@@ -67,6 +68,7 @@ export class ProfileService {
             { $set: {
               phoneNo: body.phoneNo || userProfile.phoneNo,
               verified: body.verified || userProfile.verified,
+              email:body.email||userProfile.email,
               username: body.username || userProfile.username,
               imageUrl: body.imageUrl || userProfile.imageUrl,
               location: body.location || userProfile.location,

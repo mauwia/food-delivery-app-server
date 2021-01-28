@@ -72,6 +72,7 @@
     // });
     //Signin MOCK
     static findOne = jest.fn().mockImplementation((body) => {
+      
       if (body.phoneNo === event.phoneNo) {
           // return event
       //    for authenticate OTP and Password and addNewPassword
@@ -101,9 +102,9 @@
     //Signin MOCK
     static findOne = jest.fn().mockImplementation((body) => {
       if (body.phoneNo === event.phoneNo) {
-        return event;
+        // return event;
         //    for authenticate OTP and Password and addNewPassword
-          // return {...event,save:jest.fn()};
+          return {...event,save:jest.fn()};
       }
     });
     static findOneAndUpdate = jest.fn().mockResolvedValue(event);
@@ -178,85 +179,85 @@
       // });
     });
     test("FoodLoverSignIn", async () => {
-      // let req = {
-      //   body: {
-      //     phoneNo: "123456789",
-      //     password: "string",
-      //   },
-      // } as Request;
-      // let response = await foodCreatorController.login(req);
-      // expect(response.user).toStrictEqual({
-      //   phoneNo: "123456789",
-      //   passHash: "",
-      //   verified: false,
-      //   location: [],
-      //   pinHash:false,
-      //   imageUrl: "",
-      //   username: "",
-      //   mobileRegisteredId: "12345678",
-      // });
+      let req = {
+        body: {
+          phoneNo: "123456789",
+          password: "string",
+        },
+      } as Request;
+      let response = await foodCreatorController.login(req);
+      expect(response.user).toStrictEqual({
+        phoneNo: "123456789",
+        passHash: "",
+        verified: false,
+        location: [],
+        pinHash:false,
+        imageUrl: "",
+        username: "",
+        mobileRegisteredId: "12345678",
+      });
     });
     test("getLoverInfo", async () => {
-      // let req = ({
-      //   user: {
-      //     phoneNo: "123456789",
-      //   },
-      // } as unknown) as Request;
-      // let response = await foodLoverController.LoverInfo(req);
-      // expect(response.user).toStrictEqual({
-      //   phoneNo: "123456789",
-      //   passHash: "",
-      //   verified: false,
-      //   location: [],
-      //   pinHash:false,
-      //   imageUrl: "",
-      //   username: "",
-      //   mobileRegisteredId: "12345678",
-      // });
+      let req = ({
+        user: {
+          phoneNo: "123456789",
+        },
+      } as unknown) as Request;
+      let response = await foodCreatorController.getCreatorInfo(req);
+      expect(response.user).toStrictEqual({
+        phoneNo: "123456789",
+        passHash: "",
+        verified: false,
+        location: [],
+        pinHash:false,
+        imageUrl: "",
+        username: "",
+        mobileRegisteredId: "12345678",
+      });
     });
 
     test("getUserRegisteredDevice", async () => {
-      // let req = ({
-      //   body: {
-      //    mobileRegisteredId:'12345678',
-      //   },
-      // } as unknown) as Request;
-      // let response = await foodLoverController.GetUserRegisteredDevice(req);
-      // expect(response.mobileRegisteredId).toBe(true);
+      let req = ({
+        body: {
+         mobileRegisteredId:'12345678',
+        },
+      } as unknown) as Request;
+      let response = await foodCreatorController.GetUserRegisteredDevice(req);
+      expect(response.mobileRegisteredId).toBe(true);
     });
     //UNCOMENT findOne() return property for these test
     test("resendOTP", async () => {
-      // let req = ({
-      //     user: {
-      //       phoneNo: "123456789",
-      //     },
-      //     body:{
-      //         codeLength:6
-      //     }
-      //   } as unknown) as Request;
-      // let response=await foodLoverController.ResendOTP(req)
-      // expect(response).toHaveProperty('code')
+      let req = ({
+          user: {
+            phoneNo: "123456789",
+          },
+          body:{
+              codeLength:6
+          }
+        } as unknown) as Request;
+      let response=await foodCreatorController.ResendOTP(req)
+      expect(response).toHaveProperty('code')
     });
     test("authenticateOTP", async () => {
-      // let req1 = ({
-      //     user: {
-      //       phoneNo: "123456789",
-      //     },
-      //     body:{
-      //         codeLength:6
-      //     }
-      //   } as unknown) as Request;
-      // let response1=await foodLoverController.ResendOTP(req1)
-      // let req = ({
-      //     user: {
-      //       phoneNo: "123456789",
-      //     },
-      //     body:{
-      //         otp:response1.code
-      //     }
-      //   } as unknown) as Request;
-      //   let response=await foodLoverController.AuthenticateCode(req)
-      //  expect(response.validated).toBe(true)
+      let req1 = ({
+          user: {
+            phoneNo: "123456789",
+          },
+          body:{
+              codeLength:6
+          }
+        } as unknown) as Request;
+      let response1=await foodCreatorController.ResendOTP(req1)
+      let req = ({
+          user: {
+            phoneNo: "123456789",
+          },
+          body:{
+              otp:response1.code
+          }
+        } as unknown) as Request;
+        let response=await foodCreatorController.AuthenticateCode(req)
+       expect(response.validated).toBe(true)
     });
     test("forgetPassword", async () => {
       // let req = ({

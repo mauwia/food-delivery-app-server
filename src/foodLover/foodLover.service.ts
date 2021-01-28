@@ -23,12 +23,10 @@ export class FoodLoverService {
   private logger = new Logger("Food Lover");
   async signinLover(req: { phoneNo: string; password: string }) {
     try {
-      console.log("HHEEETRRRRRWWWW")
       const userExist = await this.foodLoverModel
         .findOne({
           phoneNo: req.phoneNo,
         })
-        console.log("USER",userExist)
       if (!userExist) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_EXIST;
       }
