@@ -7,6 +7,7 @@ import { Request } from "express";
 import { TwilioModule } from "nestjs-twilio";
 import { WalletService } from "../wallet/wallet.service";
 import { AppGateway } from "../app.gateway";
+import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
 let OTPToken;
 let Token = {
   tokenAddress: "21ke909test",
@@ -88,7 +89,7 @@ class eventModel {
 
   static deleteOne = jest.fn().mockResolvedValue(true);
 }
-class FoodCreatorModel {
+class FoodLoverModel {
   constructor() {}
   static save = jest.fn().mockResolvedValue(event);
   static find = jest.fn().mockResolvedValue([event, event]);
@@ -99,8 +100,13 @@ class FoodCreatorModel {
     //     }
     // });
   //Signin MOCK
-  static findOne = jest.fn().mockImplementation((body) => {
-    if (body.phoneNo === event.phoneNo) {
+  static findOne = jest.fn((body) => {
+    if(body.phoneNo!==event.phoneNo){
+    console.log(body.phoneNo,event.phoneNo)
+      console.log("UNSSS")
+              return null
+          }
+    else{
       // return event;
       //    for authenticate OTP and Password and addNewPassword
         return {...event,save:jest.fn()};
@@ -143,7 +149,7 @@ describe("AppController", () => {
         },
         {
           provide: getModelToken("FoodCreator"),
-          useValue: FoodCreatorModel,
+          useValue: FoodLoverModel,
         },
       ],
       imports: [
@@ -158,43 +164,38 @@ describe("AppController", () => {
   });
   test("FoodLoverSignUp", async () => {
     // uncomment findone in eventModal and comment other one
-  //   let req = {
-  //     body: {
-  //       phoneNo: "123456789",
-  //       password: "string",
-  //       mobileRegisteredId: "122343454",
-  //     },
-  //   } as Request;
-  //   let response = await foodLoverController.signup(req);
-  //   expect(response.user).toStrictEqual({
-  //     phoneNo: "12345",
-  //     passHash: "",
-  //     pinHash:false,
-  //     location: [],
-  //     imageUrl: "",
-  //     username: "",
-  //     mobileRegisteredId: "body.mobileRegisteredId",
-  //     verified: false,
-  //   });
+    let req = {
+      body: {
+        phoneNo: "123456789",
+        password: "string",
+        mobileRegisteredId: "122343454",
+      },
+    } as Request;
+    jest.spyOn(FoodLoverModel,"findOne").mockResolvedValue(event as never)
+
+    let response = await foodLoverController.signup(req);
+    expect(response.user).toStrictEqual({
+      phoneNo: "12345",
+      passHash: "",
+      pinHash:false,
+      location: [],
+      imageUrl: "",
+      username: "",
+      mobileRegisteredId: "body.mobileRegisteredId",
+      verified: false,
+    });
   });
   test("FoodLoverSignIn", async () => {
-    // let req = {
-    //   body: {
-    //     phoneNo: "123456789",
-    //     password: "string",
-    //   },
-    // } as Request;
-    // let response = await foodLoverController.login(req);
-    // expect(response.user).toStrictEqual({
-    //   phoneNo: "123456789",
-    //   passHash: "",
-    //   verified: false,
-    //   location: [],
-    //   pinHash:false,
-    //   imageUrl: "",
-    //   username: "",
-    //   mobileRegisteredId: "12345678",
-    // });
+    let req = {
+      body: {
+        phoneNo: "123456789",
+        password: "string",
+      },
+    } as Request;
+    jest.spyOn(FoodLoverModel,"findOne").mockResolvedValue(event as never)
+    let response = await foodLoverController.login(req);
+    console.log(response)
+    expect(response.user.phoneNo).toBe("123456789")
   });
   test("getLoverInfo", async () => {
     // let req = ({

@@ -10,7 +10,7 @@ const TokenSchema = new mongoose.Schema({
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
-    enum: ["Sent Noshies", "Noshies Request", "Withdrawal to Bank", "Bought Noshies By Card", "Bought Noshies By Bank","Bought Noshies By Crypto"],
+    enum: ["Sent Noshies", "Noshies Request", "Withdrawal to Bank", "Bought Noshies By Card", "Bought Noshies By Bank","Bought Noshies By Crypto","Payment Received","In Process Order"],
     required: true,
   },
   from: { type: String },

@@ -217,6 +217,14 @@ export class OrdersService {
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
+        await this.walletService.checkTransaction({
+          transactionType: "In Process Order",
+          from: orderStatusReciever.foodLover.phoneNo,
+          to: orderStatusSender.phoneNo,
+          amount:order.orderBill,
+          currency: order.tokenName,
+          status: "In Process",
+        })
       } else if (status === "Order Completed") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
