@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { Injectable, HttpStatus, HttpException, Logger } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException, Logger, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PROFILE_MESSAGES, PROFILE_DATA } from './constants/key-constants';
 import { FoodLover } from '../foodLover/foodLover.model';
@@ -15,7 +15,7 @@ export class ProfileService {
   ) {}
   private logger = new Logger('Profile');
 
-  async updateProfile(request, response, query) {
+  async updateProfile(request, query) {
     let pinHash: string;
     let { user, body }: { user: {phoneNo: string}, body: {
       phoneNo: string,
@@ -25,11 +25,12 @@ export class ProfileService {
       imageUrl: string,
       location: [],
       mobileRegisteredId: string,
+      email:string,
       pin: string,
     } } = request;
     let userType = query.user as string;
 
-    if (this.isValidUsertype(query, response)) {
+    if (this.isValidUsertype(query)) {
       let model;
       if (userType === 'fl') {
         model = this.foodLoverModel;
@@ -67,6 +68,7 @@ export class ProfileService {
             { $set: {
               phoneNo: body.phoneNo || userProfile.phoneNo,
               verified: body.verified || userProfile.verified,
+              email:body.email||userProfile.email,
               username: body.username || userProfile.username,
               imageUrl: body.imageUrl || userProfile.imageUrl,
               location: body.location || userProfile.location,
@@ -80,10 +82,8 @@ export class ProfileService {
             },
           );
           updatedProfile.pinHash = !!updatedProfile.pinHash
-          console.log(updatedProfile)
-          return response.status(200).json({
-            updatedProfile
-          });
+
+          return updatedProfile;
         } else {
           throw PROFILE_MESSAGES.USER_NOT_FOUND
         }
@@ -100,11 +100,11 @@ export class ProfileService {
     }
   }
 
-  async updatePassword(request, response, query) {
+  async updatePassword(request, query) {
     let { user, body }: { user: { phoneNo: string }, body: { password: string } } = request;
     let userType = query.user as string;
 
-    if (this.isValidUsertype(query, response)) {
+    if (this.isValidUsertype(query)) {
       try {
         let model;
         if (userType === 'fl') {
@@ -120,36 +120,28 @@ export class ProfileService {
         if (userProfile) {
           userProfile.passHash = bcrypt.hashSync(body.password, 8);
           await userProfile.save();
-          return { passwordUpdated: true };
+          return { 
+            passwordUpdated: true 
+          };
         } else {
-          throw PROFILE_MESSAGES.USER_NOT_FOUND
+          throw new BadRequestException(PROFILE_MESSAGES.USER_NOT_FOUND);
         }
       } catch (error) {
         this.logger.error(error, error.stack)
-        throw new HttpException(
-          {
-            status: HttpStatus.BAD_REQUEST,
-            msg: error,
-          },
-          HttpStatus.BAD_REQUEST
-        );
+        throw new BadRequestException(error);
       }
     }
   }
 
-  isValidUsertype(query, response) {
+  isValidUsertype(query) {
     let userType = query.user as string;
 
     if (!userType) {
-      return response.status(400).json({
-        msg: PROFILE_MESSAGES.SPECIFY_USER_TYPE
-      });
+      throw new BadRequestException(PROFILE_MESSAGES.SPECIFY_USER_TYPE);
     }
 
     if (!PROFILE_DATA.USER_TYPES.includes(`${userType}`)) {
-      return response.status(400).json({
-        msg: PROFILE_MESSAGES.INVALID_USER_TYPE
-      });
+      throw new BadRequestException(PROFILE_MESSAGES.INVALID_USER_TYPE);
     }
 
     return true;

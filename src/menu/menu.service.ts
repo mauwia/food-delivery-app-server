@@ -41,7 +41,7 @@ export class MenuService {
           },
         })
         // console.log(nearByFoodCreators)
-        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -totalOrders");
+        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified");
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
       //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
@@ -154,7 +154,14 @@ export class MenuService {
       }
       let menu = await this.menuModel
         .find({ foodCreatorId: req.params.creatorID })
-        .populate("menuItems");
+        .populate([{
+          path:'menuItems'
+        },
+        {
+          path:"foodCreatorId",
+          select:"businessName"
+        }
+      ]);
       return { menu };
     } catch (error) {
       this.logger.error(error, error.stack);

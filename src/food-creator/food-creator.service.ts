@@ -103,7 +103,11 @@ export class FoodCreatorService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user };
-      } else {
+      }
+      else if(uniqueNumberInLover){
+        throw FOOD_CREATOR_MESSAGES.USER_EXIST_IN_FL;
+      } 
+      else {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST;
       }
     } catch (error) {
