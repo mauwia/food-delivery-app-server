@@ -6,5 +6,6 @@ export const FOOD_CREATOR_MESSAGES = {
     WRONG_PASSWORD:"Wrong password",
     USER_EXIST:"User already exist",
     WRONG_PIN:"Wrong pin",
+    USER_EXIST_IN_FL:"User Exist in Lover",
     EXIST_PASS:"Password Should be Different From Previous Password"
 };

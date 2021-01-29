@@ -32,7 +32,6 @@ export class FoodLoverService {
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
-
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET
@@ -108,7 +107,10 @@ export class FoodLoverService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user, code: OTPCode.CodeDigit };
-      } else {
+      }else if (uniqueNumberInCreator){
+        throw FOOD_LOVER_MESSAGES.USER_EXIST_IN_FC;
+      } 
+      else {
         throw FOOD_LOVER_MESSAGES.USER_EXIST;
       }
     } catch (error) {

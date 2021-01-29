@@ -69,7 +69,13 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated);
+      orderCreated=await orderCreated.populate("foodLoverId",async (foodLover)=>{
+      
+        return foodLover
+      })
+      console.log(orderCreated)
+     
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -217,6 +223,7 @@ export class OrdersService {
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
+       
       } else if (status === "Order Completed") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
@@ -228,6 +235,15 @@ export class OrdersService {
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
+          console.log(orderStatusSender)
+          // await this.walletService.createTransaction({
+          //   transactionType: "Payment Received",
+          //   to: orderStatusReciever.phoneNo,
+          //   from: orderStatusSender.phoneNo,
+          //   amount:order.orderBill,
+          //   currency: order.tokenName,
+          //   status:"SUCCESSFUL"
+          // })
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
@@ -259,18 +275,24 @@ export class OrdersService {
   async getOrderHistory(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodCreatorModel.findOne({
+      let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+       
+      }
+      if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      const resultsPerPage = 3;
+      const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1;
       let Orders = await this.ordersModel
         .find({
-          foodCreatorId: UserInfo._id,
+          $or: [{ foodCreatorId: UserInfo._id }, { foodLoverId: UserInfo._id }],
           orderStatus: {
             $nin: [
               "New",
