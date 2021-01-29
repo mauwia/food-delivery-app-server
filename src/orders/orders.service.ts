@@ -267,9 +267,15 @@ export class OrdersService {
   async getOrderHistory(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodCreatorModel.findOne({
+      let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+       
+      }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
