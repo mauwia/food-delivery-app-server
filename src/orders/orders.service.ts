@@ -232,7 +232,7 @@ export class OrdersService {
           console.log(orderStatusSender)
           await this.walletService.createTransaction({
             transactionType: "Payment Received",
-            // to: orderStatusReciever.foodCreatorId.phoneNo,
+            to: orderStatusReciever.phoneNo,
             from: orderStatusSender.phoneNo,
             amount:order.orderBill,
             currency: order.tokenName,
