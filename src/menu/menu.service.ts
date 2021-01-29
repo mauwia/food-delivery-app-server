@@ -154,7 +154,7 @@ export class MenuService {
       }
       let menu = await this.menuModel
         .find({ foodCreatorId: req.params.creatorID })
-        .populate("menuItems foodCreatorId","businessName");
+        .populate("menuItems");
       return { menu };
     } catch (error) {
       this.logger.error(error, error.stack);

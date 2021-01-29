@@ -100,7 +100,7 @@ class FoodLoverModel {
   //Signin MOCK
   static findOne = jest.fn((body) => {
     if (body.phoneNo !== event.phoneNo) {
-      console.log(body.phoneNo, event.phoneNo);
+      console.log(body.phoneNo, event.phoneNo); 
       return null;
     } else {
       // return event;

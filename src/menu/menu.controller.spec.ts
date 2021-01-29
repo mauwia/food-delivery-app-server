@@ -105,79 +105,78 @@ describe("MenuController", () => {
     // )
   });
   test("addMenuItem", async () => {
-    // let req = {
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //     menuName: "Chicken",
-    //     menuItem:{
-    //       itemName:"Grill",
-    //       description:"DESCRIPTION DETAIL",
-    //       price:20,
-    //       preparationTime:'1hr 5min'
-    //     },
-    //   },
-    // } as unknown as Request;
-    // let response = await menuController.AddMenuItem(req);
-    // expect(Menu.menuItems[2]).toBe("1233456")
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        menuName: "Chicken",
+        menuItem: {
+          itemName: "Grill",
+          description: "DESCRIPTION DETAIL",
+          price: 20,
+          preparationTime: "1hr 5min",
+        },
+      },
+    } as unknown) as Request;
+    let response = await menuController.AddMenuItem(req);
+    expect(Menu.menuItems[2]).toBe("1233456");
   });
   test("editMenu", async () => {
-    //     let req = ({
-    //       user: {
-    //         phoneNo: "123456789",
-    //       },
-    //       body: {
-    //         menuName: "Burger",
-    //         menuId: "12345678",
-    //       },
-    //     } as unknown) as Request;
-    //     let response = await menuController.EditMenu(req);
-    //     expect(response.updatedMenu).toStrictEqual({
-    //       _id: '12345678',
-    //       foodCreatorId: 'js92je920020211',
-    //       menuItems: [ '123456789', '987654321' ],
-    //       menuName: 'Burger'
-    //     }
-    // )
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        menuName: "Burger",
+        menuId: "12345678",
+      },
+    } as unknown) as Request;
+    let response = await menuController.EditMenu(req);
+    expect(response.updatedMenu).toStrictEqual({
+      _id: "12345678",
+      foodCreatorId: "js92je920020211",
+      menuItems: ["123456789", "987654321", "1233456"],
+      menuName: "Burger",
+    });
   });
   test("editMenuItem", async () => {
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //     itemName: "Grill",
-    //     menuItemId: "123456789",
-    //   },
-    // } as unknown) as Request;
-    // let response = await menuController.EditMenuItem(req);
-    //  console.log(response)
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        itemName: "Grill",
+        menuItemId: "123456789",
+      },
+    } as unknown) as Request;
+    let response = await menuController.EditMenuItem(req);
+    expect(response).toStrictEqual({ message: 'MENU UPDATED' })
   });
   test("deleteMenu", async () => {
-    //   let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //    menuName:"Chicken"
-    //   },
-    // } as unknown) as Request;
-    // let response = await menuController.DeleteMenu(req);
-    // expect(response.message).toBe("Menu Deleted")
+      let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+       menuName:"Chicken"
+      },
+    } as unknown) as Request;
+    let response = await menuController.DeleteMenu(req);
+    expect(response.message).toBe("Menu Deleted")
   });
   test("deleteMenuItem", async () => {
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //    menuName:"Chicken",
-    //    menuItemId: "123456789",
-    //   },
-    // } as unknown) as Request;
-    // let response = await menuController.DeleteMenuItem(req);
-    //     expect(response.message).toBe("Menu Item Deleted")
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+       menuName:"Chicken",
+       menuItemId: "123456789",
+      },
+    } as unknown) as Request;
+    let response = await menuController.DeleteMenuItem(req);
+        expect(response.message).toBe("Menu Item Deleted")
   });
   test("getAllCreators", async () => {
     let req = ({
@@ -193,6 +192,8 @@ describe("MenuController", () => {
       },
     } as unknown) as Request;
     let response = await menuController.GetAllCreators(req);
-        expect(response.nearByFoodCreators).toStrictEqual([ { phoneNo: '123456789', _id: 'testId1234' } ])
+    expect(response.nearByFoodCreators).toStrictEqual([
+      { phoneNo: "123456789", _id: "testId1234" },
+    ]);
   });
 });
