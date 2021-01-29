@@ -217,14 +217,7 @@ export class OrdersService {
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
-        await this.walletService.checkTransaction({
-          transactionType: "In Process Order",
-          from: orderStatusReciever.foodLover.phoneNo,
-          to: orderStatusSender.phoneNo,
-          amount:order.orderBill,
-          currency: order.tokenName,
-          status: "In Process",
-        })
+       
       } else if (status === "Order Completed") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
@@ -236,6 +229,14 @@ export class OrdersService {
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
+          await this.walletService.createTransaction({
+            transactionType: "Payment Received",
+            from: orderStatusReciever.foodLover.phoneNo,
+            to: orderStatusSender.phoneNo,
+            amount:order.orderBill,
+            currency: order.tokenName,
+            status:"SUCCESSFUL"
+          })
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
@@ -279,12 +280,12 @@ export class OrdersService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      const resultsPerPage = 3;
+      const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1;
       let Orders = await this.ordersModel
         .find({
-          foodCreatorId: UserInfo._id,
+          $or: [{ foodCreatorId: UserInfo._id }, { foodLoverId: UserInfo._id }],
           orderStatus: {
             $nin: [
               "New",
