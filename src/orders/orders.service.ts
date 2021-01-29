@@ -69,7 +69,13 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, {...orderCreated._doc,foodLoverId:{username:UserInfo.username}});
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated);
+      orderCreated=await orderCreated.populate("foodLoverId",async (foodLover)=>{
+      
+        return foodLover
+      })
+      console.log(orderCreated)
+     
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
