@@ -236,14 +236,14 @@ export class OrdersService {
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
           console.log(orderStatusSender)
-          await this.walletService.createTransaction({
-            transactionType: "Payment Received",
-            to: orderStatusReciever.phoneNo,
-            from: orderStatusSender.phoneNo,
-            amount:order.orderBill,
-            currency: order.tokenName,
-            status:"SUCCESSFUL"
-          })
+          // await this.walletService.createTransaction({
+          //   transactionType: "Payment Received",
+          //   to: orderStatusReciever.phoneNo,
+          //   from: orderStatusSender.phoneNo,
+          //   amount:order.orderBill,
+          //   currency: order.tokenName,
+          //   status:"SUCCESSFUL"
+          // })
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
