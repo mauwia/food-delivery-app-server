@@ -15,7 +15,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
       // required: true,
     },
   },
-  email: { type: String, unique: true },
+  email: { type: String },
   // location: { type: Array },
   creatorFoodType: { type: String },
   imageUrl: { type: String, default: null },

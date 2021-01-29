@@ -8,7 +8,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   countryCode: { type: String },
   countryName: { type: String },
   location: { type: Array },
-  email: { type: String, unique: true },
+  email: { type: String },
   imageUrl: { type: String, default: null },
   username: { type: String, default: null },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
