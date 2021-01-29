@@ -229,9 +229,10 @@ export class OrdersService {
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
+          console.log(orderStatusSender)
           await this.walletService.createTransaction({
             transactionType: "Payment Received",
-            to: orderStatusReciever.foodCreatorId.phoneNo,
+            // to: orderStatusReciever.foodCreatorId.phoneNo,
             from: orderStatusSender.phoneNo,
             amount:order.orderBill,
             currency: order.tokenName,
