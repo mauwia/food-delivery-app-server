@@ -231,8 +231,8 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
           await this.walletService.createTransaction({
             transactionType: "Payment Received",
-            from: orderStatusReciever.foodLover.phoneNo,
-            to: orderStatusSender.phoneNo,
+            to: orderStatusReciever.foodCreatorId.phoneNo,
+            from: orderStatusSender.phoneNo,
             amount:order.orderBill,
             currency: order.tokenName,
             status:"SUCCESSFUL"
