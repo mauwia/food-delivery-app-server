@@ -69,7 +69,7 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, {...orderCreated,foodLoverId:{username:UserInfo.username}});
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, {...orderCreated._doc,foodLoverId:{username:UserInfo.username}});
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
