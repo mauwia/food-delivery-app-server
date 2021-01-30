@@ -297,12 +297,14 @@ export class OrdersService {
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1;
+      let sorting=getOrdersReciever==="foodCreatorId"?{orderId : "desc"}:{timestamp:"desc"}
+
       let Orders = await this.ordersModel
         .find({
           $or: [{ foodCreatorId: UserInfo._id }, { foodLoverId: UserInfo._id }],
           orderStatus: {
             $nin: [
-              "New",
+              "New",  
               "Accepted",
               "Being Prepared",
               "Prepared",
@@ -310,7 +312,7 @@ export class OrdersService {
             ],
           },
         })
-        .sort({ orderId: "desc" })
+        .sort(sorting)
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         .populate(getOrdersReciever,name);
