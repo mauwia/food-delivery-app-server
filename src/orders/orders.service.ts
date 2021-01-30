@@ -69,13 +69,11 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
+      orderCreated=await orderCreated.populate({
+        path:"foodLoverId",
+        select:"username"
+      }).execPopulate()
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated);
-      orderCreated=await orderCreated.populate("foodLoverId",async (foodLover)=>{
-      
-        return foodLover
-      })
-      console.log(orderCreated)
-     
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -187,12 +185,15 @@ export class OrdersService {
   ) {
     try {
       if (status === "Accepted") {
+        // console.log(order.foodLoverId)
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
         let statusSenderWallet = await this.walletModel.findById(
           orderStatusSender.walletId
         );
+        // console.log(statusRecieverWallet,statusSenderWallet)
+
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -235,15 +236,15 @@ export class OrdersService {
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
-          console.log(orderStatusSender)
-          // await this.walletService.createTransaction({
-          //   transactionType: "Payment Received",
-          //   to: orderStatusReciever.phoneNo,
-          //   from: orderStatusSender.phoneNo,
-          //   amount:order.orderBill,
-          //   currency: order.tokenName,
-          //   status:"SUCCESSFUL"
-          // })
+          // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
+          await this.walletService.createTransaction({
+            transactionType: "Payment Received",
+            to: order.foodCreatorId.phoneNo,
+            from: orderStatusSender.phoneNo,
+            amount:order.orderBill,
+            currency: order.tokenName,
+            status:"SUCCESSFUL"
+          })
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
