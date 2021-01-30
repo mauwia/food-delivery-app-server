@@ -294,6 +294,7 @@ export class OrdersService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
+      let sorting=getOrdersReciever==="foodCreatorId"?"orderId":"timestamp"
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1;
@@ -310,7 +311,7 @@ export class OrdersService {
             ],
           },
         })
-        .sort({ orderId: "desc" })
+        .sort({ sorting: "desc" })
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         .populate(getOrdersReciever,name);
