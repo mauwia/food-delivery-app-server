@@ -275,6 +275,8 @@ export class OrdersService {
   }
   async getOrderHistory(req) {
     try {
+      let getOrdersReciever = "foodLoverId";
+      let name = "username";
       let { user } = req;
       let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
@@ -283,7 +285,8 @@ export class OrdersService {
         UserInfo = await this.foodLoverModel.findOne({
           phoneNo: user.phoneNo,
         });
-       
+        getOrdersReciever = "foodCreatorId";
+        name = "businessName";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -306,7 +309,8 @@ export class OrdersService {
         })
         .sort({ orderId: "desc" })
         .limit(resultsPerPage)
-        .skip(resultsPerPage * page);
+        .skip(resultsPerPage * page)
+        .populate(getOrdersReciever,name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
