@@ -89,8 +89,8 @@ export class OrdersService {
   async getOrders(req) {
     try {
       let { user } = req;
-      let getOrdersReciever = "foodLoverId";
-      let name = "username";
+      let getOrdersReciever = "foodCreatorId";
+      let  name = "businessName"
       let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -98,8 +98,9 @@ export class OrdersService {
         UserInfo = await this.foodLoverModel.findOne({
           phoneNo: user.phoneNo,
         });
-        getOrdersReciever = "foodCreatorId";
-        name = "businessName";
+        getOrdersReciever = "foodLoverId"
+        name = "username"
+        ;
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
