@@ -134,6 +134,8 @@ export class OrdersService {
     try {
       let { user } = req;
       let orderStatusReciever = "foodLoverId";
+      let name = "username";
+
       let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -142,6 +144,7 @@ export class OrdersService {
           phoneNo: user.phoneNo,
         });
         orderStatusReciever = "foodCreatorId";
+        name="businessName"
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -149,7 +152,7 @@ export class OrdersService {
       let { orderID, status } = req.body;
       let order = await this.ordersModel
         .findById(orderID)
-        .populate(orderStatusReciever, "phoneNo walletId");
+        .populate(orderStatusReciever, `phoneNo walletId ${name}`);
       await this.changeBalanceAccordingToStatus(
         status,
         order,
