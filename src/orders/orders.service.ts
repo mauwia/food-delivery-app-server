@@ -69,13 +69,11 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
+      orderCreated=await orderCreated.populate({
+        path:"foodLoverId",
+        select:"username"
+      }).execPopulate()
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated);
-      orderCreated=await orderCreated.populate("foodLoverId",async (foodLover)=>{
-      
-        return foodLover
-      })
-      console.log(orderCreated)
-     
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -136,6 +134,8 @@ export class OrdersService {
     try {
       let { user } = req;
       let orderStatusReciever = "foodLoverId";
+      let name = "username";
+
       let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
@@ -144,6 +144,7 @@ export class OrdersService {
           phoneNo: user.phoneNo,
         });
         orderStatusReciever = "foodCreatorId";
+        name="businessName"
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -151,7 +152,7 @@ export class OrdersService {
       let { orderID, status } = req.body;
       let order = await this.ordersModel
         .findById(orderID)
-        .populate(orderStatusReciever, "phoneNo walletId");
+        .populate(orderStatusReciever, `phoneNo walletId ${name}`);
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -187,12 +188,15 @@ export class OrdersService {
   ) {
     try {
       if (status === "Accepted") {
+        // console.log(order.foodLoverId)
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
         let statusSenderWallet = await this.walletModel.findById(
           orderStatusSender.walletId
         );
+        // console.log(statusRecieverWallet,statusSenderWallet)
+
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -235,15 +239,15 @@ export class OrdersService {
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
-          console.log(orderStatusSender)
-          // await this.walletService.createTransaction({
-          //   transactionType: "Payment Received",
-          //   to: orderStatusReciever.phoneNo,
-          //   from: orderStatusSender.phoneNo,
-          //   amount:order.orderBill,
-          //   currency: order.tokenName,
-          //   status:"SUCCESSFUL"
-          // })
+          // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
+          await this.walletService.createTransaction({
+            transactionType: "Payment Received",
+            to: order.foodCreatorId.phoneNo,
+            from: orderStatusSender.phoneNo,
+            amount:order.orderBill,
+            currency: order.tokenName,
+            status:"SUCCESSFUL"
+          })
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
@@ -274,6 +278,8 @@ export class OrdersService {
   }
   async getOrderHistory(req) {
     try {
+      let getOrdersReciever = "foodLoverId";
+      let name = "username";
       let { user } = req;
       let UserInfo:any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
@@ -282,7 +288,8 @@ export class OrdersService {
         UserInfo = await this.foodLoverModel.findOne({
           phoneNo: user.phoneNo,
         });
-       
+        getOrdersReciever = "foodCreatorId";
+        name = "businessName";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -305,7 +312,8 @@ export class OrdersService {
         })
         .sort({ orderId: "desc" })
         .limit(resultsPerPage)
-        .skip(resultsPerPage * page);
+        .skip(resultsPerPage * page)
+        .populate(getOrdersReciever,name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);

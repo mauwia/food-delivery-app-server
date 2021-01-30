@@ -579,12 +579,12 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      console.log(UserInfo);
+      // console.log("AAAAAAAAAAAAAAA",UserInfo);
       let { amount, tokenName, timeStamp } = req.body;
       // console.log()
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       // let wallet=UserInfo.walletId.assets
-      // console.log(wallet)
+      // console.log("AAAAAAAAAAAAAAA",wallet)
       if (!wallet) {
         throw {
           msg: WALLET_MESSAGES.WALLET_NOT_FOUND,

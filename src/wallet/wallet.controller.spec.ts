@@ -60,15 +60,15 @@ class userModel {
   save = jest.fn().mockResolvedValue(User);
   static find = jest.fn().mockResolvedValue([User, User]);
   static findOne = jest.fn().mockImplementation((body) => {
-    // return userModel;
+    return userModel;
     //for sendNoshies
-    return User;
+    // return User;
   });
   static select = jest.fn().mockReturnValue(User);
   static populate = jest.fn().mockResolvedValue({
-    walletId: "123testId",
+    // walletId: "123testId",
     // for getAllTransaction,getAllAssets Unit Test
-    //   walletId: { assets: [...wallet.assets, ...wallet.assets] },
+      walletId: { assets: [...wallet.assets, ...wallet.assets] },
   });
 }
 class walletModel {
@@ -82,6 +82,9 @@ class walletModel {
     } else if (body == "123testId") {
       console.log(body);
       return { ...wallet, save: () => jest.fn() };
+    }
+    else{
+      return  { ...wallet, save: () => jest.fn() }
     }
   });
   static findOne = jest.fn().mockImplementation((body) => {
@@ -102,7 +105,7 @@ class TransactionModel {
   static findOne = jest.fn().mockResolvedValue(wallet);
   static create = jest.fn().mockResolvedValue(Transaction);
   static findById = jest.fn().mockResolvedValue({...Transaction,save:jest.fn()});
-  //   populate=jest.fn().mockResolvedValue({...})
+    // populate=jest.fn().mockResolvedValue({...})
 }
 
 let walletController: WalletController;
@@ -135,135 +138,136 @@ describe("WalletController", () => {
   });
   test("getAllAssets", async () => {
     // uncomment first populate Method in userModel
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    // } as unknown) as Request;
-    // let response = await walletController.GetAllAssets(req);
-    // expect(response.assets).toStrictEqual([
-    //   {
-    //     amount:4,
-    //     tokenAddress: "21ke909test",
-    //     tokenSymbol: "testSymbol",
-    //     tokenName: "testToken",
-    //   },
-    //   {
-    //     amount:4,
-    //     tokenAddress: "21ke909test",
-    //     tokenSymbol: "testSymbol",
-    //     tokenName: "testToken",
-    //   },
-    // ]);
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+    } as unknown) as Request;
+    let response = await walletController.GetAllAssets(req);
+    expect(response.assets).toStrictEqual([
+      {
+        amount:4,
+        tokenAddress: "21ke909test",
+        tokenSymbol: "testSymbol",
+        tokenName: "testToken",
+      },
+      {
+        amount:4,
+        tokenAddress: "21ke909test",
+        tokenSymbol: "testSymbol",
+        tokenName: "testToken",
+      },
+    ]);
   });
   test("getAllTransactions", async () => {
-    //     let req={
-    //         user: {
-    //         phoneNo: "123456789",
-    //       },
-    //       params:{
-    //       }
-    //     }as unknown as Request
-    //     let response=await walletController.GetAllTransactions(req)
-    //     expect(response.transactions).toStrictEqual([
-    //         {
-    //           transactionType: 'Send',
-    //           from: 'senderPublicKey',
-    //           to: 'recieverPublicKey',
-    //           amount: 4,
-    //           currency: 'testToken',
-    //           timeStamp: '9392038182',
-    //           message: 'test'
-    //         }
-    //       ]
-    // )
+        let req={
+            user: {
+            phoneNo: "123456789",
+          },
+          params:{
+          }
+        }as unknown as Request
+        let response=await walletController.GetAllTransactions(req)
+        expect(response.transactions).toStrictEqual([
+            {
+              _id: "123transactionID",
+              transactionType: 'Send',
+              from: 'senderPublicKey',
+              to: 'recieverPublicKey',
+              amount: 4,
+              currency: 'testToken',
+              timeStamp: '9392038182',
+              message: 'test'
+            }
+          ]
+    )
   });
   test("/getTransactionsByAsset/:assetId", async () => {
-    // let req={
-    //     user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   params:{
-    //       assetId:"testToken1"
-    //   }
-    // }as unknown as Request
-    // let response=await walletController.GetAllTransactions(req)
-    // expect(response.transactions).toStrictEqual([])
+    let req={
+        user: {
+        phoneNo: "123456789",
+      },
+      params:{
+          assetId:"testToken1"
+      }
+    }as unknown as Request
+    let response=await walletController.GetAllTransactions(req)
+    expect(response.transactions).toStrictEqual([])
   });
   test("addNoshiesByCard/addNoshiesByBank", async () => {
-    // let req={
-    //     user:{
-    //         phoneNo:"123456789"
-    //     },
-    //     body:{
-    //         walletId:"123testId",
-    //         timeStamp:Date.now(),
-    //         amount:1,
-    //         tokenName:"testToken"
-    //     }
-    // }as unknown as Request
-    // let response=await walletController.AddNoshiesByCard(req)
-    // expect(response.totalAmount).toBe(5)
+    let req={
+        user:{
+            phoneNo:"123456789"
+        },
+        body:{
+            walletId:"123testId",
+            timeStamp:Date.now(),
+            amount:1,
+            tokenName:"testToken"
+        }
+    }as unknown as Request
+    let response=await walletController.AddNoshiesByCard(req)
+    expect(response.totalAmount).toBe(5)
   });
   test("getNoshifyContacts", async () => {
-    //     let req={
-    //       user:{phoneNo:"123456789"},
-    //       body:{
-    //         contacts:['12345678']
-    //       }
-    //     }as unknown as Request
-    //     let response=await walletController.GetNoshifyContacts(req)
-    //     // console.log(response)
-    //     expect(response.contacts[0].walletId).toStrictEqual('123testId')
+        let req={
+          user:{phoneNo:"123456789"},
+          body:{
+            contacts:['12345678']
+          }
+        }as unknown as Request
+        let response=await walletController.GetNoshifyContacts(req)
+        // console.log(response)
+        expect(response.contacts[0].walletId).toStrictEqual('123testId')
   });
   test("sendNoshies", async () => {
-    // let req={
-    //   user:{
-    //     phoneNo:"123456789",
-    //   },
-    //   body:{ recieverPhoneNo:"123456789", amount:3, tokenName:"testToken"
-    //   }
-    // } as unknown as Request
-    // let response=await walletController.SendNoshies(req)
-    // expect(response.senderWallet.assets[0].amount).toBe(4)
+    let req={
+      user:{
+        phoneNo:"123456789",
+      },
+      body:{ recieverPhoneNo:"123456789", amount:3, tokenName:"testToken"
+      }
+    } as unknown as Request
+    let response=await walletController.SendNoshies(req)
+    expect(response.senderWallet.assets[0].amount).toBe(5)
   });
   test("withdrawNoshies", async () => {
-    //   let req={
-    //     user:{
-    //       phoneNo:'123456789'
-    //     },
-    //     body:{
-    //       recieverPhoneNo:"123456789", tokenName:"testToken", amount:3
-    //     }
-    //   }as unknown as Request
-    //   let response=await walletController.WithdrawNoshies(req)
-    //   expect(response.wallet.assets[0].amount).toBe(1)
+      let req={
+        user:{
+          phoneNo:'123456789'
+        },
+        body:{
+          recieverPhoneNo:"123456789", tokenName:"testToken", amount:3
+        }
+      }as unknown as Request
+      let response=await walletController.WithdrawNoshies(req)
+      expect(response.wallet.assets[0].amount).toBe(2)
   });
   test("requestNoshies", async () => {
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //     requestedTophoneNo: "123456789",
-    //     tokenName: "testToken",
-    //     amount: 3,
-    //   },
-    // } as unknown) as Request;
-    //   let response=await walletController.RequestNoshies(req)
-    //    expect(response.message).toBe("REQUEST SEND")
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        requestedTophoneNo: "123456789",
+        tokenName: "testToken",
+        amount: 3,
+      },
+    } as unknown) as Request;
+      let response=await walletController.RequestNoshies(req)
+       expect(response.message).toBe("REQUEST SEND")
   });
   test("approveRequest", async () => {
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //     transactionId: "123transactionID",
-    //     action: "ACCEPTED",
-    //   },
-    // } as unknown) as Request;
-    // let response = await walletController.ApproveRequest(req);
-    // expect(response.message).toBe('Transaction complete successfully')
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        transactionId: "123transactionID",
+        action: "ACCEPTED",
+      },
+    } as unknown) as Request;
+    let response = await walletController.ApproveRequest(req);
+    expect(response.message).toBe('Transaction complete successfully')
   });
 });
