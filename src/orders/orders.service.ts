@@ -156,7 +156,10 @@ export class OrdersService {
       let { orderID, status } = req.body;
       let order = await this.ordersModel
         .findById(orderID)
-        .populate(orderStatusReciever, `phoneNo walletId ${name}`);
+        .populate(
+          orderStatusReciever,
+          `phoneNo fcmRegistraitonToken walletId ${name}`
+        );
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -172,15 +175,17 @@ export class OrdersService {
           : order.foodCreatorId.phoneNo;
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
-      console.log(UserInfo.fcmRegistraitonToken)
+      console.log(UserInfo.fcmRegistraitonToken);
+      if (order[orderStatusReciever].fcmRegistraitonToken.length) {
         await admin
           .messaging()
-          .sendToDevice(UserInfo.fcmRegistraitonToken, {
+          .sendToDevice(order[orderStatusReciever].fcmRegistraitonToken, {
             notification: {
               title: `Order ${status}`,
               body: "Tap to view details",
             },
           });
+      }
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
