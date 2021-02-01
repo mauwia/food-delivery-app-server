@@ -184,7 +184,7 @@ export class OrdersService {
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistrationToken);
-      
+      console.log('==============>',order[orderStatusReciever])
         await admin
           .messaging()
           .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
