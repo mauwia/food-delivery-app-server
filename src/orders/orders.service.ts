@@ -172,16 +172,15 @@ export class OrdersService {
           : order.foodCreatorId.phoneNo;
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
-      if (UserInfo.fcmRegistraitonToken.length) {
+      console.log(UserInfo.fcmRegistraitonToken)
         await admin
           .messaging()
-          .sendToDevice(UserInfo, {
+          .sendToDevice(UserInfo.fcmRegistraitonToken, {
             notification: {
               title: `Order ${status}`,
               body: "Tap to view details",
             },
           });
-      }
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
