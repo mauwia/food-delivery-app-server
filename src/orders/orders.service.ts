@@ -176,7 +176,7 @@ export class OrdersService {
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistraitonToken);
-      if (order[orderStatusReciever].fcmRegistraitonToken.length) {
+      
         await admin
           .messaging()
           .sendToDevice(order[orderStatusReciever].fcmRegistraitonToken, {
@@ -185,7 +185,6 @@ export class OrdersService {
               body: "Tap to view details",
             },
           });
-      }
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
