@@ -14,6 +14,8 @@ export const FoodLoverSchema = new mongoose.Schema({
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   verified: { type: Boolean, default: false },
   mobileRegisteredId: { type: String, required: true },
+  fcmRegistrationToken: { type: Array },
+
 });
 
 export interface FoodLover extends mongoose.Document {
@@ -29,4 +31,5 @@ export interface FoodLover extends mongoose.Document {
   username: string;
   walletId: { [key: string]: any };
   mobileRegisteredId: string;
+  fcmRegistrationToken: Array<any>;
 }

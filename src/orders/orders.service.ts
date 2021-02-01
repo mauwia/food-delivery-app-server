@@ -69,11 +69,13 @@ export class OrdersService {
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
-      orderCreated=await orderCreated.populate({
-        path:"foodLoverId",
-        select:"username"
-      }).execPopulate()
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo,orderCreated);
+      orderCreated = await orderCreated
+        .populate({
+          path: "foodLoverId",
+          select: "username",
+        })
+        .execPopulate();
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -144,7 +146,7 @@ export class OrdersService {
           phoneNo: user.phoneNo,
         });
         orderStatusReciever = "foodCreatorId";
-        name="businessName"
+        name = "businessName";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
@@ -216,6 +218,8 @@ export class OrdersService {
           statusSenderWallet.assets.push(token);
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
+          statusRecieverWallet.escrow =
+            statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
           senderAssets.amount = senderAssets.amount - order.orderBill;
           await statusRecieverWallet.save();
@@ -227,27 +231,31 @@ export class OrdersService {
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
-       
       } else if (status === "Order Completed") {
         let orderBillForty = order.orderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
+        let statusSenderWallet=await this.walletModel.findById(
+          orderStatusSender.walletId
+        )
         let asset = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
-          // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
-          await this.walletService.createTransaction({
-            transactionType: "Payment Received",
-            to: order.foodCreatorId.phoneNo,
-            from: orderStatusSender.phoneNo,
-            amount:order.orderBill,
-            currency: order.tokenName,
-            status:"SUCCESSFUL"
-          })
+        statusSenderWallet.escrow=statusSenderWallet.escrow-orderBillForty
+        // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
+        await this.walletService.createTransaction({
+          transactionType: "Payment Received",
+          to: order.foodCreatorId.phoneNo,
+          from: orderStatusSender.phoneNo,
+          amount: order.orderBill,
+          currency: order.tokenName,
+          status: "SUCCESSFUL",
+        });
+        await statusSenderWallet.save()
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
@@ -281,7 +289,7 @@ export class OrdersService {
       let getOrdersReciever = "foodLoverId";
       let name = "username";
       let { user } = req;
-      let UserInfo:any = await this.foodCreatorModel.findOne({
+      let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
@@ -297,14 +305,17 @@ export class OrdersService {
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1;
-      let sorting=getOrdersReciever==="foodCreatorId"?{orderId : "desc"}:{timestamp:"desc"}
+      let sorting =
+        getOrdersReciever === "foodCreatorId"
+          ? { orderId: "desc" }
+          : { timestamp: "desc" };
 
       let Orders = await this.ordersModel
         .find({
           $or: [{ foodCreatorId: UserInfo._id }, { foodLoverId: UserInfo._id }],
           orderStatus: {
             $nin: [
-              "New",  
+              "New",
               "Accepted",
               "Being Prepared",
               "Prepared",
@@ -315,7 +326,7 @@ export class OrdersService {
         .sort(sorting)
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
-        .populate(getOrdersReciever,name);
+        .populate(getOrdersReciever, name);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
