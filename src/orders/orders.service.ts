@@ -8,7 +8,9 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
+import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
+import { userInfo } from "os";
 @Injectable()
 export class OrdersService {
   constructor(
@@ -170,6 +172,16 @@ export class OrdersService {
           : order.foodCreatorId.phoneNo;
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
+      if (UserInfo.fcmRegistraitonToken.length) {
+        await admin
+          .messaging()
+          .sendToDevice(UserInfo, {
+            notification: {
+              title: `Order ${status}`,
+              body: "Tap to view details",
+            },
+          });
+      }
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -236,16 +248,16 @@ export class OrdersService {
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
-        let statusSenderWallet=await this.walletModel.findById(
+        let statusSenderWallet = await this.walletModel.findById(
           orderStatusSender.walletId
-        )
+        );
         let asset = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         asset.amount = asset.amount + +orderBillForty;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
-        statusSenderWallet.escrow=statusSenderWallet.escrow-orderBillForty
+        statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
@@ -255,7 +267,7 @@ export class OrdersService {
           currency: order.tokenName,
           status: "SUCCESSFUL",
         });
-        await statusSenderWallet.save()
+        await statusSenderWallet.save();
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
         let statusRecieverWallet = await this.walletModel.findById(
