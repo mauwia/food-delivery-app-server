@@ -81,7 +81,7 @@ export class OrdersService {
         .messaging()
         .sendToDevice(foodCreator.fcmRegistrationToken, {
           notification: {
-            title: `Order ${status}`,
+            title: `New Order is Arrived`,
             body: "Tap to view details",
           },
         });
