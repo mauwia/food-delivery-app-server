@@ -77,6 +77,14 @@ export class OrdersService {
           select: "username",
         })
         .execPopulate();
+        await admin
+        .messaging()
+        .sendToDevice(foodCreator.fcmRegistrationToken, {
+          notification: {
+            title: `Order ${status}`,
+            body: "Tap to view details",
+          },
+        });
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
@@ -158,7 +166,7 @@ export class OrdersService {
         .findById(orderID)
         .populate(
           orderStatusReciever,
-          `phoneNo fcmRegistraitonToken walletId ${name}`
+          `phoneNo fcmRegistrationToken walletId ${name}`
         );
       await this.changeBalanceAccordingToStatus(
         status,
@@ -175,11 +183,11 @@ export class OrdersService {
           : order.foodCreatorId.phoneNo;
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
-      console.log(UserInfo.fcmRegistraitonToken);
+      console.log(UserInfo.fcmRegistrationToken);
       
         await admin
           .messaging()
-          .sendToDevice(order[orderStatusReciever].fcmRegistraitonToken, {
+          .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
             notification: {
               title: `Order ${status}`,
               body: "Tap to view details",
