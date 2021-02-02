@@ -33,9 +33,9 @@ export class FoodCreatorService {
       if (!bcrypt.compareSync(req.password, userExist.passHash)) {
         throw FOOD_CREATOR_MESSAGES.WRONG_PASSWORD;
       }
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistraitonToken)
+      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistratonToken)
       if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistraitonToken)
+        userExist.fcmRegistrationToken.push(req.fcmRegistratonToken)
         await userExist.save()
       }
       const token = jwt.sign(

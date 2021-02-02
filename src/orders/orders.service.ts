@@ -77,6 +77,7 @@ export class OrdersService {
           select: "username",
         })
         .execPopulate();
+        // console.log()
         await admin
         .messaging()
         .sendToDevice(foodCreator.fcmRegistrationToken, {
