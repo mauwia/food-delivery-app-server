@@ -4,6 +4,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String },
+  email: { type: String,unique:true,sparse:true },
+  username:{type:String,unique:true,sparse:true},
   location: {
     address: { type: String },
     type: {
@@ -15,7 +17,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
       // required: true,
     },
   },
-  email: { type: String },
+
   // location: { type: Array },
   creatorFoodType: { type: String },
   imageUrl: { type: String, default: null },
@@ -34,6 +36,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
 FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
+  username:string;
   creatorFoodType: string;
   phoneNo: string;
   passHash: string;

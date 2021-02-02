@@ -166,8 +166,8 @@ export class OrdersService {
       let order = await this.ordersModel
         .findById(orderID)
         .populate(
-          orderStatusReciever,
-          `phoneNo fcmRegistrationToken walletId ${name}`
+          "foodLoverId foodCreatorId",
+          `phoneNo fcmRegistrationToken walletId username businessName`
         );
       await this.changeBalanceAccordingToStatus(
         status,

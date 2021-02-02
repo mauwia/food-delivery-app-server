@@ -363,6 +363,8 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.businessName = req.body.businessName;
+      UserInfo.username=req.body.username
+      UserInfo.email=req.body.email
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;

@@ -2,23 +2,26 @@ import * as mongoose from "mongoose";
 import { Wallet } from "src/wallet/wallet.model";
 
 export const FoodLoverSchema = new mongoose.Schema({
+  firstName: { type: String },
+  lastName: { type: String },
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String, default: null },
   countryCode: { type: String },
   countryName: { type: String },
   location: { type: Array },
-  email: { type: String },
+  email: { type: String, unique:true },
   imageUrl: { type: String, default: null },
-  username: { type: String, default: null },
+  username: { type: String, unique:true },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   verified: { type: Boolean, default: false },
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
-
 });
 
 export interface FoodLover extends mongoose.Document {
+  firstName: string;
+  lastName: string;
   phoneNo: string;
   passHash: string;
   verified: boolean;
