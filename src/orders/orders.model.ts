@@ -36,6 +36,7 @@ export const OrdersSchema = new mongoose.Schema({
   promoCode: { type: String },
   deliveryCharges: { type: Number },
   timestamp: { type: String, default: Date.now() },
+  NoshDeduct:{type:Number},
   // chatRoom
   orderedFood: [orderFood],
 });

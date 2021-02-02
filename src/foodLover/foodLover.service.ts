@@ -15,23 +15,29 @@ dotenv.config();
 export class FoodLoverService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
-    @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
+    @InjectModel("FoodCreator")
+    private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Lover");
-  async signinLover(req: { phoneNo: string; password: string }) {
+  async signinLover(req: { phoneNo: string; password: string,fcmRegistratonToken:string }) {
     try {
-      const userExist = await this.foodLoverModel
-        .findOne({
-          phoneNo: req.phoneNo,
-        })
+      const userExist = await this.foodLoverModel.findOne({
+        phoneNo: req.phoneNo,
+      });
       if (!userExist) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_EXIST;
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
+
+      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistratonToken)
+      if(!tokenExist){
+        userExist.fcmRegistrationToken.push(req.fcmRegistratonToken)
+        await userExist.save()
+      }
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET
@@ -47,6 +53,7 @@ export class FoodLoverService {
         };
         this.OTP.push(OTPCode);
         userExist.pinHash = !!userExist.pinHash;
+        // await userExist.save()
         userExist.passHash = "";
         return { user: userExist, token, code: OTPCode.CodeDigit };
       }
@@ -78,11 +85,11 @@ export class FoodLoverService {
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });
-      let uniqueNumberInCreator
-      if(!uniqueNumber){
-        uniqueNumberInCreator=await this.foodCreatorModel.findOne({
-          phoneNo:req.phoneNo
-        })
+      let uniqueNumberInCreator;
+      if (!uniqueNumber) {
+        uniqueNumberInCreator = await this.foodCreatorModel.findOne({
+          phoneNo: req.phoneNo,
+        });
       }
       // console.log(uniqueNumber)
       if (!uniqueNumber && !uniqueNumberInCreator) {
@@ -107,10 +114,9 @@ export class FoodLoverService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user, code: OTPCode.CodeDigit };
-      }else if (uniqueNumberInCreator){
+      } else if (uniqueNumberInCreator) {
         throw FOOD_LOVER_MESSAGES.USER_EXIST_IN_FC;
-      } 
-      else {
+      } else {
         throw FOOD_LOVER_MESSAGES.USER_EXIST;
       }
     } catch (error) {
@@ -171,7 +177,7 @@ export class FoodLoverService {
         //   validated: check.valid,
         //   message: check.status,
         // };
-        console.log(checked)
+        console.log(checked);
         if (!checked.validated) {
           throw checked.message;
         } else {
@@ -185,7 +191,7 @@ export class FoodLoverService {
             UserInfo.walletId = getWallet.wallet._id;
           }
           await UserInfo.save();
-          console.log(UserInfo.walletId)
+          console.log(UserInfo.walletId);
           return checked;
         }
       }
@@ -260,7 +266,7 @@ export class FoodLoverService {
         };
       }
       if (bcrypt.compareSync(req.body.password, UserInfo.passHash)) {
-        throw  {
+        throw {
           msg: FOOD_LOVER_MESSAGES.EXIST_PASS,
           status: HttpStatus.NOT_ACCEPTABLE,
         };
@@ -312,11 +318,10 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         UserInfo.pinHash = bcrypt.hashSync(req.body.pin, 8);
-      
+
         await UserInfo.save();
         return {
-            message: "Pin Saved Your Current Balance Is 0",
-        
+          message: "Pin Saved Your Current Balance Is 0",
         };
       }
     } catch (error) {
