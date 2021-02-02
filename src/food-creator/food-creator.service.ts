@@ -33,6 +33,11 @@ export class FoodCreatorService {
       if (!bcrypt.compareSync(req.password, userExist.passHash)) {
         throw FOOD_CREATOR_MESSAGES.WRONG_PASSWORD;
       }
+      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistratonToken)
+      if(!tokenExist){
+        userExist.fcmRegistrationToken.push(req.fcmRegistratonToken)
+        await userExist.save()
+      }
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
         process.env.JWT_ACCESS_TOKEN_SECRET
@@ -358,6 +363,8 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       UserInfo.businessName = req.body.businessName;
+      UserInfo.username=req.body.username
+      UserInfo.email=req.body.email
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
