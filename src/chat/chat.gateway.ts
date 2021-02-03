@@ -43,6 +43,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
   }
 
   handleNewRoom(orderId: string, roomId: string): void {
+    console.log(orderId,this.activeChats)
     this.server
       .to(this.activeChats[orderId].socketId)
       .emit('chat-room-id', roomId);
@@ -50,7 +51,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
 
   @SubscribeMessage('new-chat-room')
   setActiveChat(client: Socket, payload): void {
+    console.log(payload)
     this.activeChats[payload.orderId] = { ...payload, socketId: client.id };
+    console.log(this.activeChats)
   }
 
   @SubscribeMessage('chat-to-server')
