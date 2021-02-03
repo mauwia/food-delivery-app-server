@@ -17,7 +17,7 @@ export class ChatService {
   ) {}
   private logger = new Logger('Chat');
 
-  async createChatroom(reqBody, response) {
+  async createChatroom(reqBody) {
     let { foodCreatorId, foodLoverId, orderId }: {
       foodCreatorId: string,
       foodLoverId: string,
