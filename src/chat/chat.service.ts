@@ -32,9 +32,7 @@ export class ChatService {
         ]
       });
       if (roomExists) {
-        return response.status(409).json({
-          msg: CHAT_MESSAGES.ROOM_EXISTS
-        });
+        return await this.getChatroomMessages(roomExists._id)
       } else {
 
         const newRoom = new this.chatroomModel(reqBody);
