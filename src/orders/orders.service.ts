@@ -67,29 +67,33 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
-      order.NoshDeduct=order.orderedFood.reduce((init,food)=>{
-        return (food.realPrice*0.05)+init
-      },0)
-      order.orderBill-=order.NoshDeduct
+      order.NoshDeduct = order.orderedFood.reduce((init, food) => {
+        return food.realPrice * 0.05 + init;
+      }, 0);
+      order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
       orderCreated = await orderCreated
-        .populate({
-          path: "foodLoverId",
-          select: "username",
-        })
-        .execPopulate();
-        // console.log()
-        await admin
-        .messaging()
-        .sendToDevice(foodCreator.fcmRegistrationToken, {
-          notification: {
-            title: `New Order is Arrived`,
-            body: "Tap to view details",
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username",
           },
-        });
+          {
+            path: "foodCreatorId",
+            select: "businessName",
+          },
+        ])
+        .execPopulate();
+      // console.log()
+      await admin.messaging().sendToDevice(foodCreator.fcmRegistrationToken, {
+        notification: {
+          title: `New Order is Arrived`,
+          body: "Tap to view details",
+        },
+      });
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
@@ -134,7 +138,16 @@ export class OrdersService {
             { orderStatus: { $nin: ["Decline", "Order Completed", "Cancel"] } },
           ],
         })
-        .populate(getOrdersReciever, name);
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName",
+          },
+        ])
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -169,10 +182,17 @@ export class OrdersService {
       let { orderID, status } = req.body;
       let order = await this.ordersModel
         .findById(orderID)
-        .populate(
-          "foodLoverId foodCreatorId",
-          `phoneNo fcmRegistrationToken walletId username businessName`
-        );
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username phoneNo fcmRegistrationToken walletId",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName phoneNo fcmRegistrationToken walletId",
+          },
+        ])
+        
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -189,15 +209,15 @@ export class OrdersService {
       console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistrationToken);
-      console.log('==============>',order[orderStatusReciever])
-        await admin
-          .messaging()
-          .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
-            notification: {
-              title: `Order ${status}`,
-              body: "Tap to view details",
-            },
-          });
+      console.log("==============>", order[orderStatusReciever]);
+      await admin
+        .messaging()
+        .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
+          notification: {
+            title: `Order ${status}`,
+            body: "Tap to view details",
+          },
+        });
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
