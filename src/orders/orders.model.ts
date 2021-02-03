@@ -50,6 +50,7 @@ export interface Orders extends mongoose.Document {
   tokenName: string;
   orderId: string;
   locationFrom: any;
+  NoshDeduct:number;
   orderBill: number;
   promoCode: string;
   deliveryCharges: number;

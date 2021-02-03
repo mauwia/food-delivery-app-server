@@ -67,6 +67,8 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
+      order.NoshDeduct=order.orderBill*0.05
+      order.orderBill-=order.NoshDeduct
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
