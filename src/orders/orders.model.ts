@@ -7,6 +7,7 @@ const orderFood = new mongoose.Schema({
   discount: { type: String },
   itemId: { type: String },
   quantity: { type: Number },
+  realPrice:{type:Number}
 });
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
@@ -64,4 +65,5 @@ export interface orderFood extends mongoose.Document {
   discount: string;
   itemId: string;
   quantity: number;
+  realPrice:number
 }

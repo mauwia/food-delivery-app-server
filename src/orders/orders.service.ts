@@ -67,7 +67,9 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
-      order.NoshDeduct=order.orderBill*0.05
+      order.NoshDeduct=order.orderedFood.reduce((init,food)=>{
+        return (food.realPrice*0.05)+init
+      },0)
       order.orderBill-=order.NoshDeduct
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
