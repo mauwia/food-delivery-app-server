@@ -53,6 +53,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
   setActiveChat(client: Socket, payload): void {
     console.log(payload)
     this.activeChats[payload.orderId] = { ...payload, socketId: client.id };
+    // this.handleNewRoom(chatroom.orderId, chatroom.id);
+
     console.log(this.activeChats)
   }
 

@@ -40,7 +40,7 @@ export class ChatService {
         let order=await this.ordersModel.findByIdAndUpdate(orderId,{
           chatRoomId:chatroom._id 
         })
-        this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
+        // this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
 
         return chatroom;
       }  
