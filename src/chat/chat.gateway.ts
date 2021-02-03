@@ -18,6 +18,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
     @InjectModel("Message") private readonly messageModel: Model<Message>,
     @InjectModel("Chatroom") private readonly chatroomModel: Model<Message>,
   ) {}
+  socket_id: any;
+  users: any[] = [];
+  onlineUsers: { [key: string]: any } = {};
   activeChats: { [key: string]: any } = {};
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ChatGateway')
@@ -25,12 +28,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
   afterInit(server: any) {
     this.logger.log('Initialized!');
   }
-
+  handleDisconnect(client: Socket) {
+    delete this.onlineUsers[client.handshake.query.userNo]
+    this.logger.log(`Client disconnected: ${client.id}`);
+    console.log(this.onlineUsers);
+  }
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected to chat: ${client.id}`);
-    this.server
-      .to(client.id)
-      .emit('new-client-id', client.id);   
+    let {userNo}=client.handshake.query
+    this.onlineUsers[userNo] = { phoneNo:userNo, socketId: client.id };
+    // this.server
+    //   .to(client.id)
+    //   .emit('new-client-id', client.id);   
   }
 
   handleNewRoom(orderId: string, roomId: string): void {
