@@ -12,7 +12,7 @@ import { Message } from "./chat.model";
 import { CHAT_MESSAGES } from './constants/key-constants';
 
 
-@WebSocketGateway({ namespace: '/chat' })
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection  {
   constructor(
     @InjectModel("Message") private readonly messageModel: Model<Message>,
