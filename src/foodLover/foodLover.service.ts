@@ -22,7 +22,7 @@ export class FoodLoverService {
   ) {}
   OTP = [];
   private logger = new Logger("Food Lover");
-  async signinLover(req: { phoneNo: string; password: string,fcmRegistratonToken:string }) {
+  async signinLover(req: { phoneNo: string; password: string,fcmRegistrationToken:string }) {
     try {
       const userExist = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
@@ -33,9 +33,9 @@ export class FoodLoverService {
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
 
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistratonToken)
+      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistrationToken)
       if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistratonToken)
+        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
         await userExist.save()
       }
       const token = jwt.sign(
