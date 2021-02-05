@@ -38,11 +38,13 @@ export class ChatService {
         const newRoom = new this.chatroomModel(reqBody);
         const chatroom = await this.chatroomModel.create(newRoom);
         let order=await this.ordersModel.findByIdAndUpdate(orderId,{
-          chatRoomId:chatroom._id 
-        })
+          $set:{
+            chatRoomId:chatroom._id
+          },
+        },{ new: true })
         // this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
 
-        return chatroom;
+       return {chatroom,order};
       }  
     } catch (error) {
       this.logger.error(error, error.stack);
