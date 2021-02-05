@@ -11,6 +11,7 @@ import { OrdersGateway } from "./orders.gateway";
 import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
 import { userInfo } from "os";
+import { ChatService } from "src/chat/chat.service";
 @Injectable()
 export class OrdersService {
   constructor(
@@ -20,7 +21,8 @@ export class OrdersService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
-    private readonly ordersGateway: OrdersGateway
+    private readonly ordersGateway: OrdersGateway,
+    private readonly chatService:ChatService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -194,6 +196,9 @@ export class OrdersService {
             path: "foodCreatorId",
             select: "businessName phoneNo fcmRegistrationToken walletId",
           },
+          {
+            path:"chatRoomId"
+          }
         ])
         
       await this.changeBalanceAccordingToStatus(
@@ -249,7 +254,11 @@ export class OrdersService {
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
-
+        await this.chatService.createChatroom({
+          foodLoverId:order.foodLoverId._id,
+          foodCreatorId:orderStatusSender._id,
+          orderId:order._id
+        })
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
