@@ -10,7 +10,7 @@ import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
-import { userInfo } from "os";
+
 @Injectable()
 export class OrdersService {
   constructor(
