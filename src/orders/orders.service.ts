@@ -197,7 +197,9 @@ export class OrdersService {
             select: "businessName phoneNo fcmRegistrationToken walletId",
           },
         ])
-        
+      if(status === "Accepted"){
+
+      }
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -215,6 +217,7 @@ export class OrdersService {
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistrationToken);
       console.log("==============>", order[orderStatusReciever]);
+      console.log("CHATROOM",updatedOrder)
       await admin
         .messaging()
         .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
