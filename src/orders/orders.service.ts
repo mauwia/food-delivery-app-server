@@ -252,7 +252,7 @@ export class OrdersService {
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         await this.chatService.createChatroom({
-          foodCreatorId:orderStatusSender.foodCreatorId._id,
+          foodCreatorId:orderStatusSender._id,
           foodLoverId:order.foodLoverId._id,
           orderId:order._id,
         })
