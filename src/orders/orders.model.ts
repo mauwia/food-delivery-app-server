@@ -40,9 +40,11 @@ export const OrdersSchema = new mongoose.Schema({
   NoshDeduct: { type: Number },
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   orderedFood: [orderFood],
+  realOrderBill:{type: Number}
 });
 
 export interface Orders extends mongoose.Document {
+  realOrderBill:number;
   foodCreatorId: any;
   foodLoverId: any;
   orderStatus: string;
