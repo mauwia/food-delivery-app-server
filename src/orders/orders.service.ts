@@ -198,7 +198,12 @@ export class OrdersService {
           },
         ])
       if(status === "Accepted"){
-
+        let chatroom=await this.chatService.createChatroom({
+          foodCreatorId:order.foodCreatorId._id,
+          foodLoverId:order.foodLoverId._id,
+          orderId:order._id,
+        })
+        order.chatRoomId=chatroom.chatroom._id
       }
       await this.changeBalanceAccordingToStatus(
         status,
@@ -254,11 +259,7 @@ export class OrdersService {
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
-        await this.chatService.createChatroom({
-          foodCreatorId:orderStatusSender._id,
-          foodLoverId:order.foodLoverId._id,
-          orderId:order._id,
-        })
+        
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );

@@ -32,19 +32,14 @@ export class ChatService {
         ]
       });
       if (roomExists) {
-        return await this.getChatroomMessages(roomExists._id)
+        // return await this.getChatroomMessages(roomExists._id)
       } else {
 
         const newRoom = new this.chatroomModel(reqBody);
         const chatroom = await this.chatroomModel.create(newRoom);
-        let order=await this.ordersModel.findByIdAndUpdate(orderId,{
-          $set:{
-            chatRoomId:chatroom._id
-          },
-        },{ new: true })
         // this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
 
-       return {chatroom,order};
+       return {chatroom};
       }  
     } catch (error) {
       this.logger.error(error, error.stack);
