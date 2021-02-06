@@ -10,6 +10,7 @@ import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
+import { ChatService } from "src/chat/chat.service";
 
 @Injectable()
 export class OrdersService {
@@ -21,7 +22,7 @@ export class OrdersService {
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
-    
+    private readonly chatService:ChatService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -250,7 +251,11 @@ export class OrdersService {
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
-
+        await this.chatService.createChatroom({
+          foodCreatorId:orderStatusSender.foodCreatorId._id,
+          foodLoverId:order.foodLoverId._id,
+          orderId:order._id,
+        })
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );

@@ -11,10 +11,11 @@ import { OrdersSchema } from 'src/orders/orders.model';
     MongooseModule.forFeature([
       { name: "Chatroom", schema: ChatroomSchema },
       { name: "Message", schema: MessageSchema },
-      {name:"Orders",schema:OrdersSchema}
+      {name:"Orders",schema:OrdersSchema},
     ]),
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway]
+  providers: [ChatService, ChatGateway],
+  exports:[ChatService]
 })
 export class ChatModule {}
