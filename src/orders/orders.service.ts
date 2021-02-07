@@ -22,7 +22,7 @@ export class OrdersService {
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
-    private readonly chatService:ChatService
+    private readonly chatService: ChatService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -69,13 +69,11 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
-      order.NoshDeduct = order.orderedFood.reduce((init, food) => {
-        return (food.realPrice * 0.05) + init;
-      }, 0);
-      order.orderBill -= order.NoshDeduct;
-      order.realOrderBill=order.orderedFood.reduce((init, food) => {
+      order.realOrderBill = order.orderedFood.reduce((init, food) => {
         return food.realPrice + init;
-      }, 0)
+      }, 0);
+      order.NoshDeduct = order.orderBill - order.realOrderBill;
+      order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
@@ -153,9 +151,9 @@ export class OrdersService {
             select: "businessName",
           },
           {
-            path:"chatRoomId",
-          }
-        ])
+            path: "chatRoomId",
+          },
+        ]);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -188,25 +186,23 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let { orderID, status } = req.body;
-      let order = await this.ordersModel
-        .findById(orderID)
-        .populate([
-          {
-            path: "foodLoverId",
-            select: "username phoneNo fcmRegistrationToken walletId",
-          },
-          {
-            path: "foodCreatorId",
-            select: "businessName phoneNo fcmRegistrationToken walletId",
-          },
-        ])
-      if(status === "Accepted"){
-        let chatroom=await this.chatService.createChatroom({
-          foodCreatorId:order.foodCreatorId._id,
-          foodLoverId:order.foodLoverId._id,
-          orderId:order._id,
-        })
-        order.chatRoomId=chatroom.chatroom._id
+      let order = await this.ordersModel.findById(orderID).populate([
+        {
+          path: "foodLoverId",
+          select: "username phoneNo fcmRegistrationToken walletId",
+        },
+        {
+          path: "foodCreatorId",
+          select: "businessName phoneNo fcmRegistrationToken walletId",
+        },
+      ]);
+      if (status === "Accepted") {
+        let chatroom = await this.chatService.createChatroom({
+          foodCreatorId: order.foodCreatorId._id,
+          foodLoverId: order.foodLoverId._id,
+          orderId: order._id,
+        });
+        order.chatRoomId = chatroom.chatroom._id;
       }
       await this.changeBalanceAccordingToStatus(
         status,
@@ -221,11 +217,10 @@ export class OrdersService {
         orderStatusReciever === "foodLoverId"
           ? order.foodLoverId.phoneNo
           : order.foodCreatorId.phoneNo;
-      console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistrationToken);
       console.log("==============>", order[orderStatusReciever]);
-      console.log("CHATROOM",updatedOrder)
+      console.log("CHATROOM", updatedOrder);
       await admin
         .messaging()
         .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
@@ -262,15 +257,15 @@ export class OrdersService {
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
-        
+
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let orderBillSixty = order.orderBill * 0.6;
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillSixty = order.realOrderBill * 0.6;
+        let orderBillForty = order.realOrderBill * 0.4;
         if (!receiverAssets) {
           let token: any = {
             tokenAddress: "NOSH",
@@ -285,18 +280,22 @@ export class OrdersService {
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
-          senderAssets.amount = senderAssets.amount - order.orderBill;
+          senderAssets.amount =
+            senderAssets.amount - order.orderBill - order.NoshDeduct;
+          console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
           receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
-          senderAssets.amount = senderAssets.amount - order.orderBill;
+          statusRecieverWallet.escrow =
+            statusRecieverWallet.escrow + +orderBillForty;
+          senderAssets.amount = senderAssets.amount - order.orderBill-order.NoshDeduct;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
@@ -315,6 +314,7 @@ export class OrdersService {
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           from: orderStatusSender.phoneNo,
+          deductAmount:order.NoshDeduct,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",
@@ -334,8 +334,8 @@ export class OrdersService {
         let FL_Assets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let orderBillSixty = order.orderBill * 0.6;
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillSixty = order.realOrderBill * 0.6;
+        let orderBillForty = order.realOrderBill * 0.4;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;

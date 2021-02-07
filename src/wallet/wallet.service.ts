@@ -161,19 +161,21 @@ export class WalletService {
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
           timeStamp,
-          from: UserInfo.phoneNo,
-          to: ReceiverInfo.phoneNo,
+          from: UserInfo.username,
+          to: ReceiverInfo.username,
           amount: amount,
           currency: tokenName,
           message,
         });
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction);
-        await admin.messaging().sendToDevice(ReceiverInfo.fcmRegistrationToken, {
-          notification: {
-            title: `${UserInfo.username} Gifted You ${amount} Noshies`,
-            body: "Tap to view details",
-          },
-        })
+        await admin
+          .messaging()
+          .sendToDevice(ReceiverInfo.fcmRegistrationToken, {
+            notification: {
+              title: `${UserInfo.username} Gifted You ${amount} Noshies`,
+              body: "Tap to view details",
+            },
+          });
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
           // senderAmount: senderAssets.amount,
@@ -188,18 +190,20 @@ export class WalletService {
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
           timeStamp,
-          from: UserInfo.phoneNo,
-          to: ReceiverInfo.phoneNo,
+          from: UserInfo.username,
+          to: ReceiverInfo.username,
           amount: amount,
           currency: tokenName,
           message,
         });
-        await admin.messaging().sendToDevice(ReceiverInfo.fcmRegistrationToken, {
-          notification: {
-            title: `${UserInfo.username} gifted you ${amount} Noshies`,
-            body: "Tap to view details",
-          },
-        })
+        await admin
+          .messaging()
+          .sendToDevice(ReceiverInfo.fcmRegistrationToken, {
+            notification: {
+              title: `${UserInfo.username} gifted you ${amount} Noshies`,
+              body: "Tap to view details",
+            },
+          });
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction);
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -321,7 +325,7 @@ export class WalletService {
             tx,
             fiveMinutesFromNow
           );
-         
+
           this.appGatway.handleReceiveTransaction(UserInfo.phoneNo, {
             response,
           });
@@ -367,6 +371,7 @@ export class WalletService {
           amount = tx.value * converted;
         } else {
           amount = tx.value * req.body.converted;
+          // console.log(amount)
         }
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
@@ -374,6 +379,7 @@ export class WalletService {
             pendingTransaction._id
           );
           successTransaction.amount = amount;
+          // console.log(successTransaction.amount)
           successTransaction.transactionHash = tx.txHash;
           successTransaction.status = "SUCCESSFUL";
           await successTransaction.save();
@@ -381,11 +387,13 @@ export class WalletService {
         }
         //if  NOSH asset exist
         asset.amount = asset.amount + +amount;
+        // console.log("ASSET AMOUNT",asset.amount)
         wallet.save();
         // console.log(wallet)
         let successTransaction = await this.transactionsModel.findById(
           pendingTransaction._id
         );
+        successTransaction.amount = amount;
         successTransaction.transactionHash = tx.txHash;
         successTransaction.status = "SUCCESSFUL";
         await successTransaction.save();
@@ -432,8 +440,8 @@ export class WalletService {
       let transaction = await this.createTransaction({
         transactionType: "Noshies Request",
         timeStamp,
-        from: UserInfo.phoneNo,
-        to: requestedTophoneNo,
+        from: UserInfo.username,
+        to: requestReceiverUser.username,
         amount,
         currency: tokenName,
         message,
@@ -442,7 +450,7 @@ export class WalletService {
       // console.log(transaction)
       //PUSHING Request of NOSH in Wallet Schema of Request Receiver
       requestReceiverWallet.requestReceivedForNoshies.push({
-        fcmRegistrationToken:UserInfo.fcmRegistrationToken,
+        fcmRegistrationToken: UserInfo.fcmRegistrationToken,
         phoneNo: user.phoneNo,
         walletId: UserInfo.walletId,
         amount,
@@ -451,12 +459,14 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
-      await admin.messaging().sendToDevice(requestReceiverUser.fcmRegistrationToken, {
-        notification: {
-          title: `${UserInfo.username} Requested You ${amount} Noshies`,
-          body: "Tap to view details",
-        },
-      })
+      await admin
+        .messaging()
+        .sendToDevice(requestReceiverUser.fcmRegistrationToken, {
+          notification: {
+            title: `${UserInfo.username} Requested You ${amount} Noshies`,
+            body: "Tap to view details",
+          },
+        });
       this.appGatway.handleRequestNoshies(requestedTophoneNo, transaction);
       return { message: "REQUEST SEND" };
     } catch (error) {
@@ -530,12 +540,14 @@ export class WalletService {
           transaction.status = action;
           await wallet.save();
           let updatedTransaction = await transaction.save();
-          await admin.messaging().sendToDevice(pendingNoshRequest.fcmRegistrationToken, {
-            notification: {
-              title: `${UserInfo.username} Approved Your ${transaction.amount} Noshies`,
-              body: "Tap to view details",
-            },
-          })
+          await admin
+            .messaging()
+            .sendToDevice(pendingNoshRequest.fcmRegistrationToken, {
+              notification: {
+                title: `${UserInfo.username} Approved Your ${transaction.amount} Noshies`,
+                body: "Tap to view details",
+              },
+            });
           this.appGatway.handleApproveRequestNoshies(
             pendingNoshRequest.phoneNo,
             updatedTransaction
@@ -557,8 +569,8 @@ export class WalletService {
           await receiverWallet.save();
           await wallet.save();
           let updatedTransaction = await transaction.save();
-          console.log(pendingNoshRequest.fcmRegistrationToken)
-          
+          console.log(pendingNoshRequest.fcmRegistrationToken);
+
           this.appGatway.handleApproveRequestNoshies(
             pendingNoshRequest.phoneNo,
             updatedTransaction
@@ -576,12 +588,14 @@ export class WalletService {
         wallet.requestReceivedForNoshies = newList;
         await wallet.save();
         let updatedTransaction = await transaction.save();
-        await admin.messaging().sendToDevice(pendingNoshRequest.fcmRegistrationToken, {
-          notification: {
-            title: `${UserInfo.username} Decline Your ${transaction.amount} Noshies Request`,
-            body: "Tap to view details",
-          },
-        })
+        await admin
+          .messaging()
+          .sendToDevice(pendingNoshRequest.fcmRegistrationToken, {
+            notification: {
+              title: `${UserInfo.username} Decline Your ${transaction.amount} Noshies Request`,
+              body: "Tap to view details",
+            },
+          });
         this.appGatway.handleApproveRequestNoshies(
           pendingNoshRequest.phoneNo,
           updatedTransaction
@@ -714,8 +728,11 @@ export class WalletService {
       if (!UserInfo.walletId) {
         return { assets: [{ tokenName: "NOSH", amount: 0 }] };
       }
-      // console.log(UserInfo)
-      return { assets: UserInfo.walletId.assets,escrow:UserInfo.walletId.escrow };
+      // console.log(UserInfo.walletId.assets)
+      return {
+        assets: UserInfo.walletId.assets,
+        escrow: UserInfo.walletId.escrow,
+      };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
@@ -763,7 +780,7 @@ export class WalletService {
     try {
       // console.log(req.params)
       let { user } = req;
-      let UserInfo:any = await this.foodLoverModel
+      let UserInfo: any = await this.foodLoverModel
         .findOne({
           phoneNo: user.phoneNo,
         })
@@ -783,7 +800,12 @@ export class WalletService {
       }
       let { walletId } = UserInfo;
       let transactions = await this.transactionsModel.find({
-        $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
+        $or: [
+          { to: UserInfo.phoneNo },
+          { from: UserInfo.phoneNo },
+          { to: UserInfo.username },
+          { from: UserInfo.username },
+        ],
       });
       if (req.params.assetId) {
         let { assetId } = req.params;

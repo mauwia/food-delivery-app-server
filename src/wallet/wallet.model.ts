@@ -16,6 +16,7 @@ export const TransactionsSchema = new mongoose.Schema({
   from: { type: String },
   to: { type: String },
   amount: { type: Number },
+  deductAmount:{type:Number},
   currency: { type: String },
   status:{type:String},
   timeStamp: { type: String, default: Date.now() },
@@ -47,6 +48,7 @@ export interface Transactions  extends mongoose.Document {
   from: string;
   to: string;
   amount: number;
+  deductAmount:number
   currency: string;
   timeStamp: string;
   message: string;
