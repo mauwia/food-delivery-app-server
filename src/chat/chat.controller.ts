@@ -8,8 +8,8 @@ export class ChatController {
   constructor(private chatService: ChatService) {}
 
   @Post('/createChatroom')
-  async createChatroom(@Req() req: Request, @Res() res: Response) {
-    const response = await this.chatService.createChatroom(req.body, res);
+  async createChatroom(@Req() req: Request) {
+    const response = await this.chatService.createChatroom(req.body);
     return response;
   }
 

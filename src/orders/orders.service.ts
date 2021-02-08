@@ -10,7 +10,8 @@ import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
-import { userInfo } from "os";
+import { ChatService } from "src/chat/chat.service";
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -20,7 +21,8 @@ export class OrdersService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
-    private readonly ordersGateway: OrdersGateway
+    private readonly ordersGateway: OrdersGateway,
+    private readonly chatService: ChatService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -67,25 +69,34 @@ export class OrdersService {
         foodCreator.totalOrders.length
       );
       await foodCreator.save();
+      order.realOrderBill = order.orderedFood.reduce((init, food) => {
+        return (food.realPrice*food.quantity) + init;
+      }, 0);
+      order.NoshDeduct = order.orderBill - order.realOrderBill;
+      order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
       let orderCreated = await this.ordersModel.create(newOrder);
       orderCreated = await orderCreated
-        .populate({
-          path: "foodLoverId",
-          select: "username",
-        })
-        .execPopulate();
-        // console.log()
-        await admin
-        .messaging()
-        .sendToDevice(foodCreator.fcmRegistrationToken, {
-          notification: {
-            title: `New Order is Arrived`,
-            body: "Tap to view details",
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username",
           },
-        });
+          {
+            path: "foodCreatorId",
+            select: "businessName",
+          },
+        ])
+        .execPopulate();
+      // console.log()
+      await admin.messaging().sendToDevice(foodCreator.fcmRegistrationToken, {
+        notification: {
+          title: `New Order is Arrived`,
+          body: "Tap to view details",
+        },
+      });
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
@@ -130,7 +141,19 @@ export class OrdersService {
             { orderStatus: { $nin: ["Decline", "Order Completed", "Cancel"] } },
           ],
         })
-        .populate(getOrdersReciever, name);
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName",
+          },
+          {
+            path: "chatRoomId",
+          },
+        ]);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -163,12 +186,24 @@ export class OrdersService {
         throw "USER_NOT_FOUND";
       }
       let { orderID, status } = req.body;
-      let order = await this.ordersModel
-        .findById(orderID)
-        .populate(
-          "foodLoverId foodCreatorId",
-          `phoneNo fcmRegistrationToken walletId username businessName`
-        );
+      let order = await this.ordersModel.findById(orderID).populate([
+        {
+          path: "foodLoverId",
+          select: "username phoneNo fcmRegistrationToken walletId",
+        },
+        {
+          path: "foodCreatorId",
+          select: "businessName phoneNo fcmRegistrationToken walletId",
+        },
+      ]);
+      if (status === "Accepted") {
+        let chatroom = await this.chatService.createChatroom({
+          foodCreatorId: order.foodCreatorId._id,
+          foodLoverId: order.foodLoverId._id,
+          orderId: order._id,
+        });
+        order.chatRoomId = chatroom.chatroom._id;
+      }
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -182,18 +217,18 @@ export class OrdersService {
         orderStatusReciever === "foodLoverId"
           ? order.foodLoverId.phoneNo
           : order.foodCreatorId.phoneNo;
-      console.log(sendStatusToPhoneNo);
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
       console.log(UserInfo.fcmRegistrationToken);
-      console.log('==============>',order[orderStatusReciever])
-        await admin
-          .messaging()
-          .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
-            notification: {
-              title: `Order ${status}`,
-              body: "Tap to view details",
-            },
-          });
+      console.log("==============>", order[orderStatusReciever]);
+      console.log("CHATROOM", updatedOrder);
+      await admin
+        .messaging()
+        .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
+          notification: {
+            title: `Order ${status}`,
+            body: "Tap to view details",
+          },
+        });
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -229,8 +264,8 @@ export class OrdersService {
         let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let orderBillSixty = order.orderBill * 0.6;
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillSixty = order.realOrderBill * 0.6;
+        let orderBillForty = order.realOrderBill * 0.4;
         if (!receiverAssets) {
           let token: any = {
             tokenAddress: "NOSH",
@@ -245,18 +280,22 @@ export class OrdersService {
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
-          senderAssets.amount = senderAssets.amount - order.orderBill;
+          senderAssets.amount =
+            senderAssets.amount - order.orderBill - order.NoshDeduct;
+          console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
           receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
-          senderAssets.amount = senderAssets.amount - order.orderBill;
+          statusRecieverWallet.escrow =
+            statusRecieverWallet.escrow + +orderBillForty;
+          senderAssets.amount = senderAssets.amount - order.orderBill-order.NoshDeduct;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
@@ -275,6 +314,7 @@ export class OrdersService {
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           from: orderStatusSender.phoneNo,
+          deductAmount:order.NoshDeduct,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",
@@ -294,8 +334,8 @@ export class OrdersService {
         let FL_Assets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let orderBillSixty = order.orderBill * 0.6;
-        let orderBillForty = order.orderBill * 0.4;
+        let orderBillSixty = order.realOrderBill * 0.6;
+        let orderBillForty = order.realOrderBill * 0.4;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
