@@ -7,6 +7,7 @@ const orderFood = new mongoose.Schema({
   discount: { type: String },
   itemId: { type: String },
   quantity: { type: Number },
+  realPrice: { type: Number },
 });
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
@@ -36,12 +37,14 @@ export const OrdersSchema = new mongoose.Schema({
   promoCode: { type: String },
   deliveryCharges: { type: Number },
   timestamp: { type: String, default: Date.now() },
-  NoshDeduct:{type:Number},
-  // chatRoom
+  NoshDeduct: { type: Number },
+  chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   orderedFood: [orderFood],
+  realOrderBill:{type: Number}
 });
 
 export interface Orders extends mongoose.Document {
+  realOrderBill:number;
   foodCreatorId: any;
   foodLoverId: any;
   orderStatus: string;
@@ -50,7 +53,9 @@ export interface Orders extends mongoose.Document {
   tokenName: string;
   orderId: string;
   locationFrom: any;
+  NoshDeduct: number;
   orderBill: number;
+  chatRoomId: string;
   promoCode: string;
   deliveryCharges: number;
   orderedFood: any;
@@ -63,4 +68,5 @@ export interface orderFood extends mongoose.Document {
   discount: string;
   itemId: string;
   quantity: number;
+  realPrice: number;
 }

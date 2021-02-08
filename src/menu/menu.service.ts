@@ -28,6 +28,7 @@ export class MenuService {
         };
       }
       let { lng, lat } = req.body;
+      console.log(lng,lat)
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           location: {
@@ -35,7 +36,7 @@ export class MenuService {
               $maxDistance: 5000,
               $geometry: {
                 type: "Point",
-                coordinates: [lat, lng],
+                coordinates: [lng, lat],
               },
             },
           },

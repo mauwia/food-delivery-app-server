@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import { Chatroom, Message } from "./chat.model";
 import { CHAT_MESSAGES } from './constants/key-constants';
 import { ChatGateway } from "./chat.gateway";
+import { Orders } from 'src/orders/orders.model';
 
 
 @Injectable()
@@ -11,11 +12,12 @@ export class ChatService {
   constructor(
     @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>,
     @InjectModel("Message") private readonly messageModel: Model<Message>,
+    @InjectModel("Orders") private readonly ordersModel:Model<Orders>,
     private readonly chatGatway: ChatGateway
   ) {}
   private logger = new Logger('Chat');
 
-  async createChatroom(reqBody, response) {
+  async createChatroom(reqBody) {
     let { foodCreatorId, foodLoverId, orderId }: {
       foodCreatorId: string,
       foodLoverId: string,
@@ -30,15 +32,14 @@ export class ChatService {
         ]
       });
       if (roomExists) {
-        return response.status(409).json({
-          msg: CHAT_MESSAGES.ROOM_EXISTS
-        });
+        // return await this.getChatroomMessages(roomExists._id)
       } else {
+
         const newRoom = new this.chatroomModel(reqBody);
         const chatroom = await this.chatroomModel.create(newRoom);
-        this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
+        // this.chatGatway.handleNewRoom(chatroom.orderId, chatroom.id);
 
-        return chatroom;
+       return {chatroom};
       }  
     } catch (error) {
       this.logger.error(error, error.stack);
