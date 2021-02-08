@@ -70,7 +70,7 @@ export class OrdersService {
       );
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
-        return food.realPrice + init;
+        return (food.realPrice*food.quantity) + init;
       }, 0);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
       order.orderBill -= order.NoshDeduct;
