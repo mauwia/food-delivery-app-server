@@ -71,6 +71,8 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
+      // UserInfo.menuExist=true
+      // await UserInfo.save()
       let { menuName } = req.body;
       let checkMenu = await this.menuModel.findOne({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
@@ -190,6 +192,11 @@ export class MenuService {
       let deletedMenu = await this.menuModel.findOneAndDelete({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
       });
+      // let totalOrders=await this.menuModel.countDocuments({foodCreatorId:UserInfo._id})
+      // if(!totalOrders){
+      //   UserInfo.menuExist=false
+      //   await UserInfo.save()
+      // }
 
       console.log(deletedMenu);
       return { message: "Menu Deleted" };

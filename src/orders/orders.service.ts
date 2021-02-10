@@ -72,8 +72,9 @@ export class OrdersService {
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
         return (food.realPrice*food.quantity) + init;
       }, 0);
+      console.log(order.orderedFood)
       order.NoshDeduct = order.orderBill - order.realOrderBill;
-      order.orderBill -= order.NoshDeduct;
+      // order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);

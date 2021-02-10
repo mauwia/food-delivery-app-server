@@ -30,7 +30,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   totalOrders: { type: String, default: "00000" },
   verified: { type: Boolean, default: false },
   avgRating: { type: Number },
-  menuExist: { type: Boolean },
+  menuExist: { type: Boolean,default:false },
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
 });
