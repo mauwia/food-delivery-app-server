@@ -71,8 +71,7 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      // UserInfo.menuExist=true
-      // await UserInfo.save()
+     
       let { menuName } = req.body;
       let checkMenu = await this.menuModel.findOne({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
@@ -114,7 +113,8 @@ export class MenuService {
       let menu = await this.menuModel.findOne({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
       });
-
+      UserInfo.menuExist=true
+      await UserInfo.save()
       if (menu) {
         let newMenuItem = new this.menuItemsModel(menuItem);
         let MenuItem = await this.menuItemsModel.create(newMenuItem);
@@ -192,11 +192,12 @@ export class MenuService {
       let deletedMenu = await this.menuModel.findOneAndDelete({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
       });
-      // let totalOrders=await this.menuModel.countDocuments({foodCreatorId:UserInfo._id})
-      // if(!totalOrders){
-      //   UserInfo.menuExist=false
-      //   await UserInfo.save()
-      // }
+      let totalMenu=await this.menuModel.countDocuments({foodCreatorId:UserInfo._id})
+      console.log(totalMenu)
+      if(!totalMenu){
+        UserInfo.menuExist=false
+        await UserInfo.save()
+      }
 
       console.log(deletedMenu);
       return { message: "Menu Deleted" };
@@ -269,6 +270,12 @@ export class MenuService {
       );
       console.log(menu);
       let deletedMenu = await this.menuItemsModel.findOneAndDelete(menuItemId);
+      let totalMenuItem=await this.menuItemsModel.countDocuments({foodCreatorId:UserInfo._id})
+      console.log(totalMenuItem)
+      if(!totalMenuItem){
+        UserInfo.menuExist=false
+        await UserInfo.save()
+      }
       return { message: "Menu Item Deleted" };
     } catch (error) {
       this.logger.error(error, error.stack);
