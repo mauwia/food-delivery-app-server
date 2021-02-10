@@ -24,6 +24,7 @@ export interface FoodLover extends mongoose.Document {
   lastName: string;
   phoneNo: string;
   passHash: string;
+  totalOrders:number;
   verified: boolean;
   pinHash: string | boolean;
   countryCode: string;

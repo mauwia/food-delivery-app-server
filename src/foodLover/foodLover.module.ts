@@ -8,10 +8,15 @@ import { JwtModule } from "@nestjs/jwt/dist/jwt.module";
 import { JwtStrategy } from "./jwt/jwt.strategy";
 import { WalletModule } from "../wallet/wallet.module";
 import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
+import { OrdersSchema } from "src/orders/orders.model";
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: "FoodLover", schema: FoodLoverSchema},{name:"FoodCreator",schema:FoodCreatorSchema}]),
+    MongooseModule.forFeature([
+      { name: "FoodLover", schema: FoodLoverSchema },
+      { name: "FoodCreator", schema: FoodCreatorSchema },
+      { name: "Orders", schema: OrdersSchema },
+    ]),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: { expiresIn: "1h" },

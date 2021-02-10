@@ -59,7 +59,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   @SubscribeMessage("send-message")
   async handleSendMessage(client: Socket, payload) {
     try {
-      console.log("PAYLOAD", payload);
+      // console.log("PAYLOAD", payload);
 
       // check that chatroom has been created in the DB
       const chatroom = await this.chatroomModel.findOne({
@@ -67,11 +67,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
       });
       // console.log(chatroom)
       if (chatroom.isActive) {
-        console.log("PAYLOA1D", payload);
+        // console.log("PAYLOA1D", payload);
         let newMessage = new this.messageModel(payload);
-        console.log("==========>1", newMessage);
+        // console.log("==========>1", newMessage);
         let message = await this.messageModel.create(newMessage);
-        console.log("===============>2", message);
+        // console.log("===============>2", message);
         message = await message
           .populate([
             {
@@ -84,7 +84,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             },
           ])
           .execPopulate();
-        console.log(message);
+        // console.log(message);
         if (this.onlineUsers[message.receiverId.phoneNo]) {
           this.server
             .to(this.onlineUsers[message.receiverId.phoneNo].socketId)
@@ -96,7 +96,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
               notification: {
                 title: `${message.senderId.username}`,
                 body: message.message,
-              },
+              }
             });
         }
       }
