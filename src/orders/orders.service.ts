@@ -70,9 +70,9 @@ export class OrdersService {
       );
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
-        return (food.realPrice*food.quantity) + init;
+        return food.realPrice * food.quantity + init;
       }, 0);
-      console.log(order.orderedFood)
+      console.log(order.orderedFood);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
       // order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
@@ -291,7 +291,8 @@ export class OrdersService {
             statusSenderWallet.escrow + +orderBillForty;
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
-          senderAssets.amount = senderAssets.amount - order.orderBill-order.NoshDeduct;
+          senderAssets.amount =
+            senderAssets.amount - order.orderBill - order.NoshDeduct;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
@@ -315,7 +316,7 @@ export class OrdersService {
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           from: orderStatusSender.phoneNo,
-          deductAmount:order.NoshDeduct,
+          deductAmount: order.NoshDeduct,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",

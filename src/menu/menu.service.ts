@@ -31,6 +31,7 @@ export class MenuService {
       console.log(lng,lat)
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
+          $and:[{
           location: {
             $near: {
               $maxDistance: 5000,
@@ -39,9 +40,11 @@ export class MenuService {
                 coordinates: [lng, lat],
               },
             },
-          },
+          }},{
+            menuExist:true
+          }]
         })
-        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified");
+        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken");
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
       //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
