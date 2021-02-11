@@ -95,7 +95,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             .sendToDevice(message.receiverId.fcmRegistrationToken, {
               notification: {
                 title: `${message.senderId.username}`,
-                body: message.message,
+                body: message.message?message.message:"Send You Image",
               }
             });
         }
