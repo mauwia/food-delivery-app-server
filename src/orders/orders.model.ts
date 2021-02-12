@@ -1,5 +1,6 @@
 import * as mongoose from "mongoose";
 const orderFood = new mongoose.Schema({
+  menuItemId:{ type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
   menuItemName: { type: String },
   description: { type: String },
   preparationTime: { type: String },

@@ -57,8 +57,10 @@ export class OrdersGateway
           },
         ],
       })
-      .select("-pinHash -passHash -mobileRegisteredId -walletId -verified");
-      this.server.to(this.onlineUsers[payload.phoneNo].socketId).emit("search-result",nearByFoodCreators)
+      .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken");
+      // console.log(nearByFoodCreators)
+      // console.log(this.onlineUsers[payload.phoneNo].socketId)
+      this.server.to(this.onlineUsers[payload.phoneNo].socketId).emit("search-result",{nearByFoodCreators})
   }
   handleUpdateStatus(to: string, order: any): void {
     if (this.onlineUsers[to]) {
