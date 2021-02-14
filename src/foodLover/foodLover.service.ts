@@ -3,11 +3,13 @@ import { InjectModel } from "@nestjs/mongoose";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { Model } from "mongoose";
 import { FoodLover } from "./foodLover.model";
+import { Orders } from "../orders/orders.model";
 import { FOOD_LOVER_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FoodCreator } from "src/food-creator/food-creator.model";
-import { Orders } from "src/orders/orders.model";
+import { generateJWT } from '../utils/index';
+import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -16,11 +18,11 @@ dotenv.config();
 export class FoodLoverService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
-    @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly orderModel:Model<Orders>,
+    @InjectModel("FoodCreator") private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Orders") private readonly ordersModel:Model<Orders>,
     @InjectTwilio() private readonly client: TwilioClient,
-    private readonly walletService: WalletService
+    private readonly walletService: WalletService,
+
   ) {}
   OTP = [];
   private logger = new Logger("Food Lover");
@@ -40,10 +42,8 @@ export class FoodLoverService {
         userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
         await userExist.save()
       }
-      const token = jwt.sign(
-        { phoneNo: userExist.phoneNo },
-        process.env.JWT_ACCESS_TOKEN_SECRET
-      );
+
+      const token = generateJWT(userExist.id, userExist.phoneNo);
       if (!userExist.verified) {
         // await this.sendSMS(userExist.phoneNo);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
@@ -100,10 +100,7 @@ export class FoodLoverService {
 
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
-        const token = jwt.sign(
-          { phoneNo: req.phoneNo },
-          process.env.JWT_ACCESS_TOKEN_SECRET
-        );
+        const token = generateJWT(user._id , req.phoneNo);
         // await this.sendSMS(req.phoneNo);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -132,19 +129,59 @@ export class FoodLoverService {
       );
     }
   }
-  async getLoverInfo(req) {
+  async getLoverInfo(req, id) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
-        phoneNo: user.phoneNo,
-      }).lean();
+      let ordersFromSubscriptions = [];
+      const UserInfo = await this.foodLoverModel.findOne({ _id: id });
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
-      let totalOrders=await this.orderModel.countDocuments({$and:[{foodLoverId:UserInfo._id},{orderStatus:"Order Completed"}]})
+      let totalOrders = await this.ordersModel.countDocuments({
+        $and: [
+          {foodLoverId:UserInfo._id},
+          {orderStatus:"Order Completed"}
+        ]
+      });
       // console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
-      return { user: {...UserInfo,totalOrders} };
+
+      const allOrders = await this.ordersModel.find({
+        foodLoverId: id,
+      });
+
+      // Get orders a FL has made from FCs they are subscribed to
+      const subscribedToOrders = await this.ordersModel.find({ 
+        foodCreatorId: { $in: UserInfo.subscribedTo } 
+      });
+      subscribedToOrders.forEach(subscription => {
+        const ordersFromSubscription = allOrders.filter(order => {
+          return order.foodCreatorId.equals(subscription.foodCreatorId)
+        }).length;
+
+        ordersFromSubscriptions.push({ 
+          foodCreatorId: subscription.foodCreatorId,
+          totalOrders: ordersFromSubscription
+        });
+      });
+
+      if (user.id !== id) { 
+        // return public profile
+        const { username, location, imageUrl } = UserInfo;
+        return {
+          username, location, imageUrl,
+          totalOrders: allOrders.length,
+          subscriptionsAndOrders: ordersFromSubscriptions,       
+          lastOrder: allOrders[allOrders.length - 1],
+        }
+      } else {
+        return { 
+          user: UserInfo,
+          subscriptionsAndOrders: ordersFromSubscriptions,
+          totalOrders: allOrders.length,
+          lastOrder: allOrders[allOrders.length - 1]
+        };
+      }
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
