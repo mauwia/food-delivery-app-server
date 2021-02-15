@@ -129,4 +129,25 @@ export class SubscriptionsService {
       throw new BadRequestException(error);
     }
   }
+
+  async getFcSubscriptions(request, foodCreatorID) {
+    let { user }: {
+      user: { phoneNo: string, id: string };
+    } = request;
+
+    try {
+      let fcProfile = await this.foodCreatorModel.findOne({
+        _id: foodCreatorID,
+      });
+      if (!fcProfile) {
+        throw SUBSCRIPTION_MESSAGES.USER_NOT_FOUND;
+      } else {
+        return this.foodCreatorModel.findOne({ _id: foodCreatorID },  { subscribers: 1 })
+          .populate('subscribers', { 'username': 1, 'imageUrl': 1}).exec();    
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new BadRequestException(error);
+    }
+  }
 }
