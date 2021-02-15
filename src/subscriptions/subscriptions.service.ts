@@ -33,17 +33,37 @@ export class SubscriptionsService {
       if(flProfile.subscribedTo.includes(body.foodCreatorId)) {
         throw SUBSCRIPTION_MESSAGES.ALREADY_SUBSCRIBED_TO_FC;
       } else {
-        let updatedSubscriptions = [...flProfile.subscribedTo, body.foodCreatorId]
-        const result = await this.foodLoverModel.findOneAndUpdate(
-          { _id: user.id },
-          {
-            $set: {
-              subscribedTo: updatedSubscriptions,
+        const session = await this.foodLoverModel.startSession();
+        session.startTransaction();
+        try {
+          let flUpdatedSubscriptions = [...flProfile.subscribedTo, body.foodCreatorId];
+          let fcUpdatedSubcribers = [...fcProfile.subscribers, user.id];
+          await this.foodCreatorModel.findOneAndUpdate(
+            { _id: body.foodCreatorId },
+            {
+              $set: {
+                subscribers: fcUpdatedSubcribers,
+              },
+            }
+          );
+          const result = await this.foodLoverModel.findOneAndUpdate(
+            { _id: user.id },
+            {
+              $set: {
+                subscribedTo: flUpdatedSubscriptions,
+              },
             },
-          },
-          { new: true }
-        );
-        return { subscribedTo: result.subscribedTo};
+            { new: true }
+          );
+          await session.commitTransaction();
+          return { subscribedTo: result.subscribedTo};
+        } catch (error) {
+          await session.abortTransaction();
+          this.logger.error('Subscription operation arboted');
+          this.logger.error(error);
+        } finally {
+          session.endSession();
+        }
       }
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -60,23 +80,49 @@ export class SubscriptionsService {
       let flProfile = await this.foodLoverModel.findOne({
         _id: user.id,
       });
+      let fcProfile = await this.foodCreatorModel.findOne({
+        _id: body.foodCreatorId,
+      });
 
       if(!flProfile.subscribedTo.includes(body.foodCreatorId)) {
         throw SUBSCRIPTION_MESSAGES.NOT_SUBSCRIBED_TO_FC;
       } else {
-        let updatedSubscriptions = flProfile.subscribedTo.filter(subscription => {
-          return !(subscription.equals(body.foodCreatorId))
-        })
-        const result = await this.foodLoverModel.findOneAndUpdate(
-          { _id: user.id },
-          {
-            $set: {
-              subscribedTo: updatedSubscriptions,
+        const session = await this.foodLoverModel.startSession();
+        session.startTransaction();
+        try {
+          let flUpdatedSubscriptions = flProfile.subscribedTo.filter(subscription => {
+            return !(subscription.equals(body.foodCreatorId))
+          });
+          let fcUpdatedSubcribers = fcProfile.subscribers.filter(subscription => {
+            return !(subscription.equals(user.id))
+          });
+  
+          await this.foodCreatorModel.findOneAndUpdate(
+            { _id: body.foodCreatorId },
+            {
+              $set: {
+                subscribers: fcUpdatedSubcribers,
+              },
+            }
+          );
+          const result = await this.foodLoverModel.findOneAndUpdate(
+            { _id: user.id },
+            {
+              $set: {
+                subscribedTo: flUpdatedSubscriptions,
+              },
             },
-          },
-          { new: true }
-        );
-        return { subscribedTo: result.subscribedTo};
+            { new: true }
+          );
+          await session.commitTransaction();
+          return { subscribedTo: result.subscribedTo};
+        } catch (error) {
+          await session.abortTransaction();
+          this.logger.error('Unsubscribe operation arboted');
+          this.logger.error(error);
+        } finally {
+          session.endSession();
+        }
       }
     } catch (error) {
       this.logger.error(error, error.stack);
