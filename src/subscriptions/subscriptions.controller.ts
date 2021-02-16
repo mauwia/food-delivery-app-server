@@ -27,4 +27,11 @@ export class SubscriptionsController {
     const response = await this.subscriptionsService.getFcSubscriptions(req, foodCreatorID);
     return response;
   }
+
+  @UseGuards(new JWTAuthGuard())
+  @Get('/:foodCreatorID/fl')
+  async isFlSubscribedToFC(@Req() req: Request, @Param('foodCreatorID') foodCreatorID: string) {
+    const response = await this.subscriptionsService.isFlSubscribedToFC(req, foodCreatorID);
+    return response;
+  }
 }

@@ -150,4 +150,30 @@ export class SubscriptionsService {
       throw new BadRequestException(error);
     }
   }
+
+  async isFlSubscribedToFC(request, foodCreatorID) {
+    let { user }: {
+      user: { phoneNo: string, id: string };
+    } = request;
+
+    try {
+      const fcSubscriptions = await this.getFcSubscriptions(request, foodCreatorID);      
+      const flIsSubscribedToFC = fcSubscriptions.subscribers.filter(
+        subscriber => subscriber._id.equals(user.id))[0];
+        
+      if (Object.keys(flIsSubscribedToFC).length === 0) {
+        return {
+          isSubscribedToFC: false,
+        }
+      } else {
+        return {
+          isSubscribedToFC: true,
+          flInfo: flIsSubscribedToFC,
+        }
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new BadRequestException(error);
+    }
+  }
 }
