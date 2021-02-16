@@ -229,6 +229,9 @@ export class OrdersService {
             title: `Order ${status}`,
             body: "Tap to view details",
           },
+          data:{
+            route:"order-details"
+          }
         });
       return { updatedOrder };
     } catch (error) {

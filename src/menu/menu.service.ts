@@ -5,6 +5,8 @@ import { Menu, MenuItems } from "./menu.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { MENU_MESSAGES } from "./constants/key-contants";
+import getMenuPipline from "./constants/getMenuPipline";
+
 @Injectable()
 export class MenuService {
   constructor(
@@ -165,40 +167,11 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-
+      // let pipeline=getMenuPipline(req)
       // console.log(req.params.creatorID)
-      // let nearByFoodCreators2 = await this.menuModel.aggregate([
-      //     {
-      //       $match:{
-      //         foodCreatorId:new Types.ObjectId(req.params.creatorID)
-      //       }
-      //     },
-      //     {
-      //       $lookup: {
-      //         from: "menuitems",
-      //         // localField: "menuItems", // field in the orders collection
-      //         // foreignField: "_id", // field in the items collection
-      //         // let: { foodCreatorId: "$_id" },
-      //         let:{menuItems:"$menuItems"},
-      //         pipeline: [
-      //           {
-      //             $match: {
-      //               $expr: {
-      //         //         $eq: ["$$foodCreatorId", "$foodCreatorId"],
-      //                    $eq:["$menuItems","$$_id"]
-      //               },
-      //             },
-      //           },
-      //         //   {
-      //         //     $count: "length",
-      //         //   },
-      //         ],
-      //         as: "menuItems",
-      //       },
-      //     },
-        
-      //   ]);
-      //   console.log(nearByFoodCreators2[0].menuItems);
+      // let nearByFoodCreators2 = await this.menuModel.aggregate(pipeline);
+      //   console.log(nearByFoodCreators2[0]);
+      //   console.log(nearByFoodCreators2[1]);
       let menu = await this.menuModel
         .find({ foodCreatorId: req.params.creatorID })
         .populate([
@@ -210,6 +183,8 @@ export class MenuService {
             select: "businessName",
           },
         ]);
+        // console.log("OLLDDD")
+        // console.log(menu)
       return { menu };
     } catch (error) {
       this.logger.error(error, error.stack);
