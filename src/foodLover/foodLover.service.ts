@@ -138,20 +138,18 @@ export class FoodLoverService {
       }
       let totalOrders = await this.ordersModel.countDocuments({
         $and: [
-          {foodLoverId:UserInfo._id},
-          {orderStatus:"Order Completed"}
+          { foodLoverId: UserInfo._id },
+          { orderStatus: "Order Completed" }
         ]
       });
       // console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
 
-      const allOrders = await this.ordersModel.find({
-        foodLoverId: id,
-      });
+      const lastOrder = await this.ordersModel.find({ orderStatus: "Order Completed" }).limit(1).sort({$natural:-1})
 
       // Get orders a FL has made from FCs they are subscribed to
       const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
-        { $match : { foodCreatorId: { $in: UserInfo.subscribedTo } }},
+        { $match : { foodCreatorId: { $in: UserInfo.subscribedTo }, orderStatus: "Order Completed" }},
         { $group : { _id: '$foodCreatorId', totalOrders : { $sum : 1 } } }
       ]);
 
@@ -159,18 +157,25 @@ export class FoodLoverService {
         // return public profile
         const { username, location, imageUrl } = UserInfo;
         return {
-          username, location, imageUrl,
-          totalOrders: allOrders.length,
-          ordersFromSubscribedFCs,       
-          lastOrder: allOrders[allOrders.length - 1],
+          user: {
+            username,
+            location,
+            imageUrl,
+            totalOrders,
+            ordersFromSubscribedFCs,       
+            lastOrder,
+          }
         }
       } else {
         return { 
-          user: UserInfo,
-          ordersFromSubscribedFCs,
-          totalOrders: allOrders.length,
-          lastOrder: allOrders[allOrders.length - 1]
-        };
+          user: {
+            ...UserInfo,
+            totalOrders,
+            ordersFromSubscribedFCs,
+            lastOrder,
+          } 
+        }
+
       }
     } catch (error) {
       this.logger.error(error, error.stack);
