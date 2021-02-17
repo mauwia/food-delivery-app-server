@@ -11,6 +11,7 @@ import { OrdersModule } from './orders/orders.module';
 import { AppGateway } from "./app.gateway";
 import { MenuModule } from './menu/menu.module';
 import { ChatModule } from './chat/chat.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { ChatModule } from './chat/chat.module';
     OrdersModule,
     MenuModule,
     ChatModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
