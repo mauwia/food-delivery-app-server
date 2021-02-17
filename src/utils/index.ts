@@ -1,4 +1,5 @@
 const axios = require('axios');
+const jwt = require("jsonwebtoken");
 ​
 const url = "https://testnet-dex.binance.org/";
 // const url = "https://dex.binance.org/";
@@ -62,3 +63,10 @@ export const bnbToNosh =async ()=>{
     console.log(Date.now())
     return conversion
   }
+
+export const generateJWT = (id, phoneNo) => {
+  return jwt.sign(
+    { phoneNo, id },
+    process.env.JWT_ACCESS_TOKEN_SECRET
+  );
+}

@@ -27,7 +27,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   businessName: { type: String, default: null },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   creatorThumbnail:{type:String},
-  subscribers: { type: Array },
+  subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" }],
   onlineStatus: { type: Boolean, default: true },
   totalOrders: { type: String, default: "00000" },
   verified: { type: Boolean, default: false },
@@ -55,7 +55,7 @@ export interface FoodCreator extends mongoose.Document {
   walletId: string;
   verified: boolean;
   pinHash: boolean;
-  subscribers: [];
+  subscribers: any;
   onlineStatus: boolean;
   avgRating: Number;
   mobileRegisteredId: string;

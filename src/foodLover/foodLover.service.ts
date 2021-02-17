@@ -3,11 +3,13 @@ import { InjectModel } from "@nestjs/mongoose";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { Model } from "mongoose";
 import { FoodLover } from "./foodLover.model";
+import { Orders } from "../orders/orders.model";
 import { FOOD_LOVER_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FoodCreator } from "src/food-creator/food-creator.model";
-import { Orders } from "src/orders/orders.model";
+import { generateJWT } from "../utils/index";
+import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -18,13 +20,17 @@ export class FoodLoverService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly orderModel:Model<Orders>,
+    @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Lover");
-  async signinLover(req: { phoneNo: string; password: string,fcmRegistrationToken:string }) {
+  async signinLover(req: {
+    phoneNo: string;
+    password: string;
+    fcmRegistrationToken: string;
+  }) {
     try {
       const userExist = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
@@ -35,15 +41,15 @@ export class FoodLoverService {
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
 
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistrationToken)
-      if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
-        await userExist.save()
-      }
-      const token = jwt.sign(
-        { phoneNo: userExist.phoneNo },
-        process.env.JWT_ACCESS_TOKEN_SECRET
+      let tokenExist = userExist.fcmRegistrationToken.find(
+        (token) => token === req.fcmRegistrationToken
       );
+      if (!tokenExist) {
+        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken);
+        await userExist.save();
+      }
+
+      const token = generateJWT(userExist.id, userExist.phoneNo);
       if (!userExist.verified) {
         // await this.sendSMS(userExist.phoneNo);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
@@ -100,10 +106,7 @@ export class FoodLoverService {
 
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
-        const token = jwt.sign(
-          { phoneNo: req.phoneNo },
-          process.env.JWT_ACCESS_TOKEN_SECRET
-        );
+        const token = generateJWT(user._id, req.phoneNo);
         // await this.sendSMS(req.phoneNo);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -132,19 +135,76 @@ export class FoodLoverService {
       );
     }
   }
-  async getLoverInfo(req) {
+  async getLoverInfo(req, id) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
-        phoneNo: user.phoneNo,
-      }).lean();
+      const UserInfo = await this.foodLoverModel.findOne({ _id: id });
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
-      let totalOrders=await this.orderModel.countDocuments({$and:[{foodLoverId:UserInfo._id},{orderStatus:"Order Completed"}]})
+      let totalOrders = await this.ordersModel.countDocuments({
+        $and: [
+          { foodLoverId: UserInfo._id },
+          { orderStatus: "Order Completed" },
+        ],
+      });
       // console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
-      return { user: {...UserInfo,totalOrders} };
+
+      const lastOrder = await this.ordersModel
+        .find({ orderStatus: "Order Completed" })
+        .limit(1)
+        .sort({ $natural: -1 });
+
+      // Get orders a FL has made from FCs they are subscribed to
+      const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
+        {
+          $match: {
+            foodCreatorId: { $in: UserInfo.subscribedTo },
+            orderStatus: "Order Completed",
+          },
+        },
+        { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
+      ]);
+
+      if (user.id !== id) {
+        // return public profile
+        console.log("hello", {
+          ...UserInfo,
+          totalOrders,
+          ordersFromSubscribedFCs,
+          lastOrder,
+        });
+        const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
+        return {
+          user: {
+            // ...UserInfo,
+            _id,
+            phoneNo,
+            verified,
+            walletId,
+            firstName,
+            lastName,
+            countryName,
+            countryCode,email,
+            username,
+            location,
+            imageUrl,
+            totalOrders,
+            ordersFromSubscribedFCs,
+            lastOrder,
+          },
+        };
+      } else {
+        return {
+          user: {
+            ...UserInfo,
+            totalOrders,
+            ordersFromSubscribedFCs,
+            lastOrder,
+          },
+        };
+      }
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
