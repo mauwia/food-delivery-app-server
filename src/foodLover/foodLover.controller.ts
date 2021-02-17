@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { FoodLoverService } from "./foodLover.service";
 import { JWTAuthGuard } from "./jwt/jwt-auth.guard";
 import { Request } from "express";
@@ -43,9 +43,9 @@ export class FoodLoverController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get("/getLoverInfo")
-  async LoverInfo(@Req() request: Request) {
-    const response = await this.foodLoverService.getLoverInfo(request);
+  @Get("/getLoverInfo/:id")
+  async LoverInfo(@Req() request: Request, @Param('id') id: string) {
+    const response = await this.foodLoverService.getLoverInfo(request, id);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
