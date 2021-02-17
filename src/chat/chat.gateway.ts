@@ -11,6 +11,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Chatroom, Message } from "./chat.model";
 import { CHAT_MESSAGES } from "./constants/key-constants";
+import * as admin from "firebase-admin";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
@@ -58,7 +59,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   @SubscribeMessage("send-message")
   async handleSendMessage(client: Socket, payload) {
     try {
-      console.log("PAYLOAD", payload);
+      // console.log("PAYLOAD", payload);
 
       // check that chatroom has been created in the DB
       const chatroom = await this.chatroomModel.findOne({
@@ -66,22 +67,37 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
       });
       // console.log(chatroom)
       if (chatroom.isActive) {
-        console.log("PAYLOA1D", payload);
+        // console.log("PAYLOA1D", payload);
         let newMessage = new this.messageModel(payload);
-        console.log("==========>1", newMessage);
+        // console.log("==========>1", newMessage);
         let message = await this.messageModel.create(newMessage);
-        console.log("===============>2", message);
+        // console.log("===============>2", message);
         message = await message
-          .populate({
-            path: "receiverId",
-            select: "phoneNo fcmRegistrationToken",
-          })
+          .populate([
+            {
+              path: "receiverId",
+              select: "phoneNo fcmRegistrationToken",
+            },
+            {
+              path: "senderId",
+              select: "username",
+            },
+          ])
           .execPopulate();
-        console.log(message);
+        // console.log(message);
         if (this.onlineUsers[message.receiverId.phoneNo]) {
           this.server
             .to(this.onlineUsers[message.receiverId.phoneNo].socketId)
             .emit("recieve-message", message);
+        } else {
+          await admin
+            .messaging()
+            .sendToDevice(message.receiverId.fcmRegistrationToken, {
+              notification: {
+                title: `${message.senderId.username}`,
+                body: message.message?message.message:"Send You Image",
+              }
+            });
         }
       }
     } catch (err) {
