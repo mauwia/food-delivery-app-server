@@ -132,7 +132,6 @@ export class FoodLoverService {
   async getLoverInfo(req, id) {
     try {
       let { user } = req;
-      let ordersFromSubscriptions = [];
       const UserInfo = await this.foodLoverModel.findOne({ _id: id });
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
@@ -151,19 +150,10 @@ export class FoodLoverService {
       });
 
       // Get orders a FL has made from FCs they are subscribed to
-      const subscribedToOrders = await this.ordersModel.find({ 
-        foodCreatorId: { $in: UserInfo.subscribedTo } 
-      });
-      subscribedToOrders.forEach(subscription => {
-        const ordersFromSubscription = allOrders.filter(order => {
-          return order.foodCreatorId.equals(subscription.foodCreatorId)
-        }).length;
-
-        ordersFromSubscriptions.push({ 
-          foodCreatorId: subscription.foodCreatorId,
-          totalOrders: ordersFromSubscription
-        });
-      });
+      const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
+        { $match : { foodCreatorId: { $in: UserInfo.subscribedTo } }},
+        { $group : { _id: '$foodCreatorId', totalOrders : { $sum : 1 } } }
+      ]);
 
       if (user.id !== id) { 
         // return public profile
@@ -171,13 +161,13 @@ export class FoodLoverService {
         return {
           username, location, imageUrl,
           totalOrders: allOrders.length,
-          subscriptionsAndOrders: ordersFromSubscriptions,       
+          ordersFromSubscribedFCs,       
           lastOrder: allOrders[allOrders.length - 1],
         }
       } else {
         return { 
           user: UserInfo,
-          subscriptionsAndOrders: ordersFromSubscriptions,
+          ordersFromSubscribedFCs,
           totalOrders: allOrders.length,
           lastOrder: allOrders[allOrders.length - 1]
         };
