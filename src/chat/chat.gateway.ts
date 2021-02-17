@@ -12,12 +12,15 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Chatroom, Message } from "./chat.model";
 import { CHAT_MESSAGES } from "./constants/key-constants";
 import * as admin from "firebase-admin";
+import { FoodLover } from "src/foodLover/foodLover.model";
+import getNumberOfFLChats from "./constants/getNumberOfFLChats";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(
     @InjectModel("Message") private readonly messageModel: Model<Message>,
-    @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>
+    @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>,
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>
   ) {}
   socket_id: any;
   users: any[] = [];
@@ -29,18 +32,45 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   afterInit(server: any) {
     this.logger.log("Initialized!");
   }
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
+    //this pipeline will use to get numbers of FC which are in active chat with FL
+    let getNumbersPipeline = getNumberOfFLChats(client);
+    let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
+    if (numbers.length) {
+      numbers[0].phoneNo.map((phone) => {
+        if (this.onlineUsers[phone]) {
+          this.server
+            .to(this.onlineUsers[phone].socketId)
+            .emit("fl-user-status", {
+              phoneNo: client.handshake.query.userNo,
+              statusOnline: false,
+            });
+        }
+      });
+    }
     delete this.onlineUsers[client.handshake.query.userNo];
     this.logger.log(`Client disconnected: ${client.id}`);
-    console.log(this.onlineUsers);
+    // console.log(this.onlineUsers);
   }
-  handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected to chat: ${client.id}`);
     let { userNo } = client.handshake.query;
+
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
-    // this.server
-    //   .to(client.id)
-    //   .emit('new-client-id', client.id);
+    let getNumbersPipeline = getNumberOfFLChats(client);
+    let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
+    if (numbers.length) {
+      numbers[0].phoneNo.map((phone) => {
+        if (this.onlineUsers[phone]) {
+          this.server
+            .to(this.onlineUsers[phone].socketId)
+            .emit("fl-user-status", {
+              phoneNo: client.handshake.query.userNo,
+              statusOnline: true,
+            });
+        }
+      });
+    }
   }
 
   handleNewRoom(socketId): void {
@@ -95,8 +125,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             .sendToDevice(message.receiverId.fcmRegistrationToken, {
               notification: {
                 title: `${message.senderId.username}`,
-                body: message.message?message.message:"Send You Image",
-              }
+                body: message.message ? message.message : "Send You Image",
+              },
             });
         }
       }

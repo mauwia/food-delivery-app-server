@@ -310,6 +310,7 @@ export class OrdersService {
         }
       } else if (status === "Order Completed") {
         await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id,{$inc:{totalNoshedOrders:1}})
+        await this.chatService.closeChatRoom(order.chatRoomId)
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId

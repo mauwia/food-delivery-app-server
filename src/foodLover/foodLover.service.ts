@@ -8,7 +8,7 @@ import { FOOD_LOVER_MESSAGES } from "./constants/key-contants";
 import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FoodCreator } from "src/food-creator/food-creator.model";
-import { generateJWT } from '../utils/index';
+import { generateJWT } from "../utils/index";
 import { userInfo } from "os";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -18,15 +18,19 @@ dotenv.config();
 export class FoodLoverService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
-    @InjectModel("FoodCreator") private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly ordersModel:Model<Orders>,
+    @InjectModel("FoodCreator")
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectTwilio() private readonly client: TwilioClient,
-    private readonly walletService: WalletService,
-
+    private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Lover");
-  async signinLover(req: { phoneNo: string; password: string,fcmRegistrationToken:string }) {
+  async signinLover(req: {
+    phoneNo: string;
+    password: string;
+    fcmRegistrationToken: string;
+  }) {
     try {
       const userExist = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
@@ -37,10 +41,12 @@ export class FoodLoverService {
       if (!bcrypt.compareSync(req.password, userExist.passHash))
         throw FOOD_LOVER_MESSAGES.WRONG_PASSWORD;
 
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistrationToken)
-      if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
-        await userExist.save()
+      let tokenExist = userExist.fcmRegistrationToken.find(
+        (token) => token === req.fcmRegistrationToken
+      );
+      if (!tokenExist) {
+        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken);
+        await userExist.save();
       }
 
       const token = generateJWT(userExist.id, userExist.phoneNo);
@@ -100,7 +106,7 @@ export class FoodLoverService {
 
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
-        const token = generateJWT(user._id , req.phoneNo);
+        const token = generateJWT(user._id, req.phoneNo);
         // await this.sendSMS(req.phoneNo);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -139,43 +145,65 @@ export class FoodLoverService {
       let totalOrders = await this.ordersModel.countDocuments({
         $and: [
           { foodLoverId: UserInfo._id },
-          { orderStatus: "Order Completed" }
-        ]
+          { orderStatus: "Order Completed" },
+        ],
       });
       // console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
 
-      const lastOrder = await this.ordersModel.find({ orderStatus: "Order Completed" }).limit(1).sort({$natural:-1})
+      const lastOrder = await this.ordersModel
+        .find({ orderStatus: "Order Completed" })
+        .limit(1)
+        .sort({ $natural: -1 });
 
       // Get orders a FL has made from FCs they are subscribed to
       const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
-        { $match : { foodCreatorId: { $in: UserInfo.subscribedTo }, orderStatus: "Order Completed" }},
-        { $group : { _id: '$foodCreatorId', totalOrders : { $sum : 1 } } }
+        {
+          $match: {
+            foodCreatorId: { $in: UserInfo.subscribedTo },
+            orderStatus: "Order Completed",
+          },
+        },
+        { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
       ]);
 
-      if (user.id !== id) { 
+      if (user.id !== id) {
         // return public profile
-        const { username, location, imageUrl } = UserInfo;
+        console.log("hello", {
+          ...UserInfo,
+          totalOrders,
+          ordersFromSubscribedFCs,
+          lastOrder,
+        });
+        const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
         return {
           user: {
+            // ...UserInfo,
+            _id,
+            phoneNo,
+            verified,
+            walletId,
+            firstName,
+            lastName,
+            countryName,
+            countryCode,email,
             username,
             location,
             imageUrl,
             totalOrders,
-            ordersFromSubscribedFCs,       
+            ordersFromSubscribedFCs,
             lastOrder,
-          }
-        }
+          },
+        };
       } else {
-        return { 
+        return {
           user: {
             ...UserInfo,
             totalOrders,
             ordersFromSubscribedFCs,
             lastOrder,
-          } 
-        }
-
+          },
+        };
       }
     } catch (error) {
       this.logger.error(error, error.stack);
