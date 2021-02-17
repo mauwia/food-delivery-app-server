@@ -70,10 +70,11 @@ export class OrdersService {
       );
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
-        return (food.realPrice*food.quantity) + init;
+        return food.realPrice * food.quantity + init;
       }, 0);
+      console.log(order.orderedFood);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
-      order.orderBill -= order.NoshDeduct;
+      // order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
@@ -218,9 +219,9 @@ export class OrdersService {
           ? order.foodLoverId.phoneNo
           : order.foodCreatorId.phoneNo;
       this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
-      console.log(UserInfo.fcmRegistrationToken);
-      console.log("==============>", order[orderStatusReciever]);
-      console.log("CHATROOM", updatedOrder);
+      // console.log(UserInfo.fcmRegistrationToken);
+      // console.log("==============>", order[orderStatusReciever]);
+      // console.log("CHATROOM", updatedOrder);
       await admin
         .messaging()
         .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
@@ -228,6 +229,9 @@ export class OrdersService {
             title: `Order ${status}`,
             body: "Tap to view details",
           },
+          data:{
+            route:"order-details"
+          }
         });
       return { updatedOrder };
     } catch (error) {
@@ -250,6 +254,7 @@ export class OrdersService {
     try {
       if (status === "Accepted") {
         // console.log(order.foodLoverId)
+        //Wallet of sender(FC) and reciever(FL)
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
@@ -257,15 +262,17 @@ export class OrdersService {
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
-
+        //Retrieving assets of both FC and FL
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
+        //bill distribution
         let orderBillSixty = order.realOrderBill * 0.6;
         let orderBillForty = order.realOrderBill * 0.4;
+        //if FC have no assets
         if (!receiverAssets) {
           let token: any = {
             tokenAddress: "NOSH",
@@ -273,28 +280,37 @@ export class OrdersService {
             tokenName: order.tokenName,
             amount: orderBillSixty,
           };
+          //create asset with amount of bill I.e 60% of total bill
           console.log(token);
           statusSenderWallet.assets.push(token);
+          //setting escrow of FC with 40% of bill
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
+          //setting escrow of FL with 40% of bill
+
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
+        
           senderAssets.amount =
             senderAssets.amount - order.orderBill - order.NoshDeduct;
           console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
+          //if receiver FC have assets
           receiverAssets.amount = receiverAssets.amount + +orderBillSixty;
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
-          senderAssets.amount = senderAssets.amount - order.orderBill-order.NoshDeduct;
+          senderAssets.amount =
+            senderAssets.amount - order.orderBill - order.NoshDeduct;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
+        await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id,{$inc:{totalNoshedOrders:1}})
+        await this.chatService.closeChatRoom(order.chatRoomId)
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
@@ -314,7 +330,7 @@ export class OrdersService {
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           from: orderStatusSender.phoneNo,
-          deductAmount:order.NoshDeduct,
+          deductAmount: order.NoshDeduct,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",
@@ -403,6 +419,7 @@ export class OrdersService {
       );
     }
   }
+ 
   async checkPromo(req) {
     try {
       let { user } = req;

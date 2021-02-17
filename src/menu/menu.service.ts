@@ -1,10 +1,12 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model,Types } from "mongoose";
 import { Menu, MenuItems } from "./menu.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { MENU_MESSAGES } from "./constants/key-contants";
+import getMenuPipline from "./constants/getMenuPipline";
+
 @Injectable()
 export class MenuService {
   constructor(
@@ -28,21 +30,29 @@ export class MenuService {
         };
       }
       let { lng, lat } = req.body;
-      console.log(lng,lat)
+      console.log(lng, lat);
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
-          location: {
-            $near: {
-              $maxDistance: 5000,
-              $geometry: {
-                type: "Point",
-                coordinates: [lng, lat],
+          $and: [
+            {
+              location: {
+                $near: {
+                  $maxDistance: 5000,
+                  $geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat],
+                  },
+                },
               },
             },
-          },
+            {
+              menuExist: true,
+            },
+          ],
         })
-        // console.log(nearByFoodCreators)
-        .select("-pinHash -passHash -mobileRegisteredId -walletId -verified");
+        .select(
+          "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+        );
       //  let FoodCreatorwithMenu=[]
       //  for(let i=0;i<nearByFoodCreators.length;i++){
       //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
@@ -72,6 +82,7 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
+
       let { menuName } = req.body;
       let checkMenu = await this.menuModel.findOne({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
@@ -113,11 +124,14 @@ export class MenuService {
       let menu = await this.menuModel.findOne({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
       });
-
+      UserInfo.menuExist = true;
+      await UserInfo.save();
       if (menu) {
         let newMenuItem = new this.menuItemsModel(menuItem);
         let MenuItem = await this.menuItemsModel.create(newMenuItem);
+        UserInfo.creatorThumbnail=MenuItem.imageUrls[0]
         menu.menuItems.push(MenuItem._id);
+        await UserInfo.save()
         await menu.save();
         return { MenuItem };
       } else {
@@ -153,16 +167,24 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let menu = await this.menuModel
-        .find({ foodCreatorId: req.params.creatorID })
-        .populate([{
-          path:'menuItems'
-        },
-        {
-          path:"foodCreatorId",
-          select:"businessName"
-        }
-      ]);
+      let pipeline=getMenuPipline(req)
+      // console.log(req.params.creatorID)
+      let menu = await this.menuModel.aggregate(pipeline);
+      //   console.log(nearByFoodCreators2[0]);
+      //   console.log(nearByFoodCreators2[1]);
+      // let menu = await this.menuModel
+      //   .find({ foodCreatorId: req.params.creatorID })
+      //   .populate([
+      //     {
+      //       path: "menuItems",
+      //     },
+      //     {
+      //       path: "foodCreatorId",
+      //       select: "businessName",
+      //     },
+      //   ]);
+        // console.log("OLLDDD")
+        // console.log(menu)
       return { menu };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -191,6 +213,14 @@ export class MenuService {
       let deletedMenu = await this.menuModel.findOneAndDelete({
         $and: [{ foodCreatorId: UserInfo._id }, { menuName }],
       });
+      let totalMenu = await this.menuModel.countDocuments({
+        foodCreatorId: UserInfo._id,
+      });
+      console.log(totalMenu);
+      if (!totalMenu) {
+        UserInfo.menuExist = false;
+        await UserInfo.save();
+      }
 
       console.log(deletedMenu);
       return { message: "Menu Deleted" };
@@ -263,6 +293,14 @@ export class MenuService {
       );
       console.log(menu);
       let deletedMenu = await this.menuItemsModel.findOneAndDelete(menuItemId);
+      let totalMenuItem = await this.menuItemsModel.countDocuments({
+        foodCreatorId: UserInfo._id,
+      });
+      console.log(totalMenuItem);
+      if (!totalMenuItem) {
+        UserInfo.menuExist = false;
+        await UserInfo.save();
+      }
       return { message: "Menu Item Deleted" };
     } catch (error) {
       this.logger.error(error, error.stack);

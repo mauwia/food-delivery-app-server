@@ -4,8 +4,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String },
-  email: { type: String,unique:true,sparse:true },
-  username:{type:String,unique:true,sparse:true},
+  email: { type: String, unique: true, sparse: true },
+  username: { type: String, unique: true, sparse: true },
   location: {
     address: { type: String },
     type: {
@@ -19,30 +19,36 @@ export const FoodCreatorSchema = new mongoose.Schema({
   },
 
   // location: { type: Array },
-  creatorFoodType: { type: String },
+  totalNoshedOrders:{type:Number,default:0},
+  creatorFoodType: { type: Array },
   imageUrl: { type: String, default: null },
   countryCode: { type: String },
   countryName: { type: String },
   businessName: { type: String, default: null },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
+  creatorThumbnail:{type:String},
   subscribers: { type: Array },
   onlineStatus: { type: Boolean, default: true },
   totalOrders: { type: String, default: "00000" },
   verified: { type: Boolean, default: false },
   avgRating: { type: Number },
+  menuExist: { type: Boolean,default:false },
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
 });
 FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
-  username:string;
+  totalNoshedOrders:number;
+  creatorThumbnail:string;
+  username: string;
   creatorFoodType: string;
   phoneNo: string;
   passHash: string;
   location: any;
   imageUrl: string;
   email: string;
+  menuExist: boolean;
   businessName: string;
   countryCode: { type: String };
   countryName: { type: String };

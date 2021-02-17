@@ -52,7 +52,11 @@ export class ChatService {
       );
     }
   }
-
+  async closeChatRoom(chatroomId){
+    let chatroom=await this.chatroomModel.findByIdAndUpdate(chatroomId,{
+      isActive:false
+    })
+  }
   async getChatroomMessages(chatroomId) {
     try {
       const messages = await this.messageModel.find({
