@@ -309,6 +309,7 @@ export class OrdersService {
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
+        await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id,{$inc:{totalNoshedOrders:1}})
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
