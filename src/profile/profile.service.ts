@@ -40,6 +40,7 @@ export class ProfileService {
         mobileRegisteredId: string;
         email: string;
         pin: string;
+        creatorFoodType:Array<string>
       };
     } = request;
     let userType = query.user as string;
@@ -96,7 +97,7 @@ export class ProfileService {
                 }),
                 ...(userType === "fc" && {
                   businessName: body.businessName || userProfile.businessName,
-                  
+                  creatorFoodType:body.creatorFoodType||userProfile.creatorFoodType
                 }),
               },
             },
