@@ -19,6 +19,12 @@ export class MenuController {
         return response
     }
     @UseGuards(new JWTAuthGuard())
+    @Get("/applyFilter")
+    async ApplyFilter(@Req() request:Request){
+        let response=await this.menuService.applyFilter(request)
+        return response
+    }
+    @UseGuards(new JWTAuthGuard())
     @Delete('/deleteMenu')
     async DeleteMenu(@Req() request:Request){
         let response=await this.menuService.deleteMenu(request)

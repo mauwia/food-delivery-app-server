@@ -28,6 +28,8 @@ export class OrdersGateway
   }
   @SubscribeMessage("search-filter")
   async handleSearchFilter(client: Socket, payload) {
+    // payload=JSON.parse(payload)
+    console.log(payload)
     console.log(payload.lng);
     var searchKey = new RegExp(payload.search, "i");
 
@@ -46,6 +48,9 @@ export class OrdersGateway
             },
           },
           {
+            menuExist: true,
+          },
+          {
             $or: [
               {
                 businessName: searchKey,
@@ -58,7 +63,7 @@ export class OrdersGateway
         ],
       })
       .select("-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken");
-      // console.log(nearByFoodCreators)
+      console.log(nearByFoodCreators)
       // console.log(this.onlineUsers[payload.phoneNo].socketId)
       this.server.to(this.onlineUsers[payload.phoneNo].socketId).emit("search-result",{nearByFoodCreators})
   }

@@ -169,12 +169,6 @@ export class FoodLoverService {
 
       if (user.id !== id) {
         // return public profile
-        console.log("hello", {
-          ...UserInfo,
-          totalOrders,
-          ordersFromSubscribedFCs,
-          lastOrder,
-        });
         const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
         return {
           user: {
@@ -191,8 +185,8 @@ export class FoodLoverService {
             location,
             imageUrl,
             totalOrders,
-            ordersFromSubscribedFCs,
-            lastOrder,
+            // ordersFromSubscribedFCs,
+            // lastOrder,
           },
         };
       } else {
