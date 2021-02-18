@@ -166,10 +166,10 @@ export class FoodLoverService {
         },
         { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
       ]);
+      const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
 
       if (user.id !== id) {
         // return public profile
-        const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
         return {
           user: {
             // ...UserInfo,
@@ -192,10 +192,21 @@ export class FoodLoverService {
       } else {
         return {
           user: {
-            ...UserInfo,
+            _id,
+            phoneNo,
+            verified,
+            walletId,
+            firstName,
+            lastName,
+            countryName,
+            countryCode,email,
+            username,
+            location,
+            imageUrl,
             totalOrders,
-            ordersFromSubscribedFCs,
-            lastOrder,
+            // totalOrders,
+            // ordersFromSubscribedFCs,
+            // lastOrder,
           },
         };
       }
