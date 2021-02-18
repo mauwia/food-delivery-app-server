@@ -145,7 +145,7 @@ export class OrdersService {
         .populate([
           {
             path: "foodLoverId",
-            select: "username",
+            select: "username isActive",
           },
           {
             path: "foodCreatorId",

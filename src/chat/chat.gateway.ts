@@ -33,6 +33,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     this.logger.log("Initialized!");
   }
   async handleDisconnect(client: Socket) {
+    let { userNo } = client.handshake.query;
+    await this.foodLoverModel.findOneAndUpdate({phoneNo:userNo},{
+      $set:{
+       isActive:false 
+      }
+    })
     //this pipeline will use to get numbers of FC which are in active chat with FL
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
@@ -55,7 +61,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   async handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected to chat: ${client.id}`);
     let { userNo } = client.handshake.query;
-
+    await this.foodLoverModel.findOneAndUpdate({phoneNo:userNo},{
+      $set:{
+       isActive:true 
+      }
+    })
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
