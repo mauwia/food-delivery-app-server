@@ -135,7 +135,7 @@ export class FoodLoverService {
       );
     }
   }
-  async getLoverInfo(req, id) {
+  async getLoverInfo(req) {
     try{
       let { user } = req;
       const UserInfo = await this.foodLoverModel.findOne({
