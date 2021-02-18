@@ -136,80 +136,93 @@ export class FoodLoverService {
     }
   }
   async getLoverInfo(req, id) {
-    try {
+    try{
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({ _id: id });
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      }).lean();
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
-      let totalOrders = await this.ordersModel.countDocuments({
-        $and: [
-          { foodLoverId: UserInfo._id },
-          { orderStatus: "Order Completed" },
-        ],
-      });
+      let totalOrders=await this.ordersModel.countDocuments({foodLoverId:UserInfo._id})
       // console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
+      return { user: {...UserInfo,totalOrders} };
+    
+    // try {
+    //   let { user } = req;
+    //   const UserInfo = await this.foodLoverModel.findOne({ _id: id });
+    //   if (!UserInfo) {
+    //     throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+    //   }
+    //   let totalOrders = await this.ordersModel.countDocuments({
+    //     $and: [
+    //       { foodLoverId: UserInfo._id },
+    //       { orderStatus: "Order Completed" },
+    //     ],
+    //   });
+    //   // console.log("totalOrders",{...UserInfo,totalOrders})
+    //   UserInfo.passHash = "";
 
-      const lastOrder = await this.ordersModel
-        .find({ orderStatus: "Order Completed" })
-        .limit(1)
-        .sort({ $natural: -1 });
+    //   const lastOrder = await this.ordersModel
+    //     .find({ orderStatus: "Order Completed" })
+    //     .limit(1)
+    //     .sort({ $natural: -1 });
 
-      // Get orders a FL has made from FCs they are subscribed to
-      const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
-        {
-          $match: {
-            foodCreatorId: { $in: UserInfo.subscribedTo },
-            orderStatus: "Order Completed",
-          },
-        },
-        { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
-      ]);
-      const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
+    //   // Get orders a FL has made from FCs they are subscribed to
+    //   const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
+    //     {
+    //       $match: {
+    //         foodCreatorId: { $in: UserInfo.subscribedTo },
+    //         orderStatus: "Order Completed",
+    //       },
+    //     },
+    //     { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
+    //   ]);
+    //   const {_id, username,verified,phoneNo, location, imageUrl,firstName,lastName,countryName,countryCode,email,walletId } = UserInfo;
 
-      if (user.id !== id) {
-        // return public profile
-        return {
-          user: {
-            // ...UserInfo,
-            _id,
-            phoneNo,
-            verified,
-            walletId,
-            firstName,
-            lastName,
-            countryName,
-            countryCode,email,
-            username,
-            location,
-            imageUrl,
-            totalOrders,
-            // ordersFromSubscribedFCs,
-            // lastOrder,
-          },
-        };
-      } else {
-        return {
-          user: {
-            _id,
-            phoneNo,
-            verified,
-            walletId,
-            firstName,
-            lastName,
-            countryName,
-            countryCode,email,
-            username,
-            location,
-            imageUrl,
-            totalOrders,
-            // totalOrders,
-            // ordersFromSubscribedFCs,
-            // lastOrder,
-          },
-        };
-      }
+    //   if (user.id !== id) {
+    //     // return public profile
+    //     return {
+    //       user: {
+    //         // ...UserInfo,
+    //         _id,
+    //         phoneNo,
+    //         verified,
+    //         walletId,
+    //         firstName,
+    //         lastName,
+    //         countryName,
+    //         countryCode,email,
+    //         username,
+    //         location,
+    //         imageUrl,
+    //         totalOrders,
+    //         // ordersFromSubscribedFCs,
+    //         // lastOrder,
+    //       },
+    //     };
+    //   } else {
+    //     return {
+    //       user: {
+    //         _id,
+    //         phoneNo,
+    //         verified,
+    //         walletId,
+    //         firstName,
+    //         lastName,
+    //         countryName,
+    //         countryCode,email,
+    //         username,
+    //         location,
+    //         imageUrl,
+    //         totalOrders,
+    //         // totalOrders,
+    //         // ordersFromSubscribedFCs,
+    //         // lastOrder,
+    //       },
+    //     };
+    //   }
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
