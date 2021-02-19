@@ -31,7 +31,7 @@ export class MenuService {
       }
       var searchKey = new RegExp(req.body.search, "i");
       let { lng, lat } = req.body;
-      console.log(lng, lat);
+      console.log(searchKey);
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           $and: [
@@ -50,12 +50,16 @@ export class MenuService {
               menuExist: true,
             },
             {
-              $or: [
+              $and: [
                 {
-                  businessName: searchKey,
-                },
-                {
-                  username: searchKey,
+                  $or: [
+                    {
+                      businessName: searchKey,
+                    },
+                    {
+                      username: searchKey,
+                    },
+                  ],
                 },
                 {
                   creatorFoodType: { $in: [req.body.creatorFoodType] },
@@ -67,8 +71,8 @@ export class MenuService {
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
-        // console.log(nearByFoodCreators)
-        return nearByFoodCreators
+      // console.log(nearByFoodCreators)
+      return nearByFoodCreators;
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
