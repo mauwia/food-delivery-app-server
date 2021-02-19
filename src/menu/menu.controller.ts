@@ -19,7 +19,7 @@ export class MenuController {
         return response
     }
     @UseGuards(new JWTAuthGuard())
-    @Get("/applyFilter")
+    @Post("/applyFilter")
     async ApplyFilter(@Req() request:Request){
         let response=await this.menuService.applyFilter(request)
         return response
