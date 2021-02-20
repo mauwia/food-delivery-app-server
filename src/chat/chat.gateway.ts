@@ -32,13 +32,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   afterInit(server: any) {
     this.logger.log("Initialized!");
   }
+
   async handleDisconnect(client: Socket) {
     let { userNo } = client.handshake.query;
-    await this.foodLoverModel.findOneAndUpdate({phoneNo:userNo},{
-      $set:{
-       isActive:false 
+    await this.foodLoverModel.findOneAndUpdate(
+      { phoneNo: userNo },
+      {
+        $set: {
+          isActive: false,
+        },
       }
-    })
+    );
     //this pipeline will use to get numbers of FC which are in active chat with FL
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
@@ -54,18 +58,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         }
       });
     }
-    delete this.onlineUsers[client.handshake.query.userNo];
+    if (this.onlineUsers[client.handshake.query.userNo]) {
+      delete this.onlineUsers[client.handshake.query.userNo];
+    }
     this.logger.log(`Client disconnected: ${client.id}`);
     // console.log(this.onlineUsers);
   }
   async handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected to chat: ${client.id}`);
     let { userNo } = client.handshake.query;
-    await this.foodLoverModel.findOneAndUpdate({phoneNo:userNo},{
-      $set:{
-       isActive:true 
+    await this.foodLoverModel.findOneAndUpdate(
+      { phoneNo: userNo },
+      {
+        $set: {
+          isActive: true,
+        },
       }
-    })
+    );
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
@@ -89,7 +98,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     //   .to(this.activeChats[orderId].socketId)
     //   .emit('chat-room-id', roomId);
   }
-
+  @SubscribeMessage("logout")
+  logout(client: Socket, payload): void {
+    delete this.onlineUsers[client.handshake.query.userNo];
+  }
   @SubscribeMessage("new-chat-room")
   setActiveChat(client: Socket, payload): void {
     console.log(payload);

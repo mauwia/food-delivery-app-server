@@ -191,7 +191,9 @@ export class MenuService {
       if (menu) {
         let newMenuItem = new this.menuItemsModel(menuItem);
         let MenuItem = await this.menuItemsModel.create(newMenuItem);
-        UserInfo.creatorThumbnail = MenuItem.imageUrls[0];
+        if (!UserInfo?.creatorThumbnail) {
+          UserInfo.creatorThumbnail = MenuItem.imageUrls[0];
+        }
         menu.menuItems.push(MenuItem._id);
         await UserInfo.save();
         await menu.save();
@@ -232,6 +234,7 @@ export class MenuService {
       let pipeline = getMenuPipline(req);
       // console.log(req.params.creatorID)
       let menu = await this.menuModel.aggregate(pipeline);
+      // console.log(menu[0])
       //   console.log(nearByFoodCreators2[0]);
       //   console.log(nearByFoodCreators2[1]);
       // let menu = await this.menuModel
