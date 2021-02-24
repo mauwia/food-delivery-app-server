@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 const orderFood = new mongoose.Schema({
-  menuItemId:{ type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
+  menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
   menuItemName: { type: String },
   description: { type: String },
   preparationTime: { type: String },
@@ -9,7 +9,7 @@ const orderFood = new mongoose.Schema({
   itemId: { type: String },
   quantity: { type: Number },
   realPrice: { type: Number },
-  imageUrls:{type:Array}
+  imageUrls: { type: Array },
 });
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
@@ -37,16 +37,17 @@ export const OrdersSchema = new mongoose.Schema({
   approxGivenTime: { type: String, default: Date.now() },
   timeTaken: { type: String, default: Date.now() },
   promoCode: { type: String },
+  rating:{type:Number},
   deliveryCharges: { type: Number },
   timestamp: { type: String, default: Date.now() },
   NoshDeduct: { type: Number },
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   orderedFood: [orderFood],
-  realOrderBill:{type: Number}
+  realOrderBill: { type: Number },
 });
 
 export interface Orders extends mongoose.Document {
-  realOrderBill:number;
+  realOrderBill: number;
   foodCreatorId: any;
   foodLoverId: any;
   orderStatus: string;
@@ -60,6 +61,7 @@ export interface Orders extends mongoose.Document {
   chatRoomId: string;
   promoCode: string;
   deliveryCharges: number;
+  rating:number;
   orderedFood: any;
 }
 export interface orderFood extends mongoose.Document {

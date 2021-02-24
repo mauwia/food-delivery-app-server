@@ -231,23 +231,23 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let pipeline = getMenuPipline(req);
+      // let pipeline = getMenuPipline(req);
       // console.log(req.params.creatorID)
-      let menu = await this.menuModel.aggregate(pipeline);
+      // let menu = await this.menuModel.aggregate(pipeline);
       // console.log(menu[0])
       //   console.log(nearByFoodCreators2[0]);
       //   console.log(nearByFoodCreators2[1]);
-      // let menu = await this.menuModel
-      //   .find({ foodCreatorId: req.params.creatorID })
-      //   .populate([
-      //     {
-      //       path: "menuItems",
-      //     },
-      //     {
-      //       path: "foodCreatorId",
-      //       select: "businessName",
-      //     },
-      //   ]);
+      let menu = await this.menuModel
+        .find({ foodCreatorId: req.params.creatorID })
+        .populate([
+          {
+            path: "menuItems",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName",
+          },
+        ]);
       // console.log("OLLDDD")
       // console.log(menu)
       return { menu };

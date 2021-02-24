@@ -11,6 +11,8 @@ import { OrdersGateway } from "./orders.gateway";
 import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
 import { ChatService } from "src/chat/chat.service";
+import { MenuItems } from "src/menu/menu.model";
+import { Types } from "mongoose";
 
 @Injectable()
 export class OrdersService {
@@ -19,6 +21,7 @@ export class OrdersService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("MenuItems") private readonly menuItemsModel:Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
@@ -309,6 +312,7 @@ export class OrdersService {
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
+        await this.incrementOrderInMenuItems(order.orderedFood)
         await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id,{$inc:{totalNoshedOrders:1}})
         await this.chatService.closeChatRoom(order.chatRoomId)
         let orderBillForty = order.realOrderBill * 0.4;
@@ -360,6 +364,62 @@ export class OrdersService {
         await statusSenderWallet.save();
       }
     } catch (error) {
+      this.logger.error(error, error.stack);
+      throw error;
+    }
+  }
+  async incrementOrderInMenuItems(orderedFoods){
+    orderedFoods.map(async orderedFood=>{
+      console.log(orderedFood.menuItemId)
+      await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId,{$inc:{orderCounts:1}})
+    })
+  }
+  async addRating(req){
+    try{
+      let { user } = req;
+      // console.log(user)
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw "User not found";
+      }
+      let addRating=await this.ordersModel.findByIdAndUpdate(req.body.orderId,{
+        $set:{
+          rating:req.body.rating
+        }
+      })
+      // console.log(addRating)
+      let orderRating=await this.ordersModel.aggregate([
+        {
+          $match:{foodCreatorId: new Types.ObjectId(addRating.foodCreatorId)}
+        },
+        {
+        $project:{
+          foodCreatorId:1,
+          singleOrder:{$avg:"$rating"}
+        }
+      },
+      {
+        $group:{
+          _id:"$foodCreatorId",
+          orderAvg:{$avg:"$singleOrder"}
+        }
+      }
+      
+    ])
+    let updateAvg=await this.foodCreatorModel.findByIdAndUpdate(addRating.foodCreatorId,{
+      $set:{
+        avgRating:orderRating[0].orderAvg
+      }
+    },{upsert:true})
+      // console.log(updateAvg,orderRating[0].orderAvg,"QQQQQQQQQQQ")
+      return {
+        message:"Order Rated Successfully"
+      }
+    }
+   
+    catch(error){
       this.logger.error(error, error.stack);
       throw error;
     }
