@@ -148,7 +148,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
               notification: {
                 title: `${message.senderId.username}`,
                 body: message.message ? message.message : "Send You Image",
-              },
+              },data:{
+                type:"recieve-message",
+                message:JSON.stringify(message)
+              }
             });
         }
       }

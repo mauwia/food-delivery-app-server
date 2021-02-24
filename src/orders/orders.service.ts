@@ -383,7 +383,7 @@ export class OrdersService {
     try{
       let { user } = req;
       // console.log(user)
-      const UserInfo = await this.foodCreatorModel.findOne({
+      const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
