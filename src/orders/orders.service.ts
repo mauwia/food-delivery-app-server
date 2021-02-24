@@ -100,6 +100,10 @@ export class OrdersService {
           title: `New Order is Arrived`,
           body: "Tap to view details",
         },
+        data:{
+          type:"add-order",
+          orderCreated:JSON.stringify(orderCreated)
+        }
       });
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
@@ -233,7 +237,8 @@ export class OrdersService {
             body: "Tap to view details",
           },
           data:{
-            route:"order-details"
+            type:"update-order-status",
+            updatedOrder:JSON.stringify(updatedOrder)
           }
         });
       return { updatedOrder };
