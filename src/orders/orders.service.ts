@@ -391,7 +391,8 @@ export class OrdersService {
       }
       let addRating=await this.ordersModel.findByIdAndUpdate(req.body.orderId,{
         $set:{
-          rating:req.body.rating
+          rating:req.body.rating,
+          review:req.body.review
         }
       })
       // console.log(addRating)

@@ -62,7 +62,15 @@ export class MenuService {
                   ],
                 },
                 {
-                  creatorFoodType: { $in: [req.body.creatorFoodType] },
+                  $or: [
+                    {
+                      creatorFoodType: { $in: [req.body.creatorFoodType] },
+                     
+                    },
+                    {
+                      avgRating: { $gte: req.body.rating },
+                    },
+                  ],
                 },
               ],
             },

@@ -253,7 +253,7 @@ export class WalletService {
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
-          .select("-passHash -pinHash");
+          .select("-passHash -pinHash -fcmRegistrationToken");
         console.log(i, user);
         // .populate("walletId", "publicKey");
         if (user) {

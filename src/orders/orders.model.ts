@@ -29,6 +29,7 @@ export const OrdersSchema = new mongoose.Schema({
     ],
     required: true,
   },
+  review:{type:String},
   orderId: { type: String },
   tokenName: { type: String },
   locationTo: { address: { type: String } },
@@ -63,6 +64,7 @@ export interface Orders extends mongoose.Document {
   deliveryCharges: number;
   rating:number;
   orderedFood: any;
+  review:string
 }
 export interface orderFood extends mongoose.Document {
   menuItemName: string;
