@@ -253,7 +253,7 @@ export class MenuService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName",
+            select: "businessName imageUrl",
           },
         ]);
       // console.log("OLLDDD")
