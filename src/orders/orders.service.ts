@@ -152,11 +152,11 @@ export class OrdersService {
         .populate([
           {
             path: "foodLoverId",
-            select: "username isActive phoneNo",
+            select: "username isActive phoneNo imageUrl",
           },
           {
             path: "foodCreatorId",
-            select: "businessName",
+            select: "businessName imageUrl",
           },
           {
             path: "chatRoomId",
@@ -197,11 +197,11 @@ export class OrdersService {
       let order = await this.ordersModel.findById(orderID).populate([
         {
           path: "foodLoverId",
-          select: "username phoneNo fcmRegistrationToken walletId",
+          select: "username phoneNo fcmRegistrationToken walletId imageUrl",
         },
         {
           path: "foodCreatorId",
-          select: "businessName phoneNo fcmRegistrationToken walletId",
+          select: "businessName phoneNo fcmRegistrationToken walletId imageUrl",
         },
       ]);
       if (status === "Accepted") {

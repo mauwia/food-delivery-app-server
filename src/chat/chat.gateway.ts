@@ -98,6 +98,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     //   .to(this.activeChats[orderId].socketId)
     //   .emit('chat-room-id', roomId);
   }
+  @SubscribeMessage("sign-in")
+  signIn(client:Socket, payload):void{
+    if(!this.onlineUsers[payload.phoneNo]){
+    this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
+    }
+  }
   @SubscribeMessage("logout")
   logout(client: Socket, payload): void {
     delete this.onlineUsers[client.handshake.query.userNo];

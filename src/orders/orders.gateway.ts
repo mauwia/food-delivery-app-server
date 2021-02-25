@@ -26,6 +26,12 @@ export class OrdersGateway
   afterInit(server: Server) {
     this.logger.log("Init");
   }
+  @SubscribeMessage("sign-in")
+  signIn(client:Socket, payload):void{
+    if(!this.onlineUsers[payload.phoneNo]){
+    this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
+    }
+  }
   @SubscribeMessage("search-filter")
   async handleSearchFilter(client: Socket, payload) {
     // payload=JSON.parse(payload)

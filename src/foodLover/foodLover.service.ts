@@ -145,7 +145,7 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
       let totalOrders=await this.ordersModel.countDocuments({foodLoverId:UserInfo._id})
-      // console.log("totalOrders",{...UserInfo,totalOrders})
+      console.log("totalOrders",{...UserInfo,totalOrders})
       UserInfo.passHash = "";
       return { user: {...UserInfo,totalOrders} };
 

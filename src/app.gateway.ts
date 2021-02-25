@@ -30,6 +30,12 @@ export class AppGateway
   logout(client: Socket, payload): void {
     delete this.onlineUsers[client.handshake.query.userNo];
   }
+  @SubscribeMessage("sign-in")
+  signIn(client:Socket, payload):void{
+    if(!this.onlineUsers[payload.phoneNo]){
+    this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
+    }
+  }
   handleRequestNoshies(to: string, transaction: any): void {
     if (this.onlineUsers[to]) {
       this.server
@@ -52,6 +58,7 @@ export class AppGateway
         .emit("send-noshies", transaction);
     }
   }
+
   afterInit(server: Server) {
     this.logger.log("Init");
   }
