@@ -4,6 +4,7 @@ import { ProfileService } from './profile.service';
 import { MongooseModule } from "@nestjs/mongoose";
 import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { FoodCreatorSchema } from "../food-creator/food-creator.model";
+import { OrdersSchema } from 'src/orders/orders.model';
 
 
 @Module({
@@ -11,6 +12,7 @@ import { FoodCreatorSchema } from "../food-creator/food-creator.model";
     MongooseModule.forFeature([
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
+      {name:"Orders",schema:OrdersSchema}
     ]),
   ],
   controllers: [ProfileController],

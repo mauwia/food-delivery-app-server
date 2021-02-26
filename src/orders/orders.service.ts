@@ -239,8 +239,8 @@ export class OrdersService {
           data:{
             type:"update-order-status",
             updatedOrder:JSON.stringify(updatedOrder)
-          }
-        });
+          },
+        },{priority:"high"});
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
