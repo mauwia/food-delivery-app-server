@@ -32,7 +32,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   afterInit(server: any) {
     this.logger.log("Initialized!");
   }
+
   async handleDisconnect(client: Socket) {
+    let { userNo } = client.handshake.query;
+    await this.foodLoverModel.findOneAndUpdate(
+      { phoneNo: userNo },
+      {
+        $set: {
+          isActive: false,
+        },
+      }
+    );
     //this pipeline will use to get numbers of FC which are in active chat with FL
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
@@ -48,14 +58,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         }
       });
     }
-    delete this.onlineUsers[client.handshake.query.userNo];
+    if (this.onlineUsers[client.handshake.query.userNo]) {
+      delete this.onlineUsers[client.handshake.query.userNo];
+    }
     this.logger.log(`Client disconnected: ${client.id}`);
     // console.log(this.onlineUsers);
   }
   async handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected to chat: ${client.id}`);
     let { userNo } = client.handshake.query;
-
+    await this.foodLoverModel.findOneAndUpdate(
+      { phoneNo: userNo },
+      {
+        $set: {
+          isActive: true,
+        },
+      }
+    );
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     let getNumbersPipeline = getNumberOfFLChats(client);
     let numbers = await this.foodLoverModel.aggregate(getNumbersPipeline);
@@ -79,7 +98,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     //   .to(this.activeChats[orderId].socketId)
     //   .emit('chat-room-id', roomId);
   }
-
+  @SubscribeMessage("sign-in")
+  signIn(client:Socket, payload):void{
+    if(!this.onlineUsers[payload.phoneNo]){
+    this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
+    }
+  }
+  @SubscribeMessage("logout")
+  logout(client: Socket, payload): void {
+    delete this.onlineUsers[client.handshake.query.userNo];
+  }
   @SubscribeMessage("new-chat-room")
   setActiveChat(client: Socket, payload): void {
     console.log(payload);
@@ -126,7 +154,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
               notification: {
                 title: `${message.senderId.username}`,
                 body: message.message ? message.message : "Send You Image",
-              },
+              },data:{
+                type:"recieve-message",
+                message:JSON.stringify(message)
+              }
             });
         }
       }

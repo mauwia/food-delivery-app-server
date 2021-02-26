@@ -173,7 +173,7 @@ export class WalletService {
             title: `${UserInfo.username} Gifted You ${amount} Noshies`,
             body: "Tap to view details",
           },
-        })
+        },{priority:"high"})
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
           // senderAmount: senderAssets.amount,
@@ -199,7 +199,7 @@ export class WalletService {
             title: `${UserInfo.username} gifted you ${amount} Noshies`,
             body: "Tap to view details",
           },
-        })
+        },{priority:"high"})
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction);
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -253,7 +253,7 @@ export class WalletService {
           .findOne({
             $or: [{ phoneNo: contacts[i] }],
           })
-          .select("-passHash -pinHash");
+          .select("-passHash -pinHash -fcmRegistrationToken");
         console.log(i, user);
         // .populate("walletId", "publicKey");
         if (user) {

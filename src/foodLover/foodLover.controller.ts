@@ -43,9 +43,9 @@ export class FoodLoverController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get("/getLoverInfo/:id")
-  async LoverInfo(@Req() request: Request, @Param('id') id: string) {
-    const response = await this.foodLoverService.getLoverInfo(request, id);
+  @Get("/getLoverInfo/")
+  async LoverInfo(@Req() request: Request) {
+    const response = await this.foodLoverService.getLoverInfo(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())

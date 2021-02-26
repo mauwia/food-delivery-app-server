@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model,Types } from "mongoose";
+import { Model, Types } from "mongoose";
 import { Menu, MenuItems } from "./menu.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
@@ -17,6 +17,81 @@ export class MenuService {
     @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>
   ) {}
   private logger = new Logger("Menu");
+  async applyFilter(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw {
+          msg: MENU_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      var searchKey = new RegExp(req.body.search, "i");
+      let { lng, lat } = req.body;
+      console.log(searchKey);
+      let nearByFoodCreators = await this.foodCreatorModel
+        .find({
+          $and: [
+            {
+              location: {
+                $near: {
+                  $maxDistance: 5000,
+                  $geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat],
+                  },
+                },
+              },
+            },
+            {
+              menuExist: true,
+            },
+            {
+              $and: [
+                {
+                  $or: [
+                    {
+                      businessName: searchKey,
+                    },
+                    {
+                      username: searchKey,
+                    },
+                  ],
+                },
+                {
+                  $or: [
+                    {
+                      creatorFoodType: { $in: [req.body.creatorFoodType] },
+                     
+                    },
+                    {
+                      avgRating: { $gte: req.body.rating },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        })
+        .select(
+          "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+        );
+      // console.log(nearByFoodCreators)
+      return nearByFoodCreators;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async getAllCreators(req) {
     try {
       let { user } = req;
@@ -53,11 +128,6 @@ export class MenuService {
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
-      //  let FoodCreatorwithMenu=[]
-      //  for(let i=0;i<nearByFoodCreators.length;i++){
-      //     let menu= await this.menuModel.find({foodCreatorId:nearByFoodCreators[i].foodCreatorId}).populate("menuItems foodCreatorId")
-      //     .push(menu)
-      //  }
       return { nearByFoodCreators };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -129,9 +199,11 @@ export class MenuService {
       if (menu) {
         let newMenuItem = new this.menuItemsModel(menuItem);
         let MenuItem = await this.menuItemsModel.create(newMenuItem);
-        UserInfo.creatorThumbnail=MenuItem.imageUrls[0]
+        if (!UserInfo?.creatorThumbnail) {
+          UserInfo.creatorThumbnail = MenuItem.imageUrls[0];
+        }
         menu.menuItems.push(MenuItem._id);
-        await UserInfo.save()
+        await UserInfo.save();
         await menu.save();
         return { MenuItem };
       } else {
@@ -167,24 +239,25 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let pipeline=getMenuPipline(req)
+      // let pipeline = getMenuPipline(req);
       // console.log(req.params.creatorID)
-      let menu = await this.menuModel.aggregate(pipeline);
+      // let menu = await this.menuModel.aggregate(pipeline);
+      // console.log(menu[0])
       //   console.log(nearByFoodCreators2[0]);
       //   console.log(nearByFoodCreators2[1]);
-      // let menu = await this.menuModel
-      //   .find({ foodCreatorId: req.params.creatorID })
-      //   .populate([
-      //     {
-      //       path: "menuItems",
-      //     },
-      //     {
-      //       path: "foodCreatorId",
-      //       select: "businessName",
-      //     },
-      //   ]);
-        // console.log("OLLDDD")
-        // console.log(menu)
+      let menu = await this.menuModel
+        .find({ foodCreatorId: req.params.creatorID })
+        .populate([
+          {
+            path: "menuItems",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName imageUrl",
+          },
+        ]);
+      // console.log("OLLDDD")
+      // console.log(menu)
       return { menu };
     } catch (error) {
       this.logger.error(error, error.stack);
