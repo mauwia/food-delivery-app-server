@@ -12,28 +12,34 @@ export class OrdersController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Post('/checkPromo')
-  async CheckPromo(@Req() request:Request){
+  @Post("/checkPromo")
+  async CheckPromo(@Req() request: Request) {
     let response = this.ordersService.checkPromo(request);
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get('/getOrders')
-  async GetOrders(@Req() request:Request){
-    let response=this.ordersService.getOrders(request)
-    return response
-    }
-  @UseGuards (new JWTAuthGuard())
-  @Get('/getOrdersHistory/:page')
-  async GetOrdersHistory(@Req() request:Request){
-    let response=this.ordersService.getOrderHistory(request)
-    return response
+  @Get("/getOrders")
+  async GetOrders(@Req() request: Request) {
+    let response = this.ordersService.getOrders(request);
+    return response;
+  }
+
+  @UseGuards(new JWTAuthGuard())
+  @Get("/getOrdersHistory/:page")
+  async GetOrdersHistory(@Req() request: Request) {
+    let response = this.ordersService.getOrderHistory(request);
+    return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Put('/updateOrderStatus')
-  async UpdateOrderStatus(@Req() request:Request){
-    let response=this.ordersService.updateOrderStatus(request)
+  @Put("/updateOrderStatus")
+  async UpdateOrderStatus(@Req() request: Request) {
+    let response = this.ordersService.updateOrderStatus(request);
+    return response;
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/addRating")
+  async AddRating(@Req() request: Request){
+    let response=this.ordersService.addRating(request)
     return response
   }
-  
 }

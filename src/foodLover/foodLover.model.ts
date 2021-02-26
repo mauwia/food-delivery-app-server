@@ -18,7 +18,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
   subscribedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" }],
-
+  isActive:{type:Boolean,default:true}
 });
 
 export interface FoodLover extends mongoose.Document {
@@ -31,6 +31,7 @@ export interface FoodLover extends mongoose.Document {
   pinHash: string | boolean;
   countryCode: string;
   countryName: string;
+  isActive:boolean;
   email: string;
   location: [];
   imageUrl: string;

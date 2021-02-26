@@ -9,6 +9,7 @@ import { OrdersGateway } from "./orders.gateway";
 import { WalletSchema } from "src/wallet/wallet.model";
 import { WalletModule } from "src/wallet/wallet.module";
 import { ChatModule } from "src/chat/chat.module";
+import { MenuItemSchema } from "src/menu/menu.model";
 
 @Module({
   imports: [
@@ -17,8 +18,10 @@ import { ChatModule } from "src/chat/chat.module";
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "Wallet", schema: WalletSchema },
+      { name: "MenuItems", schema: MenuItemSchema },
     ]),
-    WalletModule,ChatModule
+    WalletModule,
+    ChatModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersGateway],

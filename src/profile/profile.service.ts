@@ -10,6 +10,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { PROFILE_MESSAGES, PROFILE_DATA } from "./constants/key-constants";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
+import { Orders } from "src/orders/orders.model";
 const bcrypt = require("bcryptjs");
 
 @Injectable()
@@ -17,7 +18,8 @@ export class ProfileService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Orders") private readonly ordersModel:Model<Orders>
   ) {}
   private logger = new Logger("Profile");
 
@@ -102,10 +104,10 @@ export class ProfileService {
               },
             },
             { new: true, fields: { passHash: 0, __v: 0 } }
-          );
+          ).lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
-
-          return updatedProfile;
+      let totalOrders=await this.ordersModel.countDocuments({foodLoverId:userProfile._id,orderStatus:"Order Completed"})
+          return {...updatedProfile,totalOrders};
         } else {
           throw PROFILE_MESSAGES.USER_NOT_FOUND;
         }
