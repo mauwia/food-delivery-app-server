@@ -235,6 +235,7 @@ export class OrdersService {
           notification: {
             title: `Order ${status}`,
             body: "Tap to view details",
+            clickAction:"noshifyfoodloverfrontend://food-lover-wallet"
           },
           data:{
             type:"update-order-status",
