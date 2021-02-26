@@ -104,7 +104,7 @@ export class OrdersService {
           type:"add-order",
           orderCreated:JSON.stringify(orderCreated)
         }
-      });
+      },{priority:"high"});
       this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
       return orderCreated;
     } catch (error) {
