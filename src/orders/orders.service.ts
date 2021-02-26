@@ -434,7 +434,7 @@ export class OrdersService {
   async getOrderHistory(req) {
     try {
       let getOrdersReciever = "foodLoverId";
-      let name = "username";
+      let name = "username imageUrl";
       let { user } = req;
       let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
@@ -444,7 +444,7 @@ export class OrdersService {
           phoneNo: user.phoneNo,
         });
         getOrdersReciever = "foodCreatorId";
-        name = "businessName";
+        name = "businessName imageUrl";
       }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
