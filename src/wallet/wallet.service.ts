@@ -776,7 +776,16 @@ export class WalletService {
       }
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
-      });
+      }).populate([
+        {
+          path: "receiverId",
+          select: "username imageUrl",
+        },
+        {
+          path: "senderId",
+          select: "username imageUrl",
+        },
+      ]);
       transactions = transactions.filter(
         (transaction) => transaction.transactionType == "Noshies Request"
       );
@@ -834,6 +843,7 @@ export class WalletService {
         );
         return { transactions };
       }
+      // console.log("getTransaction",transactions)
       return { transactions };
     } catch (error) {
       this.logger.error(error, error.stack);
