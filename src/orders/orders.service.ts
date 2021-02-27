@@ -339,6 +339,10 @@ export class OrdersService {
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
+          onSenderModel:"FoodLover",
+          senderId:orderStatusSender._id,
+          onReceiverModel:"FoodCreator",
+          receiverId:order.foodCreatorId._id,
           from: orderStatusSender.phoneNo,
           deductAmount: order.NoshDeduct,
           amount: order.orderBill,
