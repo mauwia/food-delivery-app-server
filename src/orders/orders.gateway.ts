@@ -31,6 +31,7 @@ export class OrdersGateway
     if(!this.onlineUsers[payload.phoneNo]){
     this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
     }
+    console.log(this.onlineUsers)
   }
   @SubscribeMessage("search-filter")
   async handleSearchFilter(client: Socket, payload) {
@@ -88,6 +89,7 @@ export class OrdersGateway
   @SubscribeMessage("logout")
   logout(client: Socket, payload): void {
     delete this.onlineUsers[client.handshake.query.userNo];
+    console.log(this.onlineUsers)
   }
   handleAddOrder(to: string, order: any): void {
     // console.log

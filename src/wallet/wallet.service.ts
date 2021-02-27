@@ -91,6 +91,8 @@ export class WalletService {
         timeStamp,
         transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
+        onSenderModel:"FoodLover",
+        senderId:UserInfo._id,
         amount,
         currency: tokenName,
         message: "",
@@ -130,12 +132,19 @@ export class WalletService {
       let ReceiverInfo: any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
       });
+      let roles={
+        sender:"FoodCreator",
+        receiver:"FoodLover"
+      }
       if (!ReceiverInfo) {
         ReceiverInfo = await this.foodCreatorModel.findOne({
           phoneNo: receiverPhoneNo,
         });
+        roles={
+          sender:"FoodLover",
+          receiver:"FoodCreator"
+        }
       }
-      console.log(ReceiverInfo);
       let receiverWallet = await this.walletModel.findById(
         ReceiverInfo.walletId
       );
@@ -161,6 +170,10 @@ export class WalletService {
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
           timeStamp,
+          senderId:UserInfo._id,
+          onSenderModel:roles.sender,
+          receiverId:UserInfo._id,
+          onReceiverModel:roles.receiver,
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -188,6 +201,10 @@ export class WalletService {
         let transaction = await this.createTransaction({
           transactionType: "Sent Noshies",
           timeStamp,
+          senderId:UserInfo._id,
+          onSenderModel:roles.sender,
+          receiverId:UserInfo._id,
+          onReceiverModel:roles.receiver,
           from: UserInfo.phoneNo,
           to: ReceiverInfo.phoneNo,
           amount: amount,
@@ -297,6 +314,8 @@ export class WalletService {
     let pendingTransaction = await this.createTransaction({
       timeStamp: req.body.timeStamp,
       transactionType: "Bought Noshies By Crypto",
+      onSenderModel:"FoodLover",
+      senderId:UserInfo._id,
       from: UserInfo.phoneNo,
       amount: req.body.amount,
       memo: req.body.memo,
@@ -436,6 +455,10 @@ export class WalletService {
       let transaction = await this.createTransaction({
         transactionType: "Noshies Request",
         timeStamp,
+        onSenderModel:"FoodLover",
+        senderId:UserInfo._id,
+        onReceiverModel:"FoodLover",
+        receiverId:requestReceiverUser._id,
         from: UserInfo.phoneNo,
         to: requestedTophoneNo,
         amount,
@@ -641,6 +664,8 @@ export class WalletService {
             transactionType: source,
             timeStamp,
             from: UserInfo.phoneNo,
+            onSenderModel:"FoodLover",
+            senderId:UserInfo._id,
             amount,
             currency: tokenName,
             message: "Test message",
@@ -657,6 +682,8 @@ export class WalletService {
         await this.createTransaction({
           transactionType: source,
           timeStamp,
+          onSenderModel:"FoodLover",
+          senderId:UserInfo._id,
           from: UserInfo.phoneNo,
           amount,
           currency: tokenName,
@@ -672,6 +699,8 @@ export class WalletService {
         await this.createTransaction({
           transactionType: source,
           from: UserInfo.phoneNo,
+          onSenderModel:"FoodLover",
+          senderId:UserInfo._id,
           timeStamp,
           amount,
           currency: tokenName,
@@ -788,7 +817,16 @@ export class WalletService {
       let { walletId } = UserInfo;
       let transactions = await this.transactionsModel.find({
         $or: [{ to: UserInfo.phoneNo }, { from: UserInfo.phoneNo }],
-      });
+      }).populate([
+        {
+          path: "receiverId",
+          select: "businessName imageUrl",
+        },
+        {
+          path: "senderId",
+          select: "username imageUrl",
+        },
+      ]);
       if (req.params.assetId) {
         let { assetId } = req.params;
         transactions = transactions.filter(

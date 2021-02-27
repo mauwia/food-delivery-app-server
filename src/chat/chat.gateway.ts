@@ -158,7 +158,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
                 type:"recieve-message",
                 message:JSON.stringify(message)
               }
-            });
+            },{priority:"high"});
         }
       }
     } catch (err) {
