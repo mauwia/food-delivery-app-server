@@ -112,13 +112,19 @@ export class WalletService {
   async sendNoshies(req) {
     try {
       let { user } = req;
+      
       let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
+      let roles={
+        sender:"FoodLover",
+        receiver:"",
+      }
       if (!UserInfo) {
         UserInfo = await this.foodCreatorModel.findOne({
           phoneNo: user.phoneNo,
         });
+        roles.sender="FoodCreator"
       }
       if (!UserInfo) {
         throw {
@@ -132,18 +138,13 @@ export class WalletService {
       let ReceiverInfo: any = await this.foodLoverModel.findOne({
         phoneNo: receiverPhoneNo,
       });
-      let roles={
-        sender:"FoodCreator",
-        receiver:"FoodLover"
-      }
+      roles.receiver="FoodLover"
       if (!ReceiverInfo) {
         ReceiverInfo = await this.foodCreatorModel.findOne({
           phoneNo: receiverPhoneNo,
         });
-        roles={
-          sender:"FoodLover",
-          receiver:"FoodCreator"
-        }
+      roles.receiver="FoodCreator"
+        
       }
       let receiverWallet = await this.walletModel.findById(
         ReceiverInfo.walletId
