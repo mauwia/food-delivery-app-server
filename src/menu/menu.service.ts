@@ -92,6 +92,28 @@ export class MenuService {
       );
     }
   }
+  async getReviews(req){
+    try{
+      let {user}=req
+      const UserInfo=await this.foodLoverModel.findOne({phoneNo:user.phone})
+      if (!UserInfo) {
+        throw {
+          msg: MENU_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async getAllCreators(req) {
     try {
       let { user } = req;

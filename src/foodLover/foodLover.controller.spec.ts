@@ -7,7 +7,7 @@ import { Request } from "express";
 import { TwilioModule } from "nestjs-twilio";
 import { WalletService } from "../wallet/wallet.service";
 import { AppGateway } from "../app.gateway";
-import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
+// import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
 let OTPToken;
 let Token = {
   tokenAddress: "21ke909test",
@@ -31,7 +31,25 @@ let event = {
   imageUrl: "",
   username: "",
   mobileRegisteredId: "12345678",
+  fcmRegistrationToken:[]
 };
+let order={
+  foodCreatorId:"testfoodCreatorId",
+  foodLoverId:"testfoodLoverId",
+  orderStatus:"new",
+  timestamp:1610938293,
+  locationTo:{
+    address:"abc sheet"
+  },
+  orderId:"100",
+  locationFrom:{
+    address:"abc sheet"
+  },
+  orderBill:25,
+  promoCode:"",
+  deliveryCharges:70,
+  orderedFood:"102"
+}
 let Transaction = {
   transactionType: "Send",
   from: "senderPublicKey",
@@ -61,6 +79,11 @@ class walletModel {
     return event;
   });
 }
+class ordersModel{
+      constructor(){}
+      find=jest.fn().mockResolvedValue(order);
+      create=jest.fn().mockResolvedValue(order)
+    }
 class eventModel {
   constructor() {}
   static save = jest.fn().mockResolvedValue(event);
@@ -71,6 +94,7 @@ class eventModel {
   //     return null;
   //   }
   // });
+   
   //Signin MOCK
   static findOne = jest.fn().mockImplementation((body) => {
     if (body.phoneNo === event.phoneNo) {
@@ -147,6 +171,10 @@ describe("AppController", () => {
           provide: getModelToken("FoodCreator"),
           useValue: FoodLoverModel,
         },
+        {
+          provide:getModelToken("Orders"),
+          useValue:ordersModel
+        }
       ],
       imports: [
         TwilioModule.forRoot({

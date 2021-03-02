@@ -1,0 +1,319 @@
+
+> nosshify-server@0.0.1 start:dev /home/muawiyah/Documents/Xord/Noshify-Server/nestjs-boilerplate
+> nest start --watch
+
+c[[90m2:52:39 PM[0m] Starting compilation in watch mode...
+
+[[90m2:52:47 PM[0m] Found 0 errors. Watching for file changes.
+
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +49ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioCoreModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:49 PM   [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseCoreModule dependencies initialized[39m[38;5;3m +2994ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +15ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mProfileModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mWalletModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mMenuModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mSubscriptionsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mChatModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mFoodLoverModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mFoodCreatorModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[InstanceLoader] [39m[32mOrdersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[bootstrap] [39m[32mhello[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[ChatGateway] [39m[32mInitialized![39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mAppController {}:[39m[38;5;3m +3ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {, GET} route[39m[38;5;3m +4ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/getUniqueNumber, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mFoodLoverController {/foodLover}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signinLover, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signupLover, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPassAuthOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/addNewPassword, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getUserRegisteredDevice, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getLoverInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/resendOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/verifyPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/createTransactionPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mWalletController {/wallet}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/create, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getBalance, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/requestNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/approveRequest, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/checkTransaction, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/sendNoshies, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/withdrawNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getNoshifyContacts, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByCard, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByBank, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllAssets, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllTransactions, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getTransactionsByAsset/:assetId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllRequests, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mProfileController {/profile}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updateProfile, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updatePassword, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mFoodCreatorController {/foodCreator}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signinCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signupCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPassAuthOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addNewPassword, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getUserRegisteredDevice, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getCreatorInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/resendOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/verifyPin, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/createTransactionPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addImportantDetails, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/toggleStatus, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mOrdersController {/orders}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/createOrder, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/checkPromo, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrders, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrdersHistory/:page, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/updateOrderStatus, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/addRating, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mChatController {/chat}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/createChatroom, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/getAllMessages/:chatroomId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mMenuController {/menu}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenu, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenuItem, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/applyFilter, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenu, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenuItem, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenuItem, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getMenu/:creatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenu, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getAllCreators, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RoutesResolver] [39m[32mSubscriptionsController {/subscriptions}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/subscribe, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/unsubscribe, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID/fl, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 152988   - [39m03/02/2021, 2:52:52 PM   [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +12ms[39m
+c[[90m2:54:28 PM[0m] File change detected. Starting incremental compilation...
+
+[91merror[0m[90m TS6053: [0mFile '/home/muawiyah/Documents/Xord/Noshify-Server/nestjs-boilerplate/src/profile/profile.controller.old.ts' not found.
+
+[[90m2:54:28 PM[0m] Found 1 error. Watching for file changes.
+
+c[[90m2:54:29 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m2:54:29 PM[0m] Found 0 errors. Watching for file changes.
+
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +57ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioCoreModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:31 PM   [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseCoreModule dependencies initialized[39m[38;5;3m +3550ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +24ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mProfileModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mWalletModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mMenuModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mSubscriptionsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mChatModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mFoodLoverModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mFoodCreatorModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:34 PM   [38;5;3m[InstanceLoader] [39m[32mOrdersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[bootstrap] [39m[32mhello[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[ChatGateway] [39m[32mInitialized![39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mAppController {}:[39m[38;5;3m +4ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {, GET} route[39m[38;5;3m +4ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/getUniqueNumber, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mFoodLoverController {/foodLover}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signinLover, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signupLover, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPassAuthOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/addNewPassword, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getUserRegisteredDevice, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getLoverInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/resendOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/verifyPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/createTransactionPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mWalletController {/wallet}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/create, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getBalance, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/requestNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/approveRequest, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/checkTransaction, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/sendNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/withdrawNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getNoshifyContacts, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByCard, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByBank, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllAssets, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllTransactions, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getTransactionsByAsset/:assetId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllRequests, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mProfileController {/profile}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updateProfile, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updatePassword, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mFoodCreatorController {/foodCreator}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signinCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signupCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPassAuthOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addNewPassword, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getUserRegisteredDevice, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getCreatorInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/resendOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/verifyPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/createTransactionPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addImportantDetails, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/toggleStatus, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mOrdersController {/orders}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/createOrder, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/checkPromo, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrders, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrdersHistory/:page, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/updateOrderStatus, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/addRating, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mChatController {/chat}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/createChatroom, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/getAllMessages/:chatroomId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mMenuController {/menu}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenu, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenuItem, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/applyFilter, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenu, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenuItem, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenuItem, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getMenu/:creatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenu, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getAllCreators, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RoutesResolver] [39m[32mSubscriptionsController {/subscriptions}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/subscribe, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/unsubscribe, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID/fl, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153235   - [39m03/02/2021, 2:54:35 PM   [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +8ms[39m
+c[[90m2:57:03 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m2:57:03 PM[0m] Found 0 errors. Watching for file changes.
+
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +84ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[InstanceLoader] [39m[32mTwilioCoreModule dependencies initialized[39m[38;5;3m +3ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:05 PM   [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseCoreModule dependencies initialized[39m[38;5;3m +10574ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +15ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mProfileModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mWalletModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mMenuModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mSubscriptionsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mChatModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mFoodLoverModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mFoodCreatorModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[InstanceLoader] [39m[32mOrdersModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[bootstrap] [39m[32mhello[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[AppGateway] [39m[32mInit[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[ChatGateway] [39m[32mInitialized![39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mAppController {}:[39m[38;5;3m +2ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {, GET} route[39m[38;5;3m +4ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/getUniqueNumber, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mFoodLoverController {/foodLover}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signinLover, POST} route[39m[38;5;3m +3ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/signupLover, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPassAuthOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/addNewPassword, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getUserRegisteredDevice, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/getLoverInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/resendOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/verifyPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodLover/createTransactionPin, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mWalletController {/wallet}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/create, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getBalance, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/requestNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/approveRequest, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/checkTransaction, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/sendNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/withdrawNoshies, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getNoshifyContacts, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByCard, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/addNoshiesByBank, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllAssets, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllTransactions, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getTransactionsByAsset/:assetId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/wallet/getAllRequests, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mProfileController {/profile}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updateProfile, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/profile/updatePassword, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mFoodCreatorController {/foodCreator}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signinCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/signupCreator, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPassAuthOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/forgetPasswordOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addNewPassword, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getUserRegisteredDevice, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/getCreatorInfo, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/authenticateOTP, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/resendOTP, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/verifyPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/createTransactionPin, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/addImportantDetails, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/foodCreator/toggleStatus, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mOrdersController {/orders}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/createOrder, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/checkPromo, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrders, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/getOrdersHistory/:page, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/updateOrderStatus, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/orders/addRating, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mChatController {/chat}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/createChatroom, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/chat/getAllMessages/:chatroomId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mMenuController {/menu}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenu, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/addMenuItem, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/applyFilter, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenu, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/deleteMenuItem, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenuItem, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getMenu/:creatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/editMenu, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/menu/getAllCreators, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RoutesResolver] [39m[32mSubscriptionsController {/subscriptions}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/subscribe, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/unsubscribe, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[RouterExplorer] [39m[32mMapped {/subscriptions/:foodCreatorID/fl, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 153453   - [39m03/02/2021, 2:57:16 PM   [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +7ms[39m

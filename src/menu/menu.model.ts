@@ -12,8 +12,7 @@ export const MenuItemSchema = new mongoose.Schema({
   preparationTime: { type: String },
   price: { type: Number },
   discount: {
-    discountType: { type: String, enum: ["Flat", "Percent"] },
-    discountValue: { type: String },
+    type: Number,
   },
   reviews: [{ type: Object }],
   orderCounts: { type: Number, default: 0 },
@@ -29,7 +28,7 @@ export interface MenuItems extends mongoose.Document {
   description: string;
   preparationTime: string;
   price: number;
-  discount: string;
+  discount: number;
   reviews: Array<object>;
   orderCounts: number;
 }
