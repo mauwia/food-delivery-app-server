@@ -76,4 +76,10 @@ export class FoodLoverController {
     const response = await this.foodLoverService.createTransactionPin(request);
     return response;
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/logout")
+  async Logout(@Req() request:Request){
+    const response=await this.foodLoverService.logout(request)
+    return response
+  }
 }

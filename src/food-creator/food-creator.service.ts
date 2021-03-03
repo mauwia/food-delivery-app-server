@@ -353,6 +353,31 @@ export class FoodCreatorService {
       );
     }
   }
+  async logout(req){
+    try{
+      let {user}=req
+      const UserInfo = await this.foodCreatorModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      await this.foodCreatorModel.findOneAndUpdate({phoneNo:user.phoneNo},{
+        $pull:{fcmRegistrationToken:req.body.fcmRegistrationToken}
+      })
+      return {message:"Logout Success"}
+
+    }catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async addImportantDetails(req) {
     try {
       let { user } = req;

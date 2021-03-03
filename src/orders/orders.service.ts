@@ -1,17 +1,16 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Wallet } from "src/wallet/wallet.model";
-import { WalletModule } from "src/wallet/wallet.module";
-import { WalletService } from "src/wallet/wallet.service";
+import { Wallet } from "../wallet/wallet.model";
+// import { WalletModule } from "src/wallet/wallet.module";
+import { WalletService } from "../wallet/wallet.service";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
-import * as admin from "firebase-admin";
 import { Orders } from "./orders.model";
-import { ChatService } from "src/chat/chat.service";
-import { MenuItems } from "src/menu/menu.model";
+import { ChatService } from "../chat/chat.service";
+import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
 
 @Injectable()
@@ -43,6 +42,7 @@ export class OrdersService {
       //   return this.addOrders(order);
       // }));
       // console.log('Promise One',createdOrders)
+      console.log("body",body.orders)
       for (let i = 0; i < body.orders.length; i++) {
         let ordercreate = await this.addOrders(body.orders[i], UserInfo);
         createdOrders.push(ordercreate);
@@ -51,6 +51,7 @@ export class OrdersService {
       return { orders: createdOrders };
     } catch (error) {
       this.logger.error(error, error.stack);
+      console.log("errorQQ",error)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -95,17 +96,7 @@ export class OrdersService {
         ])
         .execPopulate();
       // console.log()
-      await admin.messaging().sendToDevice(foodCreator.fcmRegistrationToken, {
-        notification: {
-          title: `New Order is Arrived`,
-          body: "Tap to view details",
-        },
-        data:{
-          type:"add-order",
-          orderCreated:JSON.stringify(orderCreated)
-        }
-      },{priority:"high"});
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated);
+      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated,foodCreator.fcmRegistrationToken);
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -225,23 +216,11 @@ export class OrdersService {
         orderStatusReciever === "foodLoverId"
           ? order.foodLoverId.phoneNo
           : order.foodCreatorId.phoneNo;
-      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder);
+      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder,order[orderStatusReciever].fcmRegistrationToken);
       // console.log(UserInfo.fcmRegistrationToken);
       // console.log("==============>", order[orderStatusReciever]);
       // console.log("CHATROOM", updatedOrder);
-      await admin
-        .messaging()
-        .sendToDevice(order[orderStatusReciever].fcmRegistrationToken, {
-          notification: {
-            title: `Order ${status}`,
-            body: "Tap to view details",
-            clickAction:"noshifyfoodloverfrontend://food-lover-wallet"
-          },
-          data:{
-            type:"update-order-status",
-            updatedOrder:JSON.stringify(updatedOrder)
-          },
-        },{priority:"high"});
+      ;
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -383,6 +362,31 @@ export class OrdersService {
       console.log(orderedFood.menuItemId)
       await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId,{$inc:{orderCounts:1}})
     })
+  }
+  async getReviews(req){
+    try{
+      let {user}=req
+      const UserInfo=await this.foodLoverModel.findOne({phoneNo:user.phone})
+      if (!UserInfo) {
+        throw {
+          msg: "USER NOT FOUND",
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let reviews=await this.ordersModel.find({foodCreatorId:req.param.foodCreatorId}).select("rating")
+      return {reviews}
+      
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
   }
   async addRating(req){
     try{

@@ -10,6 +10,7 @@ import { Logger } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import * as admin from "firebase-admin";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 @WebSocketGateway()
 export class OrdersGateway
@@ -27,11 +28,14 @@ export class OrdersGateway
     this.logger.log("Init");
   }
   @SubscribeMessage("sign-in")
-  signIn(client:Socket, payload):void{
-    if(!this.onlineUsers[payload.phoneNo]){
-    this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
+  signIn(client: Socket, payload): void {
+    if (!this.onlineUsers[payload.phoneNo]) {
+      this.onlineUsers[payload.phoneNo] = {
+        phoneNo: payload.phoneNo,
+        socketId: client.id,
+      };
     }
-    console.log(this.onlineUsers)
+    console.log(this.onlineUsers);
   }
   @SubscribeMessage("search-filter")
   async handleSearchFilter(client: Socket, payload) {
@@ -78,24 +82,48 @@ export class OrdersGateway
       .to(this.onlineUsers[payload.phoneNo].socketId)
       .emit("search-result", { nearByFoodCreators });
   }
-  handleUpdateStatus(to: string, order: any): void {
+  async handleUpdateStatus(to: string, order: any,fcmRegistrationToken:any): Promise<void> {
     if (this.onlineUsers[to]) {
-      console.log(this.socket_id);
       this.server
         .to(this.onlineUsers[to].socketId)
         .emit("update-order-status", order);
+    }else{
+      await admin
+        .messaging()
+        .sendToDevice(fcmRegistrationToken, {
+          notification: {
+            title: `Order ${order.status}`,
+            body: "Tap to view details",
+            clickAction:"noshifyfoodloverfrontend://food-lover-wallet"
+          },
+          data:{
+            type:"update-order-status",
+            updatedOrder:JSON.stringify(order)
+          },
+        },{priority:"high"})
     }
   }
   @SubscribeMessage("logout")
   logout(client: Socket, payload): void {
     delete this.onlineUsers[client.handshake.query.userNo];
-    console.log(this.onlineUsers)
+    console.log(this.onlineUsers);
   }
-  handleAddOrder(to: string, order: any): void {
+  async handleAddOrder(to: string, order: any,fcmRegistrationToken:any): Promise<void> {
     // console.log
     if (this.onlineUsers[to]) {
       console.log(this.socket_id);
       this.server.to(this.onlineUsers[to].socketId).emit("add-order", order);
+    }else{
+      await admin.messaging().sendToDevice(fcmRegistrationToken, {
+        notification: {
+          title: `New Order is Arrived`,
+          body: "Tap to view details",
+        },
+        data:{
+          type:"add-order",
+          orderCreated:JSON.stringify(order)
+        }
+      },{priority:"high"});
     }
   }
   handleDisconnect(client: Socket) {

@@ -135,6 +135,31 @@ export class FoodLoverService {
       );
     }
   }
+  async logout(req){
+    try{
+      let {user}=req
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      }
+      await this.foodLoverModel.findOneAndUpdate({phoneNo:user.phoneNo},{
+        $pull:{fcmRegistrationToken:req.body.fcmRegistrationToken}
+      })
+      return {message:"Logout Success"}
+
+    }catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async getLoverInfo(req) {
     try{
       let { user } = req;
