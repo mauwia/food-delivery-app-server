@@ -392,7 +392,7 @@ export class OrdersService {
       }
       let reviews = await this.ordersModel
         .find({ foodCreatorId: req.param.foodCreatorId })
-        .select("rating,review");
+        .select("rating review");
       return { reviews };
     } catch (error) {
       this.logger.error(error, error.stack);
