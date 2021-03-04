@@ -379,10 +379,10 @@ export class OrdersService {
     try {
       let { user } = req;
       let UserInfo: any = await this.foodLoverModel.findOne({
-        phoneNo: user.phone,
+        phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        UserInfo = await this.foodCreatorModel.findOne({ phoneNo: user.phone });
+        UserInfo = await this.foodCreatorModel.findOne({ phoneNo: user.phoneNo });
       }
       if (!UserInfo) {
         throw {
