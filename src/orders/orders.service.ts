@@ -20,7 +20,7 @@ export class OrdersService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("MenuItems") private readonly menuItemsModel:Model<MenuItems>,
+    @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
@@ -42,7 +42,7 @@ export class OrdersService {
       //   return this.addOrders(order);
       // }));
       // console.log('Promise One',createdOrders)
-      console.log("body",body.orders)
+      console.log("body", body.orders);
       for (let i = 0; i < body.orders.length; i++) {
         let ordercreate = await this.addOrders(body.orders[i], UserInfo);
         createdOrders.push(ordercreate);
@@ -51,7 +51,7 @@ export class OrdersService {
       return { orders: createdOrders };
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log("errorQQ",error)
+      console.log("errorQQ", error);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -96,7 +96,11 @@ export class OrdersService {
         ])
         .execPopulate();
       // console.log()
-      this.ordersGateway.handleAddOrder(foodCreator.phoneNo, orderCreated,foodCreator.fcmRegistrationToken);
+      this.ordersGateway.handleAddOrder(
+        foodCreator.phoneNo,
+        orderCreated,
+        foodCreator.fcmRegistrationToken
+      );
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -216,14 +220,18 @@ export class OrdersService {
         orderStatusReciever === "foodLoverId"
           ? order.foodLoverId.phoneNo
           : order.foodCreatorId.phoneNo;
-      this.ordersGateway.handleUpdateStatus(sendStatusToPhoneNo, updatedOrder,order[orderStatusReciever].fcmRegistrationToken);
+      this.ordersGateway.handleUpdateStatus(
+        sendStatusToPhoneNo,
+        updatedOrder,
+        order[orderStatusReciever].fcmRegistrationToken
+      );
       // console.log(UserInfo.fcmRegistrationToken);
       // console.log("==============>", order[orderStatusReciever]);
       // console.log("CHATROOM", updatedOrder);
-      ;
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
+      console.log(error)
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -279,7 +287,7 @@ export class OrdersService {
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
-        
+
           senderAssets.amount =
             senderAssets.amount - order.orderBill - order.NoshDeduct;
           console.log("Sender Assets", senderAssets);
@@ -297,9 +305,11 @@ export class OrdersService {
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
-        await this.incrementOrderInMenuItems(order.orderedFood)
-        await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id,{$inc:{totalNoshedOrders:1}})
-        await this.chatService.closeChatRoom(order.chatRoomId)
+        await this.incrementOrderInMenuItems(order.orderedFood);
+        await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id, {
+          $inc: { totalNoshedOrders: 1 },
+        });
+        await this.chatService.closeChatRoom(order.chatRoomId);
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
@@ -318,10 +328,10 @@ export class OrdersService {
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
-          onSenderModel:"FoodLover",
-          senderId:orderStatusSender._id,
-          onReceiverModel:"FoodCreator",
-          receiverId:order.foodCreatorId._id,
+          onSenderModel: "FoodLover",
+          senderId: orderStatusSender._id,
+          onReceiverModel: "FoodCreator",
+          receiverId: order.foodCreatorId._id,
           from: orderStatusSender.phoneNo,
           deductAmount: order.NoshDeduct,
           amount: order.orderBill,
@@ -357,27 +367,34 @@ export class OrdersService {
       throw error;
     }
   }
-  async incrementOrderInMenuItems(orderedFoods){
-    orderedFoods.map(async orderedFood=>{
-      console.log(orderedFood.menuItemId)
-      await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId,{$inc:{orderCounts:1}})
-    })
+  async incrementOrderInMenuItems(orderedFoods) {
+    orderedFoods.map(async (orderedFood) => {
+      console.log(orderedFood.menuItemId);
+      await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId, {
+        $inc: { orderCounts: 1 },
+      });
+    });
   }
-  async getReviews(req){
-    try{
-      let {user}=req
-      const UserInfo=await this.foodLoverModel.findOne({phoneNo:user.phone})
+  async getReviews(req) {
+    try {
+      let { user } = req;
+      let UserInfo: any = await this.foodLoverModel.findOne({
+        phoneNo: user.phone,
+      });
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({ phoneNo: user.phone });
+      }
       if (!UserInfo) {
         throw {
           msg: "USER NOT FOUND",
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let reviews=await this.ordersModel.find({foodCreatorId:req.param.foodCreatorId}).select("rating")
-      return {reviews}
-      
-    }
-    catch(error){
+      let reviews = await this.ordersModel
+        .find({ foodCreatorId: req.param.foodCreatorId })
+        .select("rating,review");
+      return { reviews };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -388,8 +405,8 @@ export class OrdersService {
       );
     }
   }
-  async addRating(req){
-    try{
+  async addRating(req) {
+    try {
       let { user } = req;
       // console.log(user)
       const UserInfo = await this.foodLoverModel.findOne({
@@ -398,43 +415,49 @@ export class OrdersService {
       if (!UserInfo) {
         throw "User not found";
       }
-      let addRating=await this.ordersModel.findByIdAndUpdate(req.body.orderId,{
-        $set:{
-          rating:req.body.rating,
-          review:req.body.review
-        }
-      })
-      // console.log(addRating)
-      let orderRating=await this.ordersModel.aggregate([
+      let addRating = await this.ordersModel.findByIdAndUpdate(
+        req.body.orderId,
         {
-          $match:{foodCreatorId: new Types.ObjectId(addRating.foodCreatorId)}
+          $set: {
+            rating: req.body.rating,
+            review: req.body.review,
+          },
+        }
+      );
+      // console.log(addRating)
+      let orderRating = await this.ordersModel.aggregate([
+        {
+          $match: {
+            foodCreatorId: new Types.ObjectId(addRating.foodCreatorId),
+          },
         },
         {
-        $project:{
-          foodCreatorId:1,
-          singleOrder:{$avg:"$rating"}
-        }
-      },
-      {
-        $group:{
-          _id:"$foodCreatorId",
-          orderAvg:{$avg:"$singleOrder"}
-        }
-      }
-      
-    ])
-    let updateAvg=await this.foodCreatorModel.findByIdAndUpdate(addRating.foodCreatorId,{
-      $set:{
-        avgRating:orderRating[0].orderAvg
-      }
-    },{upsert:true})
+          $project: {
+            foodCreatorId: 1,
+            singleOrder: { $avg: "$rating" },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodCreatorId",
+            orderAvg: { $avg: "$singleOrder" },
+          },
+        },
+      ]);
+      let updateAvg = await this.foodCreatorModel.findByIdAndUpdate(
+        addRating.foodCreatorId,
+        {
+          $set: {
+            avgRating: orderRating[0].orderAvg,
+          },
+        },
+        { upsert: true }
+      );
       // console.log(updateAvg,orderRating[0].orderAvg,"QQQQQQQQQQQ")
       return {
-        message:"Order Rated Successfully"
-      }
-    }
-   
-    catch(error){
+        message: "Order Rated Successfully",
+      };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw error;
     }
@@ -494,7 +517,7 @@ export class OrdersService {
       );
     }
   }
- 
+
   async checkPromo(req) {
     try {
       let { user } = req;
