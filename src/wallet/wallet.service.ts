@@ -10,6 +10,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
 import { FoodCreator } from "src/food-creator/food-creator.model";
+import axios from "axios";
 
 @Injectable()
 export class WalletService {
@@ -467,7 +468,7 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
-      
+
       this.appGatway.handleRequestNoshies(requestedTophoneNo, transaction, {
         requestReceiverfcmRegistrationToken:
           requestReceiverUser.fcmRegistrationToken,
@@ -546,13 +547,14 @@ export class WalletService {
           transaction.status = action;
           await wallet.save();
           let updatedTransaction = await transaction.save();
-        
+
           this.appGatway.handleApproveRequestNoshies(
             pendingNoshRequest.phoneNo,
-            updatedTransaction,{
-              pendingNoshRequestFCM:pendingNoshRequest.fcmRegistrationToken,
-              senderUsername:UserInfo.username,
-              amount:transaction.amount
+            updatedTransaction,
+            {
+              pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
+              senderUsername: UserInfo.username,
+              amount: transaction.amount,
             }
           );
 
@@ -576,10 +578,11 @@ export class WalletService {
 
           this.appGatway.handleApproveRequestNoshies(
             pendingNoshRequest.phoneNo,
-            updatedTransaction,{
-              pendingNoshRequestFCM:pendingNoshRequest.fcmRegistrationToken,
-              senderUsername:UserInfo.username,
-              amount:transaction.amount
+            updatedTransaction,
+            {
+              pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
+              senderUsername: UserInfo.username,
+              amount: transaction.amount,
             }
           );
           return {
@@ -605,10 +608,11 @@ export class WalletService {
           });
         this.appGatway.handleApproveRequestNoshies(
           pendingNoshRequest.phoneNo,
-          updatedTransaction,{
-            pendingNoshRequestFCM:pendingNoshRequest.fcmRegistrationToken,
-            senderUsername:UserInfo.username,
-            amount:transaction.amount
+          updatedTransaction,
+          {
+            pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
+            senderUsername: UserInfo.username,
+            amount: transaction.amount,
           }
         );
         return {
@@ -885,7 +889,102 @@ export class WalletService {
       );
     }
   }
-
+  async validation(user) {
+    let UserInfo: any = await this.foodLoverModel
+      .findOne({
+        phoneNo: user.phoneNo,
+      })
+      .populate("walletId");
+    if (!UserInfo) {
+      UserInfo = await this.foodCreatorModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+    }
+    if (!UserInfo) {
+      throw {
+        msg: WALLET_MESSAGES.USER_NOT_FOUND,
+        status: HttpStatus.NOT_FOUND,
+      };
+    }
+  }
+  async resolveBankAccount(req) {
+    try {
+      let UserInfo = await this.validation(req.user);
+      let { accountNumber, bankCode } = req.body;
+      let resolvedBankAccount = await axios.get(
+        `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+          },
+        }
+      );
+      return { resolvedBankAccount };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async initiateTransfer(req) {
+    try {
+      let UserInfo = await this.validation(req.user);
+      let initiateTransfer = await axios.post(
+        `https://api.paystack.co/transfer`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+          },
+          body: {
+            ...req.body,
+          },
+        }
+      );
+      return { initiateTransfer };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async createTransferRecipient(req) {
+    try {
+      let UserInfo = await this.validation(req.user);
+      let transferRecipient = await axios.post(
+        `https://api.paystack.co/transferrecipient`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+          },
+          body: {
+            ...req.body,
+          },
+        }
+      );
+      return { transferRecipient };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async createTransaction(transactionDetails) {
     let newTransaction = new this.transactionsModel(transactionDetails);
     let transaction = await this.transactionsModel.create(newTransaction);
