@@ -11,7 +11,6 @@ import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
-
 @Injectable()
 export class WalletService {
   constructor(
@@ -838,7 +837,7 @@ export class WalletService {
         .populate([
           {
             path: "receiverId",
-            select: "businessName imageUrl",
+            select: "businessName username imageUrl",
           },
           {
             path: "senderId",
@@ -908,6 +907,7 @@ export class WalletService {
         status: HttpStatus.NOT_FOUND,
       };
     }
+    return UserInfo;
   }
   async resolveBankAccount(req) {
     try {
@@ -962,17 +962,17 @@ export class WalletService {
   async createTransferRecipient(req) {
     try {
       let UserInfo = await this.validation(req.user);
-      let transferRecipient = await axios.post(
-        `https://api.paystack.co/transferrecipient`,
+      let transferRecipient = await utils.fetch(
+        "get",
+        "https://noshify-server-app.herokuapp.com/",
         {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-          },
-          body: {
-            ...req.body,
-          },
+          ...req.body,
+        },
+        {
+          Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
         }
       );
+      console.log(transferRecipient)
       return { transferRecipient };
     } catch (error) {
       this.logger.error(error, error.stack);
