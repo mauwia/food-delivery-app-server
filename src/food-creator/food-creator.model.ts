@@ -21,7 +21,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   // location: { type: Array },
   totalNoshedOrders:{type:Number,default:0},
   creatorFoodType: { type: Array },
-  imageUrl: { type: String, default: null },
+  imageUrl: { type: String, default: "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg" },
   countryCode: { type: String },
   countryName: { type: String },
   businessName: { type: String, default: null },
