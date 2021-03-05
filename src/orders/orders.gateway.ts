@@ -92,7 +92,7 @@ export class OrdersGateway
         .messaging()
         .sendToDevice(fcmRegistrationToken, {
           notification: {
-            title: `Order ${order.status}`,
+            title: `Order ${order.orderStatus}`,
             body: "Tap to view details",
             clickAction:"noshifyfoodloverfrontend://food-lover-wallet"
           },
