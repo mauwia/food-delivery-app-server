@@ -11,6 +11,7 @@ import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
+const fetch = require("node-fetch");
 @Injectable()
 export class WalletService {
   constructor(
@@ -265,14 +266,16 @@ export class WalletService {
         if (user) {
           common.push(user);
         }
-        const anotherUser = await this.foodCreatorModel
-          .findOne({
-            $or: [{ phoneNo: contacts[i] }],
-          })
-          .select("-passHash -pinHash");
-        // .populate("walletId", "publicKey");
-        if (anotherUser) {
-          common.push(anotherUser);
+        if (req.body.forSent) {
+          const anotherUser = await this.foodCreatorModel
+            .findOne({
+              $or: [{ phoneNo: contacts[i] }],
+            })
+            .select("-passHash -pinHash");
+          // .populate("walletId", "publicKey");
+          if (anotherUser) {
+            common.push(anotherUser);
+          }
         }
       }
       return { contacts: common };
@@ -936,17 +939,31 @@ export class WalletService {
   async initiateTransfer(req) {
     try {
       let UserInfo = await this.validation(req.user);
-      let initiateTransfer = await axios.post(
-        `https://api.paystack.co/transfer`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-          },
-          body: {
-            ...req.body,
-          },
-        }
-      );
+      let initiateTransfer = await fetch("https://api.paystack.co/transfer", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+        },
+        method: "POST",
+        body: {
+          source: "balance",
+          amount: "80",
+          recipient: "RCP_t0ya41mp35flk40",
+          reason: "Holiday Flexing",
+        },
+      });
+
+      // let initiateTransfer = await axios.post(
+      //   `https://api.paystack.co/transfer`,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+      //     },
+      //     body: {
+      //       ...req.body,
+      //     },
+      //   }
+      // );
       return { initiateTransfer };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -963,8 +980,8 @@ export class WalletService {
     try {
       let UserInfo = await this.validation(req.user);
       let transferRecipient = await utils.fetch(
-        "get",
-        "https://noshify-server-app.herokuapp.com/",
+        "post",
+        "https://api.paystack.co/transfer",
         {
           ...req.body,
         },
@@ -972,8 +989,7 @@ export class WalletService {
           Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
         }
       );
-      console.log(transferRecipient)
-      return { transferRecipient };
+      // return { transferRecipient };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(

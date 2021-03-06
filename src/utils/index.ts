@@ -64,8 +64,10 @@ export const bnbToNosh =async ()=>{
     return conversion
   }
 export const fetch=async (method,url,body,headers)=>{
-  let response=await axios[method](url,{
-    headers,
+  let response=await axios.post(url,{
+    headers:{
+      Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+    },
     body
   })
   return response

@@ -39,6 +39,7 @@ export const OrdersSchema = new mongoose.Schema({
   timeTaken: { type: String, default: Date.now() },
   promoCode: { type: String },
   rating:{type:Number},
+  reason:{type:String},
   deliveryCharges: { type: Number },
   timestamp: { type: String, default: Date.now() },
   NoshDeduct: { type: Number },
@@ -64,6 +65,7 @@ export interface Orders extends mongoose.Document {
   deliveryCharges: number;
   rating:number;
   orderedFood: any;
+  reason
   review:string
 }
 export interface orderFood extends mongoose.Document {

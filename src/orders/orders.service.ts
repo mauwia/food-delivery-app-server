@@ -188,7 +188,7 @@ export class OrdersService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let { orderID, status } = req.body;
+      let { orderID, status,reason } = req.body;
       let order = await this.ordersModel.findById(orderID).populate([
         {
           path: "foodLoverId",
@@ -214,6 +214,7 @@ export class OrdersService {
         UserInfo
       );
       order.orderStatus = status;
+      order.reason=reason?reason:""
       let updatedOrder = await order.save();
       // let {phoneNo}=order.foodLoverId
       let sendStatusToPhoneNo =
@@ -357,6 +358,7 @@ export class OrdersService {
         let orderBillForty = order.realOrderBill * 0.4;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
+        statusSenderWallet.escrow=statusSenderWallet.escrow-orderBillSixty
         FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
         FL_Assets.amount = FL_Assets.amount + orderBillSixty;
         await statusRecieverWallet.save();
