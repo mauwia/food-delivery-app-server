@@ -188,7 +188,7 @@ export class OrdersService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let { orderID, status,reason } = req.body;
+      let { orderID, status, reason } = req.body;
       let order = await this.ordersModel.findById(orderID).populate([
         {
           path: "foodLoverId",
@@ -214,7 +214,7 @@ export class OrdersService {
         UserInfo
       );
       order.orderStatus = status;
-      order.reason=reason?reason:""
+      order.reason = reason ? reason : "";
       let updatedOrder = await order.save();
       // let {phoneNo}=order.foodLoverId
       let sendStatusToPhoneNo =
@@ -232,7 +232,7 @@ export class OrdersService {
       return { updatedOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
-      console.log(error)
+      console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -356,11 +356,12 @@ export class OrdersService {
         );
         let orderBillSixty = order.realOrderBill * 0.6;
         let orderBillForty = order.realOrderBill * 0.4;
+        let orderBillTwenty = order.realOrderBill * 0.2;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
-        statusSenderWallet.escrow=statusSenderWallet.escrow-orderBillSixty
-        FC_Assets.amount = FC_Assets.amount + orderBillForty - orderBillSixty;
-        FL_Assets.amount = FL_Assets.amount + orderBillSixty;
+        statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
+        FC_Assets.amount = FC_Assets.amount + orderBillTwenty;
+        FL_Assets.amount = FL_Assets.amount + orderBillSixty+orderBillTwenty;
         await statusRecieverWallet.save();
         await statusSenderWallet.save();
       }
@@ -384,7 +385,9 @@ export class OrdersService {
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
-        UserInfo = await this.foodCreatorModel.findOne({ phoneNo: user.phoneNo });
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
       }
       if (!UserInfo) {
         throw {

@@ -141,6 +141,33 @@ export class MenuService {
       );
     }
   }
+  async getSingleCreatorInfo(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw {
+          msg: MENU_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let {_id}=req.params
+      let creatorInfo=await this.foodCreatorModel.findById(_id).select("-pinHash passHash fcmRegistrationToken")
+      return {creatorInfo}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async addMenu(req) {
     try {
       let { user } = req;
