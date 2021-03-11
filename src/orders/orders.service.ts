@@ -38,6 +38,17 @@ export class OrdersService {
       }
       let { body } = req;
       let createdOrders = [];
+      // let checkRestraunt=await this.foodCreatorModel.find({
+      //   location: {
+      //     $near: {
+      //       $maxDistance: 5000,
+      //       $geometry: {
+      //         type: "Point",
+      //         coordinates: body.orders[0].locationFrom.coordinates,
+      //       },
+      //     },
+      //   },
+      // })
       // let createdOrders = await Promise.all(body.orders.map(order => {
       //   return this.addOrders(order);
       // }));
