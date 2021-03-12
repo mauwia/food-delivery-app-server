@@ -12,7 +12,7 @@ import { Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
-let Distance = require('@turf/distance')
+let turf = require('@turf/distance')
 let helper=  require('@turf/helpers')
 
 @Injectable()
@@ -40,19 +40,23 @@ export class OrdersService {
       }
       let { body } = req;
       let createdOrders = [];
+      
       for(let i=0;i<body.orders.length;i++){
-        let distanceBwFL_FC=Distance(helper.point(body.orders[i].locationFrom.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
-        console.log(distanceBwFL_FC)
+        console.log("PPPPPPPPP",helper.point(body.orders[i].locationTo.coordinates))
+        console.log("PPPPPPPPP1",helper.point(body.orders[i].foodCreatorLocation.coordinates))
+
+        let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
+        // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
         if(distanceBwFL_FC>5){
           throw "Food Creator does not deliever in this area"
         }
       }
-      console.log("body", body.orders);
-      for (let i = 0; i < body.orders.length; i++) {
-        let ordercreate = await this.addOrders(body.orders[i], UserInfo);
-        createdOrders.push(ordercreate);
-      }
-      console.log(createdOrders);
+      // console.log("body", body.orders);
+      // for (let i = 0; i < body.orders.length; i++) {
+      //   let ordercreate = await this.addOrders(body.orders[i], UserInfo);
+      //   createdOrders.push(ordercreate);
+      // }
+      // console.log(createdOrders);
       return { orders: createdOrders };
     } catch (error) {
       this.logger.error(error, error.stack);
