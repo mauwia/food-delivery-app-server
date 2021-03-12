@@ -40,7 +40,7 @@ export class OrdersService {
       }
       let { body } = req;
       let createdOrders = [];
-      for(let i=0;i<=body.orders;i++){
+      for(let i=0;i<body.orders.length;i++){
         let distanceBwFL_FC=Distance(helper.point(body.orders[i].locationFrom.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
         console.log(distanceBwFL_FC)
         if(distanceBwFL_FC>5){
