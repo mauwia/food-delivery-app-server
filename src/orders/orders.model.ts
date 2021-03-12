@@ -29,11 +29,12 @@ export const OrdersSchema = new mongoose.Schema({
     ],
     required: true,
   },
+  foodCreatorLocation:{type:Object},
   review:{type:String},
   orderId: { type: String },
   tokenName: { type: String },
-  locationTo: { address: { type: String } },
-  locationFrom: { address: { type: String } },
+  locationTo: {type:Object  },
+  locationFrom: { type:Object },
   orderBill: { type: Number },
   approxGivenTime: { type: String, default: Date.now() },
   timeTaken: { type: String, default: Date.now() },
@@ -58,6 +59,7 @@ export interface Orders extends mongoose.Document {
   tokenName: string;
   orderId: string;
   locationFrom: any;
+  foodCreatorLocation:any;
   NoshDeduct: number;
   orderBill: number;
   chatRoomId: string;

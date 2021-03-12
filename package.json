@@ -31,6 +31,8 @@
     "@nestjs/platform-express": "^7.6.5",
     "@nestjs/platform-socket.io": "^7.6.13",
     "@nestjs/websockets": "^7.6.5",
+    "@turf/distance": "^6.3.0",
+    "@turf/helpers": "^6.3.0",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",

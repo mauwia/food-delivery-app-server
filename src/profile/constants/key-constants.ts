@@ -4,7 +4,7 @@ export const PROFILE_MESSAGES = {
   INVALID_USER_TYPE: 'Invalid user type',
   SPECIFY_USER_TYPE: 'Specify user type for operation',
   WRONG_PASSWORD:"Wrong Password",
-  ADD_NEW_PASSWORD:"You added old password"
+  ADD_NEW_PASSWORD:"You already used this password"
 };
 
 export const PROFILE_DATA = {

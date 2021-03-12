@@ -12,6 +12,8 @@ import { Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
+let Distance = require('@turf/distance')
+let helper=  require('@turf/helpers')
 
 @Injectable()
 export class OrdersService {
@@ -38,21 +40,12 @@ export class OrdersService {
       }
       let { body } = req;
       let createdOrders = [];
-      // let checkRestraunt=await this.foodCreatorModel.find({
-      //   location: {
-      //     $near: {
-      //       $maxDistance: 5000,
-      //       $geometry: {
-      //         type: "Point",
-      //         coordinates: body.orders[0].locationFrom.coordinates,
-      //       },
-      //     },
-      //   },
-      // })
-      // let createdOrders = await Promise.all(body.orders.map(order => {
-      //   return this.addOrders(order);
-      // }));
-      // console.log('Promise One',createdOrders)
+      for(let i=0;i<=body.orders;i++){
+        let distanceBwFL_FC=Distance(helper.point(body.orders[i].locationFrom.coordinates),helper.point(body.orders[i].locationTo.coordinates))
+        if(distanceBwFL_FC>5){
+          throw "Food Creator does not deliever in this area"
+        }
+      }
       console.log("body", body.orders);
       for (let i = 0; i < body.orders.length; i++) {
         let ordercreate = await this.addOrders(body.orders[i], UserInfo);
