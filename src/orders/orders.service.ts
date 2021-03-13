@@ -52,10 +52,10 @@ export class OrdersService {
         }
       }
       // console.log("body", body.orders);
-      // for (let i = 0; i < body.orders.length; i++) {
-      //   let ordercreate = await this.addOrders(body.orders[i], UserInfo);
-      //   createdOrders.push(ordercreate);
-      // }
+      for (let i = 0; i < body.orders.length; i++) {
+        let ordercreate = await this.addOrders(body.orders[i], UserInfo);
+        createdOrders.push(ordercreate);
+      }
       // console.log(createdOrders);
       return { orders: createdOrders };
     } catch (error) {
