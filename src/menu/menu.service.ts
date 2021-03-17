@@ -107,6 +107,7 @@ export class MenuService {
       }
       let { lng, lat } = req.body;
       console.log(lng, lat);
+      
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           $and: [
@@ -129,6 +130,7 @@ export class MenuService {
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
+        console.log(nearByFoodCreators)
       return { nearByFoodCreators };
     } catch (error) {
       this.logger.error(error, error.stack);

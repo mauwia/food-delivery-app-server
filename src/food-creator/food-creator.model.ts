@@ -24,7 +24,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   imageUrl: { type: String, default: "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg" },
   countryCode: { type: String },
   countryName: { type: String },
-  businessName: { type: String, default: null },
+  businessName: { type: String },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   creatorThumbnail:{type:String},
   subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" }],

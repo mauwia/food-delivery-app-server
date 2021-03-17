@@ -42,8 +42,8 @@ export class OrdersService {
       let createdOrders = [];
       
       for(let i=0;i<body.orders.length;i++){
-        console.log("PPPPPPPPP",helper.point(body.orders[i].locationTo.coordinates))
-        console.log("PPPPPPPPP1",helper.point(body.orders[i].foodCreatorLocation.coordinates))
+        // console.log("PPPPPPPPP",helper.point(body.orders[i].locationTo.coordinates))
+        // console.log("PPPPPPPPP1",helper.point(body.orders[i].foodCreatorLocation.coordinates))
 
         let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
         // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
