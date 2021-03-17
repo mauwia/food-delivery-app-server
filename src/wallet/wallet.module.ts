@@ -5,7 +5,7 @@ import { WalletController } from "./wallet.controller";
 import { TransactionsSchema, WalletSchema } from "./wallet.model";
 import { WalletService } from "./wallet.service";
 import { JwtStrategy } from "../foodLover/jwt/jwt.strategy";
-import { FoodLoverSchema} from "../foodLover/foodLover.model";
+import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { AppGateway } from "../app.gateway";
 import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
 
@@ -15,7 +15,7 @@ import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
       { name: "Wallet", schema: WalletSchema },
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "Transactions", schema: TransactionsSchema },
-      {name:"FoodCreator",schema:FoodCreatorSchema}
+      { name: "FoodCreator", schema: FoodCreatorSchema },
     ]),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -23,7 +23,7 @@ import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
     }),
   ],
   controllers: [WalletController],
-  providers: [WalletService, JwtStrategy,AppGateway],
+  providers: [WalletService, JwtStrategy, AppGateway],
   exports: [WalletService],
 })
 export class WalletModule {}

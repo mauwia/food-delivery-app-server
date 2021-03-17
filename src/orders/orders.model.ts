@@ -29,16 +29,18 @@ export const OrdersSchema = new mongoose.Schema({
     ],
     required: true,
   },
+  foodCreatorLocation:{type:Object},
   review:{type:String},
   orderId: { type: String },
   tokenName: { type: String },
-  locationTo: { address: { type: String } },
-  locationFrom: { address: { type: String } },
+  locationTo: {type:Object  },
+  locationFrom: { type:Object },
   orderBill: { type: Number },
   approxGivenTime: { type: String, default: Date.now() },
   timeTaken: { type: String, default: Date.now() },
   promoCode: { type: String },
   rating:{type:Number},
+  reason:{type:String},
   deliveryCharges: { type: Number },
   timestamp: { type: String, default: Date.now() },
   NoshDeduct: { type: Number },
@@ -57,6 +59,7 @@ export interface Orders extends mongoose.Document {
   tokenName: string;
   orderId: string;
   locationFrom: any;
+  foodCreatorLocation:any;
   NoshDeduct: number;
   orderBill: number;
   chatRoomId: string;
@@ -64,6 +67,7 @@ export interface Orders extends mongoose.Document {
   deliveryCharges: number;
   rating:number;
   orderedFood: any;
+  reason
   review:string
 }
 export interface orderFood extends mongoose.Document {

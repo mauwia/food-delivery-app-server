@@ -8,6 +8,8 @@ import {
 } from "@nestjs/websockets";
 import { Logger } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
+import * as admin from "firebase-admin";
+
 @WebSocketGateway()
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -36,26 +38,53 @@ export class AppGateway
     this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
     }
   }
-  handleRequestNoshies(to: string, transaction: any): void {
+  async handleRequestNoshies(to: string, transaction: any,noticationData:any): Promise<void> {
     if (this.onlineUsers[to]) {
       this.server
         .to(this.onlineUsers[to].socketId)
         .emit("noshies-request", transaction);
     }
+    else{
+      await admin
+        .messaging()
+        .sendToDevice(noticationData.requestReceiverfcmRegistrationToken, {
+          notification: {
+            title: `${noticationData.senderUsername} Requested You ${noticationData.amount} Noshies`,
+            body: "Tap to view details",
+          },
+        });
+    } 
   }
-  handleApproveRequestNoshies(to: string, transaction: any): void {
+  async handleApproveRequestNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
     if (this.onlineUsers[to]) {
       this.server
         .to(this.onlineUsers[to].socketId)
         .emit("approve-noshies-request", transaction);
+    }else{
+      await admin
+      .messaging()
+      .sendToDevice(notificationData.pendingNoshRequestFCM, {
+        notification: {
+          title: `${notificationData.senderUsername} Approved Your ${notificationData.amount} Noshies`,
+          body: "Tap to view details",
+        },
+      });
     }
   }
-  handlesendNoshies(to: string, transaction: any): void {
+  async handlesendNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
     if (this.onlineUsers[to]) {
       console.log(this.socket_id);
       this.server
         .to(this.onlineUsers[to].socketId)
         .emit("send-noshies", transaction);
+    }
+    else{
+      await admin.messaging().sendToDevice(notificationData.ReceiverfcmRegistrationToken, {
+        notification: {
+          title: `${notificationData.senderUsername} Gifted You ${notificationData.amount} Noshies`,
+          body: "Tap to view details",
+        },
+      },{priority:"high"})
     }
   }
 

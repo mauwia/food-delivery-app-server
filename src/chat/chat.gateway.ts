@@ -134,7 +134,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
           .populate([
             {
               path: "receiverId",
-              select: "phoneNo fcmRegistrationToken",
+              select: "phoneNo username fcmRegistrationToken",
             },
             {
               path: "senderId",
@@ -147,6 +147,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
           this.server
             .to(this.onlineUsers[message.receiverId.phoneNo].socketId)
             .emit("recieve-message", message);
+            this.server
+            .to(this.onlineUsers[message.receiverId.phoneNo].socketId)
+            .emit("notify-message", `${message.senderId.username} send you a message`);
         } else {
           await admin
             .messaging()
@@ -158,7 +161,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
                 type:"recieve-message",
                 message:JSON.stringify(message)
               }
-            });
+            },{priority:"high"});
         }
       }
     } catch (err) {

@@ -10,57 +10,84 @@ const TokenSchema = new mongoose.Schema({
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
-    enum: ["Sent Noshies", "Noshies Request", "Withdrawal to Bank", "Bought Noshies By Card", "Bought Noshies By Bank","Bought Noshies By Crypto","Payment Received","In Process Order"],
+    enum: [
+      "Sent Noshies",
+      "Noshies Request",
+      "Withdrawal to Bank",
+      "Bought Noshies By Card",
+      "Bought Noshies By Bank",
+      "Bought Noshies By Crypto",
+      "Payment Received",
+      "In Process Order",
+    ],
     required: true,
+  },
+  senderId: { type: mongoose.Schema.Types.ObjectId, refPath: "onSenderModel" },
+  receiverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: "onReceiverModel",
+  },
+  onSenderModel: {
+    type: String,
+    required: true,
+    enum: ["FoodLover", "FoodCreator"],
+  },
+  onReceiverModel: {
+    type: String,
+    default:"FoodLover",
+    enum: ["FoodLover", "FoodCreator"],
   },
   from: { type: String },
   to: { type: String },
   amount: { type: Number },
-  deductAmount:{type:Number},
+  deductAmount: { type: Number },
   currency: { type: String },
-  status:{type:String},
+  status: { type: String },
   timeStamp: { type: String, default: Date.now() },
   message: { type: String },
   transactionHash: { type: String },
   tokenAmountInUsd: { type: Number },
   gasFeeInUsd: { type: Number },
-  memo:{type:String}
-//   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
+  memo: { type: String },
+  //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
 });
 export const WalletSchema = new mongoose.Schema({
   walletAddress: { type: String },
   publicKey: { type: String },
   encryptedPrivateKey: { type: String },
   assets: [TokenSchema],
-  escrow:{type:Number,default:0},
-  requestReceivedForNoshies:{type:Array}
+  escrow: { type: Number, default: 0 },
+  requestReceivedForNoshies: { type: Array },
 });
 export interface Wallet extends mongoose.Document {
   walletAddress: string;
   publicKey: string;
   encryptedPrivateKey: string;
   assets: Array<Token>;
-  escrow:number;
-  requestReceivedForNoshies:Array<any>;
+  escrow: number;
+  requestReceivedForNoshies: Array<any>;
 }
-export interface Transactions  extends mongoose.Document {
+export interface Transactions extends mongoose.Document {
   transactionType: string;
   from: string;
   to: string;
+  senderId: any;
+  receiverId: any;
+  onSenderModel: string;
+  onReceiverModel: string;
   amount: number;
-  deductAmount:number
+  deductAmount: number;
   currency: string;
   timeStamp: string;
   message: string;
-  status:string;
+  status: string;
   transactionHash: string;
   tokenAmountInUsd: number;
   gasFeeInUsd: number;
-  memo:string;
-//   walletId:string
+  memo: string;
+  //   walletId:string
 }
-export interface Token extends mongoose.Document{
-
+export interface Token extends mongoose.Document {
   tokenAddress: string;
   tokenSymbol: string;
   tokenName: string;

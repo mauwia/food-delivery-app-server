@@ -31,6 +31,7 @@ export class ProfileService {
     }: {
       user: { phoneNo: string };
       body: {
+        password:string;
         phoneNo: string;
         verified: boolean;
         firstName: string;
@@ -42,6 +43,7 @@ export class ProfileService {
         mobileRegisteredId: string;
         email: string;
         pin: string;
+        creatorThumbnail:string;
         creatorFoodType:Array<string>
       };
     } = request;
@@ -78,6 +80,8 @@ export class ProfileService {
 
         if (userProfile) {
           if (body.pin) {
+            if (!bcrypt.compareSync(body.password, userProfile.passHash))
+            throw PROFILE_MESSAGES.WRONG_PASSWORD;
             pinHash = bcrypt.hashSync(body.pin, 8);
           }
           const updatedProfile = await model.findOneAndUpdate(
@@ -98,6 +102,7 @@ export class ProfileService {
                   lastName:body.lastName||userProfile.lastName
                 }),
                 ...(userType === "fc" && {
+                  creatorThumbnail:body.creatorThumbnail||userProfile.creatorThumbnail,
                   businessName: body.businessName || userProfile.businessName,
                   creatorFoodType:body.creatorFoodType||userProfile.creatorFoodType
                 }),
@@ -128,7 +133,7 @@ export class ProfileService {
     let {
       user,
       body,
-    }: { user: { phoneNo: string }; body: { password: string } } = request;
+    }: { user: { phoneNo: string }; body: { oldPassword: string,newPassword:string } } = request;
     let userType = query.user as string;
 
     if (this.isValidUsertype(query)) {
@@ -143,9 +148,13 @@ export class ProfileService {
         let userProfile = await model.findOne({
           phoneNo: user.phoneNo,
         });
-
+        if (!bcrypt.compareSync(body.oldPassword, userProfile.passHash))
+        throw PROFILE_MESSAGES.WRONG_PASSWORD;
+        if(bcrypt.compareSync(body.newPassword, userProfile.passHash)){
+          throw PROFILE_MESSAGES.ADD_NEW_PASSWORD
+        }
         if (userProfile) {
-          userProfile.passHash = bcrypt.hashSync(body.password, 8);
+          userProfile.passHash = bcrypt.hashSync(body.newPassword, 8);
           await userProfile.save();
           return {
             passwordUpdated: true,
