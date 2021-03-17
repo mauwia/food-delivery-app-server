@@ -11,7 +11,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   countryName: { type: String },
   location: { type: Array },
   email: { type: String, unique:true,sparse:true },
-  imageUrl: { type: String, default: null },
+  imageUrl: { type: String, default: "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg" },
   username: { type: String, unique:true,sparse:true },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   verified: { type: Boolean, default: false },

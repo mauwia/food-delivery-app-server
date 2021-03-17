@@ -63,7 +63,15 @@ export const bnbToNosh =async ()=>{
     console.log(Date.now())
     return conversion
   }
-
+export const fetch=async (method,url,body,headers)=>{
+  let response=await axios.post(url,{
+    headers:{
+      Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
+    },
+    body
+  })
+  return response
+}
 export const generateJWT = (id, phoneNo) => {
   return jwt.sign(
     { phoneNo, id },

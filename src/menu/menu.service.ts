@@ -92,6 +92,7 @@ export class MenuService {
       );
     }
   }
+ 
   async getAllCreators(req) {
     try {
       let { user } = req;
@@ -106,6 +107,7 @@ export class MenuService {
       }
       let { lng, lat } = req.body;
       console.log(lng, lat);
+      
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           $and: [
@@ -128,8 +130,36 @@ export class MenuService {
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
+        console.log(nearByFoodCreators)
       return { nearByFoodCreators };
     } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async getSingleCreatorInfo(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw {
+          msg: MENU_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let {_id}=req.params
+      let creatorInfo=await this.foodCreatorModel.findById(_id).select("-pinHash passHash fcmRegistrationToken")
+      return {creatorInfo}
+    }
+    catch(error){
       this.logger.error(error, error.stack);
       throw new HttpException(
         {

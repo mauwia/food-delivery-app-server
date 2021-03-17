@@ -42,4 +42,10 @@ export class OrdersController {
     let response=this.ordersService.addRating(request)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Get("/getReviews/:foodCreatorId")
+  async GetReviews(@Req() request: Request){
+    let response=this.ordersService.getReviews(request)
+    return response
+  }
 }

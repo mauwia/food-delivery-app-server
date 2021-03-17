@@ -30,6 +30,7 @@ let event = {
   imageUrl: "",
   username: "",
   mobileRegisteredId: "12345678",
+  fcmRegistrationToken:[]
 };
 let Transaction = {
   transactionType: "Send",
@@ -180,6 +181,7 @@ describe("FoodCreatorController", () => {
     // });
   });
   test("FoodLoverSignIn", async () => {
+    
     let req = {
       body: {
         phoneNo: "123456789",
@@ -187,6 +189,7 @@ describe("FoodCreatorController", () => {
       },
     } as Request;
     let response = await foodCreatorController.login(req);
+
     expect(response.user.phoneNo).toBe("123456789");
   });
   test("getLoverInfo", async () => {

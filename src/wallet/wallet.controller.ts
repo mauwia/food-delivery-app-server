@@ -91,4 +91,22 @@ export class WalletController {
     let response=await this.walletService.getTransactionOfRequest(req)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/resolveBankNumber')
+  async ResolveBankAccount(@Req() req:Request){
+    let response=await this.walletService.resolveBankAccount(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/createTransferRequest')
+  async CreateTransferRequest(@Req() req:Request){
+    let response=await this.walletService.createTransferRecipient(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/initiateTransfer')
+  async InitiateTransfer(@Req() req:Request){
+    let response=await this.walletService.initiateTransfer(req)
+    return response
+  }
 }

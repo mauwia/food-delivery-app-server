@@ -27,7 +27,7 @@ describe("MenuController", () => {
   };
   class foodCreatorModel {
     constructor() {}
-    static findOne = jest.fn().mockResolvedValue(foodCreator);
+    static findOne = jest.fn().mockResolvedValue({...foodCreator,save:jest.fn()});
     static find = jest.fn().mockReturnValue(foodCreatorModel);
     static select = jest.fn().mockResolvedValue([foodCreator]);
   }
@@ -35,6 +35,7 @@ describe("MenuController", () => {
     constructor() {}
     static create = jest.fn().mockResolvedValue(Menu);
     // static findOne=jest.fn().mockResolvedValue(null) //for addMenu
+    static countDocuments=jest.fn().mockResolvedValue(5)
     static findOne = jest.fn().mockResolvedValue({ ...Menu, save: jest.fn() }); //for addMenuItem
     static findByIdAndUpdate = jest.fn().mockImplementation((body) => {
       if (body === Menu._id) {
@@ -48,6 +49,7 @@ describe("MenuController", () => {
   }
   class MenuItemModel {
     constructor() {}
+    static countDocuments=jest.fn().mockResolvedValue(5)
     static create = jest
       .fn()
       .mockResolvedValue({ ...MenuItem, _id: "1233456" });
