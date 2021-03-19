@@ -85,7 +85,7 @@ export class OrdersService {
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
         return (food.realPrice * food.quantity)-(food.realPrice*(food.discount/100)) + init;
       }, 0);
-      // console.log(order.orderedFood);
+      console.log(order.realOrderBill);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
       // order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
