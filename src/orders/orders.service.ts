@@ -518,7 +518,16 @@ export class OrdersService {
         .sort(sorting)
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
-        .populate(getOrdersReciever, name);
+        .populate([
+          {
+            path: "foodLoverId",
+            select: "username phoneNo imageUrl",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName phoneNo imageUrl",
+          },
+        ]);
       return { Orders };
     } catch (error) {
       this.logger.error(error, error.stack);
