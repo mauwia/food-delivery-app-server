@@ -83,7 +83,7 @@ export class OrdersService {
       );
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
-        return (food.realPrice * food.quantity)-(food.realPrice*(food.discount/100)) + init;
+        return (food.realPrice * food.quantity)-((food.realPrice*(food.discount/100))*food.quantity) + init;
       }, 0);
       console.log(order.realOrderBill);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
