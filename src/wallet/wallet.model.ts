@@ -49,6 +49,7 @@ export const TransactionsSchema = new mongoose.Schema({
   tokenAmountInUsd: { type: Number },
   gasFeeInUsd: { type: Number },
   memo: { type: String },
+  orderId:{type:String}
   //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
 });
 export const WalletSchema = new mongoose.Schema({
@@ -71,6 +72,7 @@ export interface Transactions extends mongoose.Document {
   transactionType: string;
   from: string;
   to: string;
+  orderId:string;
   senderId: any;
   receiverId: any;
   onSenderModel: string;

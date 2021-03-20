@@ -344,6 +344,7 @@ export class OrdersService {
           receiverId: order.foodCreatorId._id,
           from: orderStatusSender.phoneNo,
           deductAmount: order.NoshDeduct,
+          orderId:order.orderId,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",
