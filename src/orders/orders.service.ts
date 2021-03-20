@@ -521,7 +521,7 @@ export class OrdersService {
         .populate([
           {
             path: "foodLoverId",
-            select: "username phoneNo imageUrl",
+            select: "username phoneNo firstName lastName imageUrl",
           },
           {
             path: "foodCreatorId",
