@@ -160,7 +160,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName imageUrl",
+            select: "businessName avgRating imageUrl",
           },
           {
             path: "chatRoomId",
