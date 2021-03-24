@@ -69,6 +69,9 @@ export class OrdersGateway
               {
                 username: searchKey,
               },
+              {
+                phoneNo:searchKey,
+              }
             ],
           },
         ],

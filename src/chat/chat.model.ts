@@ -32,6 +32,7 @@ export const MessageSchema = new mongoose.Schema({
   },
   message: { type: String },
   attachmentUrl: { type: String },
+  recordedMessage:{type:String},
   // isFoodCreatorMessage: { type: Boolean, required: true },
   timeStamp: { type: String, default: Date.now() },
 });
@@ -45,5 +46,6 @@ export interface Message extends mongoose.Document {
   receiverId: any;
   message: string;
   attachmentUrl: string;
+  recordedMessage:string;
   // isFoodCreatorMessage: boolean;
 }
