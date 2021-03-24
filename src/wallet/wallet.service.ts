@@ -266,7 +266,7 @@ export class WalletService {
         if (user) {
           common.push(user);
         }
-        if (req.body.forSent) {
+        // if (req.body.forSent) {
           const anotherUser = await this.foodCreatorModel
             .findOne({
               $or: [{ phoneNo: contacts[i] }],
@@ -276,7 +276,7 @@ export class WalletService {
           if (anotherUser) {
             common.push(anotherUser);
           }
-        }
+        // }
       }
       return { contacts: common };
     } catch (error) {
@@ -437,9 +437,16 @@ export class WalletService {
         timeStamp,
       } = req.body;
       //Receiving Info of user to which we requested NOSH
-      let requestReceiverUser = await this.foodLoverModel.findOne({
+      let requestReceiverUser:any = await this.foodLoverModel.findOne({
         phoneNo: requestedTophoneNo,
       });
+      let requestReceiverRoll='FoodLover'
+      if(!requestReceiverUser){
+         requestReceiverUser = await this.foodCreatorModel.findOne({
+          phoneNo: requestedTophoneNo,
+        });
+        requestReceiverRoll="FoodCreator"
+      }
       //Wallet of user to which we requested NOSH
       let requestReceiverWallet = await this.walletModel.findById(
         requestReceiverUser.walletId
@@ -449,7 +456,7 @@ export class WalletService {
         timeStamp,
         onSenderModel: "FoodLover",
         senderId: UserInfo._id,
-        onReceiverModel: "FoodLover",
+        onReceiverModel: requestReceiverRoll,
         receiverId: requestReceiverUser._id,
         from: UserInfo.phoneNo,
         to: requestedTophoneNo,
@@ -492,9 +499,14 @@ export class WalletService {
   async approveRequest(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
+      let UserInfo:any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
+      if(!UserInfo){
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw {
           msg: WALLET_MESSAGES.USER_NOT_FOUND,

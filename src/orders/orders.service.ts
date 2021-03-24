@@ -47,7 +47,7 @@ export class OrdersService {
 
         let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
         // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
-        if(distanceBwFL_FC>5){
+        if(distanceBwFL_FC>30){
           throw "Food Creator does not deliever in this area"
         }
       }
