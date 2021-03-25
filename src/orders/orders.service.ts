@@ -96,7 +96,7 @@ export class OrdersService {
         .populate([
           {
             path: "foodLoverId",
-            select: "username",
+            select: "username isActive",
           },
           {
             path: "foodCreatorId",
@@ -201,7 +201,7 @@ export class OrdersService {
       let order = await this.ordersModel.findById(orderID).populate([
         {
           path: "foodLoverId",
-          select: "username phoneNo fcmRegistrationToken walletId imageUrl",
+          select: "username phoneNo isActive fcmRegistrationToken walletId imageUrl",
         },
         {
           path: "foodCreatorId",
