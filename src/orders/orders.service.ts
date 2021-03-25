@@ -45,11 +45,11 @@ export class OrdersService {
         // console.log("PPPPPPPPP",helper.point(body.orders[i].locationTo.coordinates))
         // console.log("PPPPPPPPP1",helper.point(body.orders[i].foodCreatorLocation.coordinates))
 
-        let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
-        // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
-        if(distanceBwFL_FC>30){
-          throw "Food Creator does not deliever in this area"
-        }
+        // let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
+        // // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
+        // if(distanceBwFL_FC>30){
+        //   throw "Food Creator does not deliever in this area"
+        // }
       }
       // console.log("body", body.orders);
       for (let i = 0; i < body.orders.length; i++) {
