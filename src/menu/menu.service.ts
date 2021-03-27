@@ -59,12 +59,19 @@ export class MenuService {
                     {
                       username: searchKey,
                     },
+                    {
+
+                    }
                   ],
                 },
                 {
                   $or: [
                     {
-                      creatorFoodType: { $in: [req.body.creatorFoodType] },
+                      $and:[
+                        {"creatorFoodType.text":req.body.creatorFoodType},
+                        {"creatorFoodType.selected":true}
+                      ]
+                      // creatorFoodType: { $in: [req.body.creatorFoodType] },
                      
                     },
                     {
