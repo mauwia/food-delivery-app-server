@@ -6,6 +6,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { MENU_MESSAGES } from "./constants/key-contants";
 import getMenuPipline from "./constants/getMenuPipline";
+import { filterPipeline } from "./constants/getFilterPipeline";
 
 @Injectable()
 export class MenuService {
@@ -31,63 +32,29 @@ export class MenuService {
       }
       var searchKey = new RegExp(req.body.search, "i");
       let { lng, lat } = req.body;
-      console.log(searchKey);
+      console.log(req.body);
+      let query = filterPipeline(lng, lat, searchKey, req.body.rating);
       let nearByFoodCreators = await this.foodCreatorModel
-        .find({
-          $and: [
-            {
-              location: {
-                $near: {
-                  $maxDistance: 5000,
-                  $geometry: {
-                    type: "Point",
-                    coordinates: [lng, lat],
-                  },
-                },
-              },
-            },
-            {
-              menuExist: true,
-            },
-            {
-              $and: [
-                {
-                  $or: [
-                    {
-                      businessName: searchKey,
-                    },
-                    {
-                      username: searchKey,
-                    },
-                    {
-
-                    }
-                  ],
-                },
-                {
-                  $or: [
-                    {
-                      $and:[
-                        {"creatorFoodType.text":req.body.creatorFoodType},
-                        {"creatorFoodType.selected":true}
-                      ]
-                      // creatorFoodType: { $in: [req.body.creatorFoodType] },
-                     
-                    },
-                    {
-                      avgRating: { $gte: req.body.rating },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        })
+        .find(query)
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
-      // console.log(nearByFoodCreators)
-      return nearByFoodCreators;
+      let filterByCategory = [];
+      if (req.body.creatorFoodType) {
+        for (let i = 0; i < nearByFoodCreators.length; i++) {
+          let { creatorFoodType } = nearByFoodCreators[i];
+          for (let j = 0; j < creatorFoodType.length; j++) {
+            if (
+              creatorFoodType[j].text == req.body.creatorFoodType &&
+              creatorFoodType[j].selected
+            ) {
+              filterByCategory.push(nearByFoodCreators[i]);
+            }
+          }
+        }
+        return filterByCategory;
+      }
+      return nearByFoodCreators
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
@@ -99,7 +66,7 @@ export class MenuService {
       );
     }
   }
- 
+
   async getAllCreators(req) {
     try {
       let { user } = req;
@@ -114,7 +81,7 @@ export class MenuService {
       }
       let { lng, lat } = req.body;
       console.log(lng, lat);
-      
+
       let nearByFoodCreators = await this.foodCreatorModel
         .find({
           $and: [
@@ -137,7 +104,7 @@ export class MenuService {
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
-        console.log(nearByFoodCreators)
+      console.log(nearByFoodCreators);
       return { nearByFoodCreators };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -150,8 +117,8 @@ export class MenuService {
       );
     }
   }
-  async getSingleCreatorInfo(req){
-    try{
+  async getSingleCreatorInfo(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
@@ -162,11 +129,12 @@ export class MenuService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let {_id}=req.params
-      let creatorInfo=await this.foodCreatorModel.findById(_id).select("-pinHash passHash fcmRegistrationToken")
-      return {creatorInfo}
-    }
-    catch(error){
+      let { _id } = req.params;
+      let creatorInfo = await this.foodCreatorModel
+        .findById(_id)
+        .select("-pinHash passHash fcmRegistrationToken");
+      return { creatorInfo };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {

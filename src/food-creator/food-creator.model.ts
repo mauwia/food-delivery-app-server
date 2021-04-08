@@ -42,7 +42,7 @@ export interface FoodCreator extends mongoose.Document {
   totalNoshedOrders:number;
   creatorThumbnail:string;
   username: string;
-  creatorFoodType: string;
+  creatorFoodType: any;
   phoneNo: string;
   passHash: string;
   location: any;
