@@ -12,8 +12,8 @@ import { Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
-let turf = require('@turf/distance')
-let helper=  require('@turf/helpers')
+let turf = require("@turf/distance");
+let helper = require("@turf/helpers");
 
 @Injectable()
 export class OrdersService {
@@ -40,11 +40,10 @@ export class OrdersService {
       }
       let { body } = req;
       let createdOrders = [];
-      
-      for(let i=0;i<body.orders.length;i++){
+
+      for (let i = 0; i < body.orders.length; i++) {
         // console.log("PPPPPPPPP",helper.point(body.orders[i].locationTo.coordinates))
         // console.log("PPPPPPPPP1",helper.point(body.orders[i].foodCreatorLocation.coordinates))
-
         // let distanceBwFL_FC=turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates))
         // // console.log(turf.default(helper.point(body.orders[i].locationTo.coordinates),helper.point(body.orders[i].foodCreatorLocation.coordinates)))
         // if(distanceBwFL_FC>30){
@@ -83,7 +82,11 @@ export class OrdersService {
       );
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
-        return (food.realPrice * food.quantity)-((food.realPrice*(food.discount/100))*food.quantity) + init;
+        return (
+          food.realPrice * food.quantity -
+          food.realPrice * (food.discount / 100) * food.quantity +
+          init
+        );
       }, 0);
       console.log(order.realOrderBill);
       order.NoshDeduct = order.orderBill - order.realOrderBill;
@@ -201,7 +204,8 @@ export class OrdersService {
       let order = await this.ordersModel.findById(orderID).populate([
         {
           path: "foodLoverId",
-          select: "username phoneNo isActive fcmRegistrationToken walletId imageUrl",
+          select:
+            "username phoneNo isActive fcmRegistrationToken walletId imageUrl",
         },
         {
           path: "foodCreatorId",
@@ -344,7 +348,7 @@ export class OrdersService {
           receiverId: order.foodCreatorId._id,
           from: orderStatusSender.phoneNo,
           deductAmount: order.NoshDeduct,
-          orderId:order.orderId,
+          orderId: order.orderId,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",
@@ -366,14 +370,43 @@ export class OrdersService {
         );
         let orderBillSixty = order.realOrderBill * 0.6;
         let orderBillForty = order.realOrderBill * 0.4;
-        let orderBillTwenty = order.realOrderBill * 0.2;
         statusRecieverWallet.escrow =
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
-        FC_Assets.amount = FC_Assets.amount + orderBillTwenty;
-        FL_Assets.amount = FL_Assets.amount + orderBillSixty+orderBillTwenty;
+        FC_Assets.amount = FC_Assets.amount - orderBillSixty;
+        FL_Assets.amount = FL_Assets.amount + order.orderBill;
+        await this.walletService.createTransaction({
+          transactionType: "Payment Received",
+          to: order.foodCreatorId.phoneNo,
+          onSenderModel: "FoodLover",
+          senderId: orderStatusSender._id,
+          onReceiverModel: "FoodCreator",
+          receiverId: order.foodCreatorId._id,
+          from: orderStatusSender.phoneNo,
+          deductAmount: order.NoshDeduct,
+          orderId: order.orderId,
+          amount: order.orderBill,
+          currency: order.tokenName,
+          status: "CANCEL",
+        });
         await statusRecieverWallet.save();
         await statusSenderWallet.save();
+      }
+      else if(status === "Decline"){
+        await this.walletService.createTransaction({
+          transactionType: "Payment Received",
+          to: order.foodCreatorId.phoneNo,
+          onSenderModel: "FoodLover",
+          senderId: orderStatusSender._id,
+          onReceiverModel: "FoodCreator",
+          receiverId: order.foodCreatorId._id,
+          from: orderStatusSender.phoneNo,
+          deductAmount: order.NoshDeduct,
+          orderId: order.orderId,
+          amount: order.orderBill,
+          currency: order.tokenName,
+          status: "DECLONED",
+        });
       }
     } catch (error) {
       this.logger.error(error, error.stack);
