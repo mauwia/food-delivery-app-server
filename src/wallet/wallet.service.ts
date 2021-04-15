@@ -866,7 +866,7 @@ export class WalletService {
         );
         return { transactions };
       }
-      // console.log("getTransaction",transactions)
+      console.log("getTransaction",transactions)
       return { transactions };
     } catch (error) {
       this.logger.error(error, error.stack);

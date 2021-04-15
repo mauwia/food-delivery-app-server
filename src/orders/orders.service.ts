@@ -374,12 +374,13 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount - orderBillSixty;
-        FL_Assets.amount = FL_Assets.amount + order.orderBill;
+        FL_Assets.amount =
+          FL_Assets.amount + order.orderBill + order.NoshDeduct;
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
-          senderId: orderStatusSender._id,
+          senderId: order.foodLoverId._id,
           onReceiverModel: "FoodCreator",
           receiverId: order.foodCreatorId._id,
           from: orderStatusSender.phoneNo,
@@ -391,21 +392,21 @@ export class OrdersService {
         });
         await statusRecieverWallet.save();
         await statusSenderWallet.save();
-      }
-      else if(status === "Decline"){
+      } else if (status === "Decline") {
+        console.log("order", orderStatusSender);
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
-          senderId: orderStatusSender._id,
+          senderId: order.foodLoverId._id,
           onReceiverModel: "FoodCreator",
           receiverId: order.foodCreatorId._id,
-          from: orderStatusSender.phoneNo,
+          from: order.foodLoverId.phoneNo,
           deductAmount: order.NoshDeduct,
           orderId: order.orderId,
           amount: order.orderBill,
           currency: order.tokenName,
-          status: "DECLONED",
+          status: "DECLINED",
         });
       }
     } catch (error) {
@@ -439,8 +440,8 @@ export class OrdersService {
         };
       }
       let reviews = await this.ordersModel
-        .find({ foodCreatorId: req.param.foodCreatorId })
-        .select("rating review");
+        .find({ $and:[{foodCreatorId: req.params.foodCreatorId},{review:{$exists:true}}] })
+        .select("rating review foodLoverId timestamp").populate("foodLoverId","imageUrl username");
       return { reviews };
     } catch (error) {
       this.logger.error(error, error.stack);
