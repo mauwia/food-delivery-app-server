@@ -48,6 +48,7 @@ describe("OrdersController", () => {
     promoCode: "",
     deliveryCharges: 70,
     orderedFood: "102",
+    save:jest.fn().mockReturnValue("updated")
   };
   let MenuItem = {
     imageUrls: ["URL1", "URL2", "URL3"],
@@ -96,6 +97,9 @@ describe("OrdersController", () => {
     static find = jest.fn().mockImplementation((check) => {
       return { populate: jest.fn().mockReturnValue([order]) };
     });
+    static findById=jest.fn().mockImplementation((check) => {
+      return { populate: jest.fn().mockReturnValue(order) };
+    })
     create = jest.fn().mockResolvedValue(order);
   }
 
@@ -208,17 +212,18 @@ describe("OrdersController", () => {
   });
 
   it("AddOrders", async () => {
-    // let req = ({
-    //   user: {
-    //     phoneNo: "123456789",
-    //   },
-    //   body: {
-    //     orders: [order],
-    //   },
-    // } as unknown) as Request;
-    // console.log(foodLoverModel)
-    // let response = await controller.CreateOrder(req);
-    // console.log(response)
+
+    let req = ({
+      user: {
+        phoneNo: "123456789",
+      },
+      body: {
+        orders: [order],
+      },
+    } as unknown) as Request;
+    console.log(foodLoverModel)
+    let response = await controller.CreateOrder(req);
+    console.log(response)
   });
   it("getOrders", async () => {
     let req = ({
@@ -233,7 +238,8 @@ describe("OrdersController", () => {
     expect(response.Orders).toStrictEqual([order]);
   });
   it("updateOrderStatus",async ()=>{
-    let req = ({
+    try{
+      let req = ({
       user: {
         phoneNo: "123456789",
       },
@@ -243,6 +249,10 @@ describe("OrdersController", () => {
       },
     } as unknown) as Request;
     let response=await controller.UpdateOrderStatus(req)
+    console.log(response)
+  }catch(error){
+    console.log(error)
+  }
   })
   //   it("should be defined", () => {
   //     // expect(controller).toBeDefined();

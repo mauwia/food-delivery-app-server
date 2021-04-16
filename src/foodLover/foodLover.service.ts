@@ -185,8 +185,9 @@ export class FoodLoverService {
         let { user } = req;
         const UserInfo = await this.foodLoverModel
           .findOne({ phoneNo: user.phoneNo })
-          .select("-pinHash -passHash -fcmRegistrationToken")
+          .select("-passHash -fcmRegistrationToken")
           .lean();
+          UserInfo.pinHash= !!UserInfo.pinHash
         if (!UserInfo) {
           throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
         }

@@ -84,6 +84,13 @@ export class ProfileService {
             throw PROFILE_MESSAGES.WRONG_PASSWORD;
             pinHash = bcrypt.hashSync(body.pin, 8);
           }
+          // if(body.username && userType==='fl'){
+          //   let usernameCheck=await model.findOne({username:body.username})
+          //   console.log(usernameCheck)
+          //   if(usernameCheck && usernameCheck.phoneNo !== userProfile.phoneNo){
+          //     throw "Username already in use"
+          //   }
+          // }
           const updatedProfile = await model.findOneAndUpdate(
             { phoneNo: user.phoneNo },
             {
