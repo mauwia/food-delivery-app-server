@@ -19,7 +19,10 @@ export interface Chatroom extends mongoose.Document {
 export const MessageSchema = new mongoose.Schema({
   chatroomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   senderId: { type: mongoose.Schema.Types.ObjectId, refPath: "onSenderModel" },
-  receiverId: { type: mongoose.Schema.Types.ObjectId, refPath: "onReceiverModel" },
+  receiverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: "onReceiverModel",
+  },
   onSenderModel: {
     type: String,
     required: true,
@@ -32,6 +35,7 @@ export const MessageSchema = new mongoose.Schema({
   },
   message: { type: String },
   attachmentUrl: { type: String },
+  recordedMessage: { url: { type: String }, duration: { type: String } },
   // isFoodCreatorMessage: { type: Boolean, required: true },
   timeStamp: { type: String, default: Date.now() },
 });
@@ -45,5 +49,6 @@ export interface Message extends mongoose.Document {
   receiverId: any;
   message: string;
   attachmentUrl: string;
+  recordedMessage: any;
   // isFoodCreatorMessage: boolean;
 }
