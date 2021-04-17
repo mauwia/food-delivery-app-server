@@ -374,7 +374,7 @@ export class MenuService {
       );
       console.log(menu);
       let deletedMenu = await this.menuItemsModel.findOneAndDelete(menuItemId);
-      let totalMenuItem = await this.menuItemsModel.countDocuments({
+      let totalMenuItem = await this.menuModel.countDocuments({
         foodCreatorId: UserInfo._id,
       });
       console.log(totalMenuItem);
