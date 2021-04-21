@@ -11,6 +11,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   countryName: { type: String },
   location: { type: Array },
   email: { type: String,  },
+  username:{type:String},
   imageUrl: { type: String },
   walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
   verified: { type: Boolean, default: false },

@@ -77,7 +77,7 @@ export class ProfileService {
         const userProfile = await model.findOne({
           phoneNo: user.phoneNo,
         });
-
+        console.log(body)
         if (userProfile) {
           if (body.pin) {
             if (!bcrypt.compareSync(body.password, userProfile.passHash))
@@ -85,6 +85,7 @@ export class ProfileService {
             pinHash = bcrypt.hashSync(body.pin, 8);
           }
           if(body.username){
+
             let usernameCheck=await model.findOne({username:body.username})
             console.log(usernameCheck)
             if(usernameCheck && usernameCheck.phoneNo !== userProfile.phoneNo){
