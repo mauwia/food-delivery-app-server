@@ -11,6 +11,7 @@ import { OrdersModule } from "./orders/orders.module";
 import { MenuModule } from "./menu/menu.module";
 import { ChatModule } from "./chat/chat.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
+import { EarlyRegisterationModule } from './early-registeration/early-registeration.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
     MenuModule,
     ChatModule,
     SubscriptionsModule,
+    EarlyRegisterationModule,
   ],
   controllers: [AppController],
   providers: [

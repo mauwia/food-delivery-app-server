@@ -4,8 +4,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String },
-  email: { type: String, unique: true, sparse: true },
-  username: { type: String, unique: true, sparse: true },
+  email: { type: String,  },
+  username: { type: String, },
   location: {
     address: { type: String },
     type: {

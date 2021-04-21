@@ -387,6 +387,19 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
+      if(req.body.username){
+        let usernameCheck=await this.foodCreatorModel.findOne({username:req.body.username})
+        if(usernameCheck && usernameCheck.phoneNo !== UserInfo.phoneNo){
+          throw "Username already in use"
+        }
+      }
+      if(req.body.email){
+        let emailCheck=await this.foodCreatorModel.findOne({email:req.body.email})
+        console.log(emailCheck)
+        if(emailCheck && emailCheck.phoneNo !== UserInfo.phoneNo){
+          throw "Email already in use"
+        }
+      }
       UserInfo.businessName = req.body.businessName;
       UserInfo.username=req.body.username
       UserInfo.email=req.body.email
