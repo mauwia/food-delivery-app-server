@@ -6,7 +6,7 @@ import { Wallet } from "../wallet/wallet.model";
 import { WalletService } from "../wallet/wallet.service";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
-import { pad } from "../utils";
+import { checkStatus, pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
 import { Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
@@ -212,6 +212,9 @@ export class OrdersService {
           select: "businessName phoneNo fcmRegistrationToken walletId imageUrl",
         },
       ]);
+      if(!checkStatus(order.orderStatus,status)){
+        throw `Your order is in ${order.orderStatus} cannot rollback to ${status}`
+      }
       if (status === "Accepted") {
         let chatroom = await this.chatService.createChatroom({
           foodCreatorId: order.foodCreatorId._id,
