@@ -306,7 +306,7 @@ export class OrdersService {
           await statusSenderWallet.save();
 
           senderAssets.amount =
-            senderAssets.amount - order.orderBill - order.NoshDeduct;
+            senderAssets.amount - order.orderBill ;
           console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
@@ -317,7 +317,7 @@ export class OrdersService {
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           senderAssets.amount =
-            senderAssets.amount - order.orderBill - order.NoshDeduct;
+            senderAssets.amount - order.orderBill ;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
