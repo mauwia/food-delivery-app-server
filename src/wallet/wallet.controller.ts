@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Req,UseGuards } from "@nestjs/common";
-import { request, Request } from "express";
+import { Controller, Get, Post, Req,Res,UseGuards } from "@nestjs/common";
+import { request, Request,Response } from "express";
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { WalletService } from "./wallet.service";
 
@@ -40,10 +40,10 @@ export class WalletController {
     let response = await this.walletService.sendNoshies(req)
     return response
   }
-  @UseGuards(new JWTAuthGuard())
+  // @UseGuards(new JWTAuthGuard())
   @Post("/withdrawNoshies")
-  async WithdrawNoshies(@Req()req:Request){
-    let response = await this.walletService.withdrawNoshies(req)
+  async WithdrawNoshies(@Req()req:Request,@Res() res:Response){
+    let response = await this.walletService.withdrawNoshies(req,res)
     return response
   }
   @UseGuards(new JWTAuthGuard())
@@ -91,22 +91,11 @@ export class WalletController {
     let response=await this.walletService.getTransactionOfRequest(req)
     return response
   }
+  
   @UseGuards(new JWTAuthGuard())
-  @Post('/resolveBankNumber')
-  async ResolveBankAccount(@Req() req:Request){
-    let response=await this.walletService.resolveBankAccount(req)
-    return response
-  }
-  @UseGuards(new JWTAuthGuard())
-  @Post('/createTransferRequest')
-  async CreateTransferRequest(@Req() req:Request){
-    let response=await this.walletService.createTransferRecipient(req)
-    return response
-  }
-  @UseGuards(new JWTAuthGuard())
-  @Post('/initiateTransfer')
+  @Post('/initiateWithdraw')
   async InitiateTransfer(@Req() req:Request){
-    let response=await this.walletService.initiateTransfer(req)
+    let response=await this.walletService.initializeWithdraw(req)
     return response
   }
 }

@@ -56,20 +56,17 @@ export class WalletService {
       return e;
     }
   }
-  async withdrawNoshies(req) {
+  async initializeWithdraw(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
-        phoneNo: user.phoneNo,
-      });
-      if (!UserInfo) {
-        throw {
-          msg: WALLET_MESSAGES.USER_NOT_FOUND,
-          status: HttpStatus.NOT_FOUND,
-        };
-      }
-      let { tokenName, amount, timeStamp } = req.body;
-      // console.log(publicKey);
+      let UserInfo=await this.validation(user)
+   
+      // if (!UserInfo) {
+      //   throw {
+      //     msg: WALLET_MESSAGES.USER_NOT_FOUND,
+      //     status: HttpStatus.NOT_FOUND,
+      //   };
+      // }
       let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
         throw {
@@ -77,20 +74,64 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
-      asset.amount = asset.amount - amount;
-      await wallet.save();
+      let { tokenName, amount, timeStamp, reference, role } = req.body;
       await this.createTransaction({
         timeStamp,
         transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
-        onSenderModel: "FoodLover",
+        onSenderModel: role,
         senderId: UserInfo._id,
         amount,
-        currency: tokenName,
+        currency: "NOSH",
         message: "",
+        status: "Pending",
+        reference: reference,
       });
       return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async withdrawNoshies(req, res) {
+    try {
+      // console.log("WORKING", req.body);
+      let { data, event } = req.body;
+      if (event === "transfer.success") {
+        let transaction = await this.transactionsModel
+          .findOneAndUpdate({
+            reference: data.recipient.recipient_code,
+          },{status:"SUCCESSFUL",reference:""})
+          .populate("senderId", "walletId");
+          console.log("Transaction",transaction)
+        let wallet = await this.walletModel.findById(
+          transaction.senderId.walletId
+        );
+        if (!wallet) {
+          throw {
+            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+            status: HttpStatus.NOT_FOUND,
+          };
+        }
+        let asset = wallet.assets.find((asset) => asset.tokenName == transaction.currency);
+        console.log(asset)
+        asset.amount = asset.amount - transaction.amount;
+        await wallet.save();
+      }else if(event === "transfer.failed"){
+        let transaction = await this.transactionsModel
+        .findOneAndUpdate({
+          reference: data.recipient.recipient_code,
+        },{status:"FAILED"})
+      }
+      
+      res.sendStatus(200);
+      // return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
@@ -267,15 +308,15 @@ export class WalletService {
           common.push(user);
         }
         // if (req.body.forSent) {
-          const anotherUser = await this.foodCreatorModel
-            .findOne({
-              $or: [{ phoneNo: contacts[i] }],
-            })
-            .select("-passHash -pinHash");
-          // .populate("walletId", "publicKey");
-          if (anotherUser) {
-            common.push(anotherUser);
-          }
+        const anotherUser = await this.foodCreatorModel
+          .findOne({
+            $or: [{ phoneNo: contacts[i] }],
+          })
+          .select("-passHash -pinHash");
+        // .populate("walletId", "publicKey");
+        if (anotherUser) {
+          common.push(anotherUser);
+        }
         // }
       }
       return { contacts: common };
@@ -437,15 +478,15 @@ export class WalletService {
         timeStamp,
       } = req.body;
       //Receiving Info of user to which we requested NOSH
-      let requestReceiverUser:any = await this.foodLoverModel.findOne({
+      let requestReceiverUser: any = await this.foodLoverModel.findOne({
         phoneNo: requestedTophoneNo,
       });
-      let requestReceiverRoll='FoodLover'
-      if(!requestReceiverUser){
-         requestReceiverUser = await this.foodCreatorModel.findOne({
+      let requestReceiverRoll = "FoodLover";
+      if (!requestReceiverUser) {
+        requestReceiverUser = await this.foodCreatorModel.findOne({
           phoneNo: requestedTophoneNo,
         });
-        requestReceiverRoll="FoodCreator"
+        requestReceiverRoll = "FoodCreator";
       }
       //Wallet of user to which we requested NOSH
       let requestReceiverWallet = await this.walletModel.findById(
@@ -499,10 +540,10 @@ export class WalletService {
   async approveRequest(req) {
     try {
       let { user } = req;
-      let UserInfo:any = await this.foodLoverModel.findOne({
+      let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
-      if(!UserInfo){
+      if (!UserInfo) {
         UserInfo = await this.foodCreatorModel.findOne({
           phoneNo: user.phoneNo,
         });
@@ -866,7 +907,7 @@ export class WalletService {
         );
         return { transactions };
       }
-      console.log("getTransaction",transactions)
+      console.log("getTransaction", transactions);
       return { transactions };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -924,95 +965,7 @@ export class WalletService {
     }
     return UserInfo;
   }
-  async resolveBankAccount(req) {
-    try {
-      let UserInfo = await this.validation(req.user);
-      let { accountNumber, bankCode } = req.body;
-      let resolvedBankAccount = await axios.get(
-        `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-          },
-        }
-      );
-      return { resolvedBankAccount };
-    } catch (error) {
-      this.logger.error(error, error.stack);
-      throw new HttpException(
-        {
-          status: error.status,
-          msg: error.msg,
-        },
-        error.status
-      );
-    }
-  }
-  async initiateTransfer(req) {
-    try {
-      let UserInfo = await this.validation(req.user);
-      let initiateTransfer = await fetch("https://api.paystack.co/transfer", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-        },
-        method: "POST",
-        body: {
-          source: "balance",
-          amount: "80",
-          recipient: "RCP_t0ya41mp35flk40",
-          reason: "Holiday Flexing",
-        },
-      });
 
-      // let initiateTransfer = await axios.post(
-      //   `https://api.paystack.co/transfer`,
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-      //     },
-      //     body: {
-      //       ...req.body,
-      //     },
-      //   }
-      // );
-      return { initiateTransfer };
-    } catch (error) {
-      this.logger.error(error, error.stack);
-      throw new HttpException(
-        {
-          status: error.status,
-          msg: error.msg,
-        },
-        error.status
-      );
-    }
-  }
-  async createTransferRecipient(req) {
-    try {
-      let UserInfo = await this.validation(req.user);
-      let transferRecipient = await utils.fetch(
-        "post",
-        "https://api.paystack.co/transfer",
-        {
-          ...req.body,
-        },
-        {
-          Authorization: `Bearer ${process.env.PAYSTACK_KEYS}`,
-        }
-      );
-      // return { transferRecipient };
-    } catch (error) {
-      this.logger.error(error, error.stack);
-      throw new HttpException(
-        {
-          status: error.status,
-          msg: error.msg,
-        },
-        error.status
-      );
-    }
-  }
   async createTransaction(transactionDetails) {
     let newTransaction = new this.transactionsModel(transactionDetails);
     let transaction = await this.transactionsModel.create(newTransaction);
