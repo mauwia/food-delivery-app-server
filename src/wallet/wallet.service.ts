@@ -106,7 +106,7 @@ export class WalletService {
       if (event === "transfer.success") {
         let transaction = await this.transactionsModel
           .findOneAndUpdate({
-            reference: data.reference,
+            reference: data.recipient.recipient_code,
           },{status:"SUCCESSFUL",reference:""})
           .populate("senderId", "walletId");
           console.log("Transaction",transaction)
