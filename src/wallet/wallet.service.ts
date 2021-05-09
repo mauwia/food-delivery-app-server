@@ -84,7 +84,7 @@ export class WalletService {
         amount,
         currency: "NOSH",
         message: "",
-        status: "Pending",
+        status: "PENDING",
         reference: reference,
       });
       return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
