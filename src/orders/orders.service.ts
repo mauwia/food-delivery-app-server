@@ -432,7 +432,10 @@ export class OrdersService {
         foodLoverId,
         orderId
       })
+      console.log("INSIDE",createReviewArray)
     });
+    console.log("OUTSIDE",createReviewArray)
+
     await this.reviewModel.insertMany(createReviewArray)
   }
   async getReviews(req) {
