@@ -10,9 +10,8 @@ export const orderFoodSchema = new mongoose.Schema({
   quantity: { type: Number },
   realPrice: { type: Number },
   imageUrls: { type: Array },
-  review:{type:String},
+  review: { type: String },
   rating: { type: Number },
-
 });
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
@@ -51,6 +50,7 @@ export const OrdersSchema = new mongoose.Schema({
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   orderedFood: [orderFoodSchema],
   realOrderBill: { type: Number },
+  orderReviewed: { type: Boolean, default: false },
 });
 
 export interface Orders extends mongoose.Document {
@@ -74,6 +74,7 @@ export interface Orders extends mongoose.Document {
   orderedFood: any;
   reason: string;
   review: string;
+  orderReviewed: boolean;
 }
 export interface orderFood extends mongoose.Document {
   menuItemName: string;
