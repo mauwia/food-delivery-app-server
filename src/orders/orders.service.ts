@@ -422,7 +422,7 @@ export class OrdersService {
   }
   async incrementOrderInMenuItems(orderedFoods,foodCreatorId,foodLoverId,orderId) {
     let createReviewArray=[]
-    orderedFoods.map(async (orderedFood) => {
+    await orderedFoods.map(async (orderedFood) => {
       await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId, {
         $inc: { orderCounts: 1 },
       });
