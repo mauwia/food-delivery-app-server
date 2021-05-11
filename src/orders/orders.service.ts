@@ -12,6 +12,7 @@ import { orderFood, Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
+import { Review } from "src/review/review.model";
 let turf = require("@turf/distance");
 let helper = require("@turf/helpers");
 
@@ -24,7 +25,7 @@ export class OrdersService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
-    @InjectModel("OrderedFood") private readonly orderFoodModel:Model<orderFood>,
+    @InjectModel("Reviews") private readonly reviewModel:Model<any>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService
@@ -323,10 +324,11 @@ export class OrdersService {
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
-        await this.incrementOrderInMenuItems(order.orderedFood);
+        await this.incrementOrderInMenuItems(order.orderedFood,order.foodCreatorId,order.foodLoverId,order._id);
         await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id, {
           $inc: { totalNoshedOrders: 1 },
         });
+        
         await this.chatService.closeChatRoom(order.chatRoomId);
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
@@ -418,12 +420,19 @@ export class OrdersService {
       throw error;
     }
   }
-  async incrementOrderInMenuItems(orderedFoods) {
+  async incrementOrderInMenuItems(orderedFoods,foodCreatorId,foodLoverId,orderId) {
+    let createReviewArray=[]
     orderedFoods.map(async (orderedFood) => {
-      console.log(orderedFood.menuItemId);
       await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId, {
         $inc: { orderCounts: 1 },
       });
+      createReviewArray.push({
+        menuItemId:orderedFood.menuItemId,
+        foodCreatorId,
+        foodLoverId,
+        orderId
+      })
+      await this.reviewModel.insertMany(createReviewArray)
     });
   }
   async getReviews(req) {

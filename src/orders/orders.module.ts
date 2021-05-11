@@ -10,6 +10,7 @@ import { WalletSchema } from "src/wallet/wallet.model";
 import { WalletModule } from "src/wallet/wallet.module";
 import { ChatModule } from "src/chat/chat.module";
 import { MenuItemSchema } from "src/menu/menu.model";
+import { ReviewSchema } from "src/review/review.model";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MenuItemSchema } from "src/menu/menu.model";
       { name: "Wallet", schema: WalletSchema },
       { name: "MenuItems", schema: MenuItemSchema },
       { name: "OrderedFood", schema: orderFoodSchema },
+      { name: "Reviews", schema: ReviewSchema },
     ]),
     WalletModule,
     ChatModule,
