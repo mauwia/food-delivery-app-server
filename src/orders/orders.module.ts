@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { OrdersController } from "./orders.controller";
 import { OrdersService } from "./orders.service";
-import { OrdersSchema } from "./orders.model";
+import { OrdersSchema, orderFoodSchema } from "./orders.model";
 import { FoodLoverSchema } from "src/foodLover/foodLover.model";
 import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
 import { OrdersGateway } from "./orders.gateway";
@@ -19,6 +19,7 @@ import { MenuItemSchema } from "src/menu/menu.model";
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "Wallet", schema: WalletSchema },
       { name: "MenuItems", schema: MenuItemSchema },
+      { name: "OrderedFood", schema: orderFoodSchema },
     ]),
     WalletModule,
     ChatModule,

@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-const orderFood = new mongoose.Schema({
+export const orderFoodSchema = new mongoose.Schema({
   menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
   menuItemName: { type: String },
   description: { type: String },
@@ -10,6 +10,9 @@ const orderFood = new mongoose.Schema({
   quantity: { type: Number },
   realPrice: { type: Number },
   imageUrls: { type: Array },
+  review:{type:String},
+  rating: { type: Number },
+
 });
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
@@ -46,7 +49,7 @@ export const OrdersSchema = new mongoose.Schema({
   timestamp: { type: String, default: Date.now() },
   NoshDeduct: { type: Number },
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
-  orderedFood: [orderFood],
+  orderedFood: [orderFoodSchema],
   realOrderBill: { type: Number },
 });
 
@@ -81,4 +84,6 @@ export interface orderFood extends mongoose.Document {
   itemId: string;
   quantity: number;
   realPrice: number;
+  rating: number;
+  review: string;
 }

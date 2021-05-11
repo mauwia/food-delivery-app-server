@@ -8,7 +8,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { checkStatus, pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
-import { Orders } from "./orders.model";
+import { orderFood, Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
@@ -24,6 +24,7 @@ export class OrdersService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
+    @InjectModel("OrderedFood") private readonly orderFoodModel:Model<orderFood>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService
