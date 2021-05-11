@@ -432,8 +432,8 @@ export class OrdersService {
         foodLoverId,
         orderId
       })
-      await this.reviewModel.insertMany(createReviewArray)
     });
+    await this.reviewModel.insertMany(createReviewArray)
   }
   async getReviews(req) {
     try {
