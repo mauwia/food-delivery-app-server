@@ -174,7 +174,8 @@ export class ReviewService {
       }
       let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId,{
         review:req.body.review,
-        rating:req.body.rating
+        rating:req.body.rating,
+        timestamp:req.body.timestamp
       });
       let unreviewedMenuItemsByOrder = await this.reviewModel
       .find({

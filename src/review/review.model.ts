@@ -6,7 +6,9 @@ export const ReviewSchema = new mongoose.Schema({
   foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   review:{type:String},
-  rating:{type:Number}
+  rating:{type:Number},
+  timestamp: { type: String, default: Date.now() },
+  
 });
 export interface Review extends mongoose.Document {
     menuItemId:any;
@@ -15,4 +17,5 @@ export interface Review extends mongoose.Document {
     orderId:any;
     rating: number;
     review: string;
+    timestamp:string
   }
