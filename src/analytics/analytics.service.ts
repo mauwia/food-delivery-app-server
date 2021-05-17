@@ -25,21 +25,45 @@ export class AnalyticsService {
             { foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") },
             {
               timestamp: {
-                $gte: moment().startOf("day").unix().toString(),
-                $lte: moment().endOf("day").unix().toString(),
+                // $gte: moment().startOf("day").unix().toString(),
+                // $lte: moment().endOf("day").unix().toString(),
+                $gte: moment()
+                  .subtract(6, "days")
+                  .startOf("day")
+                  .unix()
+                  .toString(),
+                $lte: moment()
+                  .subtract(6, "days")
+                  .endOf("day")
+                  .unix()
+                  .toString(),
               },
             },
           ],
         },
       },
+      
+    // {
+    //   $match: {
+    //     orderStatus: {
+    //       $eq: "Order Completed"
+    //     }
+    //   }
+    // },
+    // {
+    //   $count: "cop"
+    // },
+      // {
+      //   $project:{
+      //     orderBill:1,orderId:1
+      //   }
+      // }
       {
         $group: {
           _id: "$foodCreatorId",
           totalBill: { $sum: "$orderBill" },
-          
         },
       },
-
     ]);
     console.log(todayAnalytics);
     // let todayAnalytics = await this.ordersModel

@@ -75,7 +75,21 @@ export class ReviewService {
           { menuItemId: req.params.menuItemId },
           { review: { $exists: true } },
         ],
-      });
+      }).populate([
+        {
+          path: "orderId",
+          select:
+            "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+        },
+        {
+          path: "foodCreatorId",
+          select: "businessName imageUrl",
+        },
+        {
+          path: "foodLoverId",
+          select: "username imageUrl",
+        },
+      ]);
       return { reviewedMenuItems };
     } catch (error) {
       this.logger.error(error, error.stack);
