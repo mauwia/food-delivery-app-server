@@ -211,6 +211,34 @@ export class ReviewService {
           orderReviewed: true,
         });
       }
+      let orderRating = await this.reviewModel.aggregate([
+        {
+          $match: {
+            foodCreatorId: new Types.ObjectId(review.foodCreatorId),
+          },
+        },
+        {
+          $project: {
+            foodCreatorId: 1,
+            singleOrder: { $avg: "$rating" },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodCreatorId",
+            orderAvg: { $avg: "$singleOrder" },
+          },
+        },
+      ]);
+      let updateAvg = await this.foodCreatorModel.findByIdAndUpdate(
+        review.foodCreatorId,
+        {
+          $set: {
+            avgRating: orderRating[0].orderAvg,
+          },
+        },
+        { upsert: true }
+      );
       return { message: "Review Updated" };
     } catch (error) {
       this.logger.error(error, error.stack);

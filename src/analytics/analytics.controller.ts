@@ -10,4 +10,14 @@ export class AnalyticsController {
         let response=await this.analyticService.getAnalyticsOfToday(req)
         return response
     }
+    @Get('/getAnalyticsOfMonth')
+    async GetAnalyticsOfMonth(@Req() req:Request){
+        let response=await this.analyticService.getAnalyticsOfMonth(req)
+        return response
+    }
+    @Get('/getAnalyticsOfWeek')
+    async GetAnalyticsOfWeek(@Req() req:Request){
+        let response=await this.analyticService.getAnalyticsOfWeek(req)
+        return response
+    }
 }
