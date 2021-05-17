@@ -32,7 +32,8 @@ export class ReviewService {
         .populate([
           {
             path: "orderId",
-            select:"orderedFood orderId foodCreatorLocation locationTo locationFrom"
+            select:
+              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodCreatorId",
@@ -61,9 +62,11 @@ export class ReviewService {
       let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
-      UserInfo = await this.foodCreatorModel.findOne({
-        phoneNo: user.phoneNo,
-      });
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
@@ -91,9 +94,6 @@ export class ReviewService {
       let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
-      UserInfo = await this.foodCreatorModel.findOne({
-        phoneNo: user.phoneNo,
-      });
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
@@ -107,7 +107,8 @@ export class ReviewService {
         .populate([
           {
             path: "orderId",
-            select:"orderedFood orderId foodCreatorLocation locationTo locationFrom"
+            select:
+              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodCreatorId",
@@ -133,24 +134,35 @@ export class ReviewService {
   async getReviewedMenuItemsByOrder(req) {
     try {
       let { user } = req;
-      const UserInfo = await this.foodLoverModel.findOne({
+      let UserInfo: any = await this.foodLoverModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
+      if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let reviewedMenuItemsByOrder = await this.reviewModel.find({
-        $and: [{ orderId: req.params.orderId }, { review: { $exists: true } }],
-      }).populate([
-        {
-          path: "orderId",
-          select:"orderedFood orderId foodCreatorLocation locationTo locationFrom"
-        },
-        {
-          path: "foodLoverId",
-          select: "username imageUrl",
-        },
-      ]);;
+      let reviewedMenuItemsByOrder = await this.reviewModel
+        .find({
+          $and: [
+            { orderId: req.params.orderId },
+            { review: { $exists: true } },
+          ],
+        })
+        .populate([
+          {
+            path: "orderId",
+            select:
+              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+          },
+          {
+            path: "foodLoverId",
+            select: "username imageUrl",
+          },
+        ]);
       return { reviewedMenuItemsByOrder };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -172,24 +184,20 @@ export class ReviewService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId,{
-        review:req.body.review,
-        rating:req.body.rating,
-        timestamp:req.body.timestamp
+      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId, {
+        review: req.body.review,
+        rating: req.body.rating,
+        timestamp: req.body.timestamp,
       });
-      let unreviewedMenuItemsByOrder = await this.reviewModel
-      .find({
-        $and: [
-          { orderId: review.orderId },
-          { review: { $exists: false } },
-        ],
-      })
-      if(!unreviewedMenuItemsByOrder.length){
-        await this.orderModel.findByIdAndUpdate(review.orderId,{
-          orderReviewed:true
-        })
+      let unreviewedMenuItemsByOrder = await this.reviewModel.find({
+        $and: [{ orderId: review.orderId }, { review: { $exists: false } }],
+      });
+      if (!unreviewedMenuItemsByOrder.length) {
+        await this.orderModel.findByIdAndUpdate(review.orderId, {
+          orderReviewed: true,
+        });
       }
-      return { message:"Review Updated" };
+      return { message: "Review Updated" };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
