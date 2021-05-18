@@ -11,7 +11,15 @@ import {
   MonthQueryAnalytics,
   lastMonthQueryAnalytics,
 } from "./analyticsQueries/MonthQuery";
-import { lastWeekQueryAnalytics, WeekQueryAnalytics } from "./analyticsQueries/WeekQuery";
+import {
+  lastWeekQueryAnalytics,
+  WeekQueryAnalytics,
+} from "./analyticsQueries/WeekQuery";
+import {
+  lastYearQueryAnalytics,
+  yearQueryAnalytics,
+} from "./analyticsQueries/YearQuery";
+import { AllTimeQueryAnalytics } from "./analyticsQueries/AllTimeQuery";
 @Injectable()
 export class AnalyticsService {
   constructor(
@@ -107,7 +115,7 @@ export class AnalyticsService {
   }
   async getAnalyticsOfWeek(req) {
     let weekAnalytics = await this.ordersModel.aggregate(
-     WeekQueryAnalytics("")
+      WeekQueryAnalytics("")
     );
     let lastWeekAnalytics = await this.ordersModel.aggregate(
       lastWeekQueryAnalytics("")
@@ -146,7 +154,80 @@ export class AnalyticsService {
           : 0,
       },
     };
-      console.log(analytics)
+    // console.log(analytics)
+    return { analytics };
+  }
+  async getAnalyticsOfYear(req) {
+    let yearAnalytics = await this.ordersModel.aggregate(
+      yearQueryAnalytics("")
+    );
+    let lastYearAnalytics = await this.ordersModel.aggregate(
+      lastYearQueryAnalytics("")
+    );
+    let analytics = {
+      revenue: {
+        year: yearAnalytics[0].yearRevenue.length
+          ? yearAnalytics[0].yearRevenue[0].totalBill
+          : 0,
+        lastYear: lastYearAnalytics[0].lastYearRevenue.length
+          ? lastYearAnalytics[0].lastYearRevenue[0].totalBill
+          : 0,
+      },
+      ordersCompleted: {
+        year: yearAnalytics[0].orderCompleteCounts.length
+          ? yearAnalytics[0].orderCompleteCounts[0].completedCount
+          : 0,
+        lastYear: lastYearAnalytics[0].orderCompleteCounts.length
+          ? lastYearAnalytics[0].orderCompleteCounts[0].completedCount
+          : 0,
+      },
+      ordersDecline: {
+        year: yearAnalytics[0].orderDeclineCounts.length
+          ? yearAnalytics[0].orderDeclineCounts[0].declineCount
+          : 0,
+        lastYear: lastYearAnalytics[0].orderDeclineCounts.length
+          ? lastYearAnalytics[0].orderDeclineCounts[0].declineCount
+          : 0,
+      },
+      ordersCancel: {
+        year: yearAnalytics[0].orderCancelCounts.length
+          ? yearAnalytics[0].orderCancelCounts[0].cancelCount
+          : 0,
+        lastYear: lastYearAnalytics[0].orderCancelCounts.length
+          ? lastYearAnalytics[0].orderCancelCounts[0].cancelCount
+          : 0,
+      },
+    };
+    // console.log(analytics)
+    return { analytics };
+  }
+  async getAnalyticsOfAllTime(req) {
+    let allTimeAnalytics = await this.ordersModel.aggregate(
+      AllTimeQueryAnalytics("")
+    );
+    let analytics = {
+      revenue: {
+        allTime: allTimeAnalytics[0].allTimeRevenue.length
+          ? allTimeAnalytics[0].allTimeRevenue[0].totalBill
+          : 0,
+      },
+      ordersCompleted: {
+        allTime: allTimeAnalytics[0].orderCompleteCounts.length
+          ? allTimeAnalytics[0].orderCompleteCounts[0].completedCount
+          : 0,
+      },
+      ordersDecline: {
+        allTime: allTimeAnalytics[0].orderDeclineCounts.length
+          ? allTimeAnalytics[0].orderDeclineCounts[0].declineCount
+          : 0,
+      },
+      ordersCancel: {
+        allTime: allTimeAnalytics[0].orderCancelCounts.length
+          ? allTimeAnalytics[0].orderCancelCounts[0].cancelCount
+          : 0,
+      },
+    };
+    // console.log(analytics)
     return { analytics };
   }
 }

@@ -4,6 +4,7 @@ import { Wallet } from "src/wallet/wallet.model";
 export const FoodLoverSchema = new mongoose.Schema({
   firstName: { type: String },
   lastName: { type: String },
+  customerCode:{type:String},
   phoneNo: { type: String, required: true, unique: true },
   passHash: { type: String, required: true },
   pinHash: { type: String, default: null },
