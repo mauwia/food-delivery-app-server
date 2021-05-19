@@ -6,7 +6,7 @@ export let TodayQueryAnalytics = (foodCreatorId) => {
     {
       $match: {
         $and: [
-          { foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") },
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
           {
             timestamp: {
               $gte: moment().startOf("day").unix().toString(),
@@ -73,7 +73,7 @@ export let yesterdayQueryAnalytics = (foodCreatorId) => {
     {
       $match: {
         $and: [
-          { foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") },
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
           {
             timestamp: {
               $gte: moment()

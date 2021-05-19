@@ -43,6 +43,7 @@ export class ProfileService {
         mobileRegisteredId: string;
         email: string;
         pin: string;
+        customerCode:string;
         creatorThumbnail:string;
         creatorFoodType:Array<string>
       };
@@ -114,7 +115,8 @@ export class ProfileService {
                   body.mobileRegisteredId || userProfile.mobileRegisteredId,
                 ...(userType === "fl" && {
                   firstName: body.firstName || userProfile.firstName,
-                  lastName:body.lastName||userProfile.lastName
+                  lastName:body.lastName||userProfile.lastName,
+                  customerCode:body.customerCode||userProfile.customerCode
                 }),
                 ...(userType === "fc" && {
                   creatorThumbnail:body.creatorThumbnail||userProfile.creatorThumbnail,

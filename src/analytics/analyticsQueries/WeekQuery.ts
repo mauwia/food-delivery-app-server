@@ -6,7 +6,7 @@ export let WeekQueryAnalytics = (foodCreatorId) => {
     {
       $match: {
         $and: [
-          { foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") },
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
           {
             timestamp: {
               $gte: moment().startOf("week").unix().toString(),
@@ -73,7 +73,7 @@ export let lastWeekQueryAnalytics = (foodCreatorId) => {
     {
       $match: {
         $and: [
-          { foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") },
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
           {
             timestamp: {
               $gte: moment()

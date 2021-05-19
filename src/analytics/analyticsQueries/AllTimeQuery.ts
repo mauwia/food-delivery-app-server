@@ -5,7 +5,7 @@ export let AllTimeQueryAnalytics = (foodCreatorId) => {
   return [
     {
       $match: {
-        $and: [{ foodCreatorId: Types.ObjectId("609a386c8b5ba300214d2ac6") }],
+        $and: [{ foodCreatorId: Types.ObjectId(foodCreatorId) }],
       },
     },
     {
