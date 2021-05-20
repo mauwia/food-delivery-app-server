@@ -13,6 +13,7 @@ import {
   MonthQueryAnalytics,
   lastMonthQueryAnalytics,
   monthReviewAnalyticQuery,
+  lastMonthReviewAnalyticQuery,
 } from "./analyticsQueries/MonthQuery";
 import {
   lastWeekQueryAnalytics,
@@ -168,8 +169,9 @@ export class AnalyticsService {
         monthReviewAnalyticQuery(UserInfo._id)
       );
       let lastMonthReviewAnalytics = await this.ordersModel.aggregate(
-        lastMonthQueryAnalytics(UserInfo._id)
+        lastMonthReviewAnalyticQuery(UserInfo._id)
       );
+      
       let analytics = {
         fiveStars: {
           today: monthReviewAnalytics[0].total5Stars.length
