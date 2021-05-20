@@ -139,3 +139,147 @@ export let lastWeekQueryAnalytics = (foodCreatorId) => {
     },
   ];
 };
+export let lastWeekReviewAnalyticQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          {
+            timestamp: {
+              $gte: moment()
+                .subtract(1, "week")
+                .startOf("week")
+                .unix()
+                .toString(),
+              $lte: moment().subtract(1, "week").endOf("week").unix().toString(),
+            },
+          },
+        ],
+      },
+    },{
+      $facet:{
+        total5Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 5,
+              },
+            },
+          },
+          { $count: "fiveStars" },
+        ],
+        total4Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 4,
+              },
+            },
+          },
+          { $count: "fourStars" },
+        ],
+        total3Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 3,
+              },
+            },
+          },
+          { $count: "threeStars" },
+        ],
+        total2Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 2,
+              },
+            },
+          },
+          { $count: "twoStars" },
+        ],
+        total1Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 1,
+              },
+            },
+          },
+          { $count: "oneStar" },
+        ]
+      }
+    }
+  ]
+}
+export let weekReviewAnalyticQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          {
+            timestamp: {
+              $gte: moment().startOf("week").unix().toString(),
+              $lte: moment().endOf("week").unix().toString(),
+            },
+          },
+        ],
+      },
+    },{
+      $facet:{
+        total5Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 5,
+              },
+            },
+          },
+          { $count: "fiveStars" },
+        ],
+        total4Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 4,
+              },
+            },
+          },
+          { $count: "fourStars" },
+        ],
+        total3Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 3,
+              },
+            },
+          },
+          { $count: "threeStars" },
+        ],
+        total2Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 2,
+              },
+            },
+          },
+          { $count: "twoStars" },
+        ],
+        total1Stars:[
+          {
+            $match: {
+              rating: {
+                $eq: 1,
+              },
+            },
+          },
+          { $count: "oneStar" },
+        ]
+      }
+    }
+  ]
+}
