@@ -6,7 +6,7 @@ import { AnalyticsService } from './analytics.service';
 @Controller('analytics')
 export class AnalyticsController {
     constructor(private readonly analyticService:AnalyticsService){}
-    // @UseGuards(new JWTAuthGuard())
+    @UseGuards(new JWTAuthGuard())
     @Get('/getAnalyticsOfToday')
     async GetAnalyticsOfToday(@Req() req:Request){
         let response=await this.analyticService.getAnalyticsOfToday(req)
