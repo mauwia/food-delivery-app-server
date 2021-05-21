@@ -6,12 +6,13 @@ import { Wallet } from "../wallet/wallet.model";
 import { WalletService } from "../wallet/wallet.service";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
-import { pad } from "../utils";
+import { checkStatus, pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
-import { Orders } from "./orders.model";
+import { orderFood, Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
+import { Review } from "src/review/review.model";
 let turf = require("@turf/distance");
 let helper = require("@turf/helpers");
 
@@ -24,6 +25,7 @@ export class OrdersService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
+    @InjectModel("Reviews") private readonly reviewModel: Model<any>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService
@@ -212,6 +214,9 @@ export class OrdersService {
           select: "businessName phoneNo fcmRegistrationToken walletId imageUrl",
         },
       ]);
+      if (!checkStatus(order.orderStatus, status)) {
+        throw `Your order is in ${order.orderStatus} cannot rollback to ${status}`;
+      }
       if (status === "Accepted") {
         let chatroom = await this.chatService.createChatroom({
           foodCreatorId: order.foodCreatorId._id,
@@ -302,8 +307,7 @@ export class OrdersService {
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
 
-          senderAssets.amount =
-            senderAssets.amount - order.orderBill - order.NoshDeduct;
+          senderAssets.amount = senderAssets.amount - order.orderBill;
           console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
@@ -313,16 +317,21 @@ export class OrdersService {
             statusSenderWallet.escrow + +orderBillForty;
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
-          senderAssets.amount =
-            senderAssets.amount - order.orderBill - order.NoshDeduct;
+          senderAssets.amount = senderAssets.amount - order.orderBill;
           await statusSenderWallet.save();
           await statusRecieverWallet.save();
         }
       } else if (status === "Order Completed") {
-        await this.incrementOrderInMenuItems(order.orderedFood);
+        await this.incrementOrderInMenuItems(
+          order.orderedFood,
+          order.foodCreatorId,
+          order.foodLoverId,
+          order._id
+        );
         await this.foodCreatorModel.findByIdAndUpdate(order.foodCreatorId._id, {
           $inc: { totalNoshedOrders: 1 },
         });
+
         await this.chatService.closeChatRoom(order.chatRoomId);
         let orderBillForty = order.realOrderBill * 0.4;
         let statusRecieverWallet = await this.walletModel.findById(
@@ -414,11 +423,22 @@ export class OrdersService {
       throw error;
     }
   }
-  async incrementOrderInMenuItems(orderedFoods) {
-    orderedFoods.map(async (orderedFood) => {
-      console.log(orderedFood.menuItemId);
+  async incrementOrderInMenuItems(
+    orderedFoods,
+    foodCreatorId,
+    foodLoverId,
+    orderId
+  ) {
+    let createReviewArray = [];
+    await orderedFoods.map(async (orderedFood) => {
       await this.menuItemsModel.findByIdAndUpdate(orderedFood.menuItemId, {
         $inc: { orderCounts: 1 },
+      });
+      await this.reviewModel.create({
+        menuItemId: orderedFood.menuItemId,
+        foodCreatorId,
+        foodLoverId,
+        orderId,
       });
     });
   }
@@ -440,8 +460,14 @@ export class OrdersService {
         };
       }
       let reviews = await this.ordersModel
-        .find({ $and:[{foodCreatorId: req.params.foodCreatorId},{review:{$exists:true}}] })
-        .select("rating review foodLoverId timestamp").populate("foodLoverId","imageUrl username");
+        .find({
+          $and: [
+            { foodCreatorId: req.params.foodCreatorId },
+            { review: { $exists: true } },
+          ],
+        })
+        .select("rating review foodLoverId timestamp")
+        .populate("foodLoverId", "imageUrl username");
       return { reviews };
     } catch (error) {
       this.logger.error(error, error.stack);
