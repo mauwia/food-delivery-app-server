@@ -165,10 +165,11 @@ export class AnalyticsService {
       let lastMonthAnalytics = await this.ordersModel.aggregate(
         lastMonthQueryAnalytics(UserInfo._id)
       );
-      let monthReviewAnalytics = await this.ordersModel.aggregate(
+      let monthReviewAnalytics = await this.reviewModel.aggregate(
         monthReviewAnalyticQuery(UserInfo._id)
       );
-      let lastMonthReviewAnalytics = await this.ordersModel.aggregate(
+     
+      let lastMonthReviewAnalytics = await this.reviewModel.aggregate(
         lastMonthReviewAnalyticQuery(UserInfo._id)
       );
       
