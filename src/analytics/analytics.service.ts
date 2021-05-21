@@ -174,42 +174,42 @@ export class AnalyticsService {
       
       let analytics = {
         fiveStars: {
-          today: monthReviewAnalytics[0].total5Stars.length
+          month: monthReviewAnalytics[0].total5Stars.length
             ? monthReviewAnalytics[0].total5Stars[0].fiveStars
             : 0,
-          yesterday: lastMonthReviewAnalytics[0].total5Stars.length
+          lastMonth: lastMonthReviewAnalytics[0].total5Stars.length
             ? lastMonthReviewAnalytics[0].total5Stars[0].fiveStars
             : 0,
         },
         fourStars: {
-          today: monthReviewAnalytics[0].total4Stars.length
+          month: monthReviewAnalytics[0].total4Stars.length
             ? monthReviewAnalytics[0].total4Stars[0].fourStars
             : 0,
-          yesterday: lastMonthReviewAnalytics[0].total4Stars.length
+          lastMonth: lastMonthReviewAnalytics[0].total4Stars.length
             ? lastMonthReviewAnalytics[0].total4Stars[0].fourStars
             : 0,
         },
         threeStars: {
-          today: monthReviewAnalytics[0].total3Stars.length
+          month: monthReviewAnalytics[0].total3Stars.length
             ? monthReviewAnalytics[0].total3Stars[0].threeStars
             : 0,
-          yesterday: lastMonthReviewAnalytics[0].total3Stars.length
+          lastMonth: lastMonthReviewAnalytics[0].total3Stars.length
             ? lastMonthReviewAnalytics[0].total3Stars[0].threeStars
             : 0,
         },
         twoStars: {
-          today: monthReviewAnalytics[0].total2Stars.length
+          month: monthReviewAnalytics[0].total2Stars.length
             ? monthReviewAnalytics[0].total2Stars[0].twoStars
             : 0,
-          yesterday: lastMonthReviewAnalytics[0].total2Stars.length
+          lastMonth: lastMonthReviewAnalytics[0].total2Stars.length
             ? lastMonthReviewAnalytics[0].total2Stars[0].twoStars
             : 0,
         },
         oneStar: {
-          today: monthReviewAnalytics[0].total1Stars.length
+          month: monthReviewAnalytics[0].total1Stars.length
             ? monthReviewAnalytics[0].total1Stars[0].oneStar
             : 0,
-          yesterday: lastMonthReviewAnalytics[0].total1Stars.length
+          lastMonth: lastMonthReviewAnalytics[0].total1Stars.length
             ? lastMonthReviewAnalytics[0].total1Stars[0].oneStar
             : 0,
         },
