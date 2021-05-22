@@ -6,7 +6,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { MENU_MESSAGES } from "./constants/key-contants";
 import getMenuPipline from "./constants/getMenuPipline";
-import { filterPipeline } from "./constants/getFilterPipeline";
+import { filterPipelineRating,filterPipelineCategory } from "./constants/getFilterPipeline";
 
 @Injectable()
 export class MenuService {
@@ -33,17 +33,20 @@ export class MenuService {
       var searchKey = new RegExp(req.body.search, "i");
       let { lng, lat } = req.body;
       console.log(req.body);
-      let query = filterPipeline(lng, lat, searchKey, req.body.rating);
+      let query:any = req.body.rating?filterPipelineRating(lng, lat, searchKey, req.body.rating):filterPipelineCategory(lng, lat, searchKey);
       let nearByFoodCreators = await this.foodCreatorModel
         .find(query)
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
       let filterByCategory = [];
+      console.log(nearByFoodCreators)
       if (req.body.creatorFoodType) {
         for (let i = 0; i < nearByFoodCreators.length; i++) {
           let { creatorFoodType } = nearByFoodCreators[i];
           for (let j = 0; j < creatorFoodType.length; j++) {
+            console.log(creatorFoodType[j])
+
             if (
               creatorFoodType[j].text == req.body.creatorFoodType &&
               creatorFoodType[j].selected
@@ -371,7 +374,7 @@ export class MenuService {
       );
       console.log(menu);
       let deletedMenu = await this.menuItemsModel.findOneAndDelete(menuItemId);
-      let totalMenuItem = await this.menuItemsModel.countDocuments({
+      let totalMenuItem = await this.menuModel.countDocuments({
         foodCreatorId: UserInfo._id,
       });
       console.log(totalMenuItem);

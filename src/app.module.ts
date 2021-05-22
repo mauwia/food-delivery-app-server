@@ -11,6 +11,8 @@ import { OrdersModule } from "./orders/orders.module";
 import { MenuModule } from "./menu/menu.module";
 import { ChatModule } from "./chat/chat.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
+import { ReviewModule } from './review/review.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
     MenuModule,
     ChatModule,
     SubscriptionsModule,
+    ReviewModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

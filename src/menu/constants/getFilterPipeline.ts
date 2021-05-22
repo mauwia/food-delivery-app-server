@@ -1,10 +1,10 @@
-export const filterPipeline= (lng,lat,searchKey,rating)=>{
+export const filterPipelineRating= (lng,lat,searchKey,rating)=>{
     return {
         $and: [
           {
             location: {
               $near: {
-                $maxDistance: 5000,
+                $maxDistance: 30000,
                 $geometry: {
                   type: "Point",
                   coordinates: [lng, lat],
@@ -49,4 +49,41 @@ export const filterPipeline= (lng,lat,searchKey,rating)=>{
           },
         ],
       }
+}
+export const filterPipelineCategory= (lng,lat,searchKey)=>{
+  return {
+      $and: [
+        {
+          location: {
+            $near: {
+              $maxDistance: 30000,
+              $geometry: {
+                type: "Point",
+                coordinates: [lng, lat],
+              },
+            },
+          },
+        },
+        {
+          menuExist: true,
+        },
+        {
+          $and: [
+            {
+              $or: [
+                {
+                  businessName: searchKey,
+                },
+                {
+                  username: searchKey,
+                },
+                {
+                  phoneNo:searchKey
+                }
+              ],
+            },
+          ],
+        },
+      ],
+    }
 }
