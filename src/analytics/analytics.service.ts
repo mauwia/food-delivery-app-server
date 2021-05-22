@@ -12,11 +12,13 @@ import {
 } from "./analyticsQueries/OneDayQuery";
 import {
   MonthQueryAnalytics,
+  revenuePerMonthQuery,
   lastMonthQueryAnalytics,
   monthReviewAnalyticQuery,
   lastMonthReviewAnalyticQuery,
 } from "./analyticsQueries/MonthQuery";
 import {
+  revenuePerWeekQuery,
   lastWeekQueryAnalytics,
   lastWeekReviewAnalyticQuery,
   WeekQueryAnalytics,
@@ -25,6 +27,7 @@ import {
 import {
   lastYearQueryAnalytics,
   lastYearReviewAnalyticQuery,
+  revenuePerYearQuery,
   yearQueryAnalytics,
   yearReviewAnalyticQuery,
 } from "./analyticsQueries/YearQuery";
@@ -165,6 +168,9 @@ export class AnalyticsService {
       if (!UserInfo) {
         throw "User not found";
       }
+      let revenuePerMonth = await this.ordersModel.aggregate(
+        revenuePerMonthQuery(UserInfo._id)
+      );
       let monthAnalytics = await this.ordersModel.aggregate(
         MonthQueryAnalytics(UserInfo._id)
       );
@@ -180,6 +186,7 @@ export class AnalyticsService {
       );
 
       let analytics = {
+        revenuePerMonth,
         fiveStars: {
           month: monthReviewAnalytics[0].total5Stars.length
             ? monthReviewAnalytics[0].total5Stars[0].fiveStars
@@ -275,6 +282,9 @@ export class AnalyticsService {
       if (!UserInfo) {
         throw "User not found";
       }
+      let revenuePerWeek = await this.ordersModel.aggregate(
+        revenuePerWeekQuery(UserInfo._id)
+      );
       let weekReviews = await this.reviewModel.aggregate(
         weekReviewAnalyticQuery(UserInfo._id)
       );
@@ -288,6 +298,7 @@ export class AnalyticsService {
         lastWeekQueryAnalytics(UserInfo._id)
       );
       let analytics = {
+        revenuePerWeek,
         fiveStars: {
           week: weekReviews[0].total5Stars.length
             ? weekReviews[0].total5Stars[0].fiveStars
@@ -383,6 +394,9 @@ export class AnalyticsService {
       if (!UserInfo) {
         throw "User not found";
       }
+      let revenuePerYear = await this.ordersModel.aggregate(
+        revenuePerYearQuery(UserInfo._id)
+      );
       let yearReviews = await this.reviewModel.aggregate(
         yearReviewAnalyticQuery(UserInfo._id)
       );
@@ -396,6 +410,7 @@ export class AnalyticsService {
         lastYearQueryAnalytics(UserInfo._id)
       );
       let analytics = {
+        revenuePerYear,
         fiveStars: {
           year: yearReviews[0].total5Stars.length
             ? yearReviews[0].total5Stars[0].fiveStars

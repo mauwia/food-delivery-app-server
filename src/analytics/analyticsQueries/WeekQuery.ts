@@ -213,6 +213,42 @@ export let lastWeekReviewAnalyticQuery=(foodCreatorId)=>{
     }
   ]
 }
+export let revenuePerWeekQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          { orderStatus: "Order Completed" },
+          {
+            timestamp: {
+              $gte: moment().startOf("week").unix().toString(),
+              $lte: moment().endOf("week").unix().toString(),
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        week: {
+          $dayOfWeek: {
+            date: { $toDate: { $toLong: "$timestamp" } },
+            timezone: "$timezone",
+          },
+        },
+        realOrderBill: 1,
+      },
+    },
+    {
+      $group: {
+        _id: { week: "$week" },
+        total: { $sum: "$realOrderBill" },
+        // hour:"$hour"
+      },
+    },
+  ]
+}
 export let weekReviewAnalyticQuery=(foodCreatorId)=>{
   return [
     {

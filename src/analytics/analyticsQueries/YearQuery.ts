@@ -283,3 +283,39 @@ export let yearReviewAnalyticQuery=(foodCreatorId)=>{
     }
   ]
 }
+export let revenuePerYearQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          { orderStatus: "Order Completed" },
+          {
+            timestamp: {
+              $gte: moment().startOf("year").unix().toString(),
+              $lte: moment().endOf("year").unix().toString(),
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        month: {
+          $month: {
+            date: { $toDate: { $toLong: "$timestamp" } },
+            timezone: "$timezone",
+          },
+        },
+        realOrderBill: 1,
+      },
+    },
+    {
+      $group: {
+        _id: { month: "$month" },
+        total: { $sum: "$realOrderBill" },
+        // hour:"$hour"
+      },
+    },
+  ]
+}
