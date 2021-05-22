@@ -4,6 +4,7 @@ import { Model, Types } from "mongoose";
 import { Orders } from "src/orders/orders.model";
 import * as moment from "moment";
 import {
+  revenuePerHourQuery,
   TodayQueryAnalytics,
   todayReviewAnalyticQuery,
   yesterdayQueryAnalytics,
@@ -51,24 +52,10 @@ export class AnalyticsService {
       if (!UserInfo) {
         throw "User not found";
       }
-      // let revenuePerHour = await this.ordersModel.aggregate([
-      //   {
-      //     $project: {
-      //       hour: {$year:{date:{$toDate:{$toLong:"$timestamp"}},timezone:"+0500"}} ,
-      //       realOrderBill: 1,
-      //       timestamp:1
-      //     },
-      //   },
-      //   {
-      //     $group: {
-      //       _id: { hour: "$hour" },
-      //       total: { $sum: "$realOrderBill" },
-      //       // hour:"$hour"
-      //     },
-      //   },
-        
-      // ]);
-      // return revenuePerHour
+      let revenuePerHour = await this.ordersModel.aggregate(
+        revenuePerHourQuery(UserInfo._id)
+      );
+
       let todayReviews = await this.reviewModel.aggregate(
         todayReviewAnalyticQuery(UserInfo._id)
       );
@@ -82,6 +69,7 @@ export class AnalyticsService {
         yesterdayQueryAnalytics(UserInfo._id)
       );
       let analytics = {
+        revenuePerHour,
         fiveStars: {
           today: todayReviews[0].total5Stars.length
             ? todayReviews[0].total5Stars[0].fiveStars

@@ -213,6 +213,42 @@ export let yesterdayReviewAnalyticQuery=(foodCreatorId)=>{
     }
   ]
 }
+export let revenuePerHourQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          { orderStatus: "Order Completed" },
+          {
+            timestamp: {
+              $gte: moment().startOf("day").unix().toString(),
+              $lte: moment().endOf("day").unix().toString(),
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        hour: {
+          $hour: {
+            date: { $toDate: { $toLong: "$timestamp" } },
+            timezone: "$timezone",
+          },
+        },
+        realOrderBill: 1,
+      },
+    },
+    {
+      $group: {
+        _id: { hour: "$hour" },
+        total: { $sum: "$realOrderBill" },
+        // hour:"$hour"
+      },
+    },
+  ]
+}
 export let todayReviewAnalyticQuery=(foodCreatorId)=>{
   return [
     {
