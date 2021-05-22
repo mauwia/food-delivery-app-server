@@ -217,6 +217,7 @@ export let lastMonthReviewAnalyticQuery=(foodCreatorId)=>{
     }
   ]
 }
+
 export let monthReviewAnalyticQuery=(foodCreatorId)=>{
   return [
     {
@@ -285,5 +286,41 @@ export let monthReviewAnalyticQuery=(foodCreatorId)=>{
         ]
       }
     }
+  ]
+}
+export let revenuePerMonthQuery=(foodCreatorId)=>{
+  return [
+    {
+      $match: {
+        $and: [
+          { foodCreatorId: Types.ObjectId(foodCreatorId) },
+          { orderStatus: "Order Completed" },
+          {
+            timestamp: {
+              $gte: moment().startOf("month").unix().toString(),
+              $lte: moment().endOf("month").unix().toString(),
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        month: {
+          $dayOfMonth: {
+            date: { $toDate: { $toLong: "$timestamp" } },
+            timezone: "$timezone",
+          },
+        },
+        realOrderBill: 1,
+      },
+    },
+    {
+      $group: {
+        _id: { month: "$month" },
+        total: { $sum: "$realOrderBill" },
+        // hour:"$hour"
+      },
+    },
   ]
 }

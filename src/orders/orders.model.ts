@@ -37,6 +37,7 @@ export const OrdersSchema = new mongoose.Schema({
   tokenName: { type: String },
   locationTo: { type: Object },
   locationFrom: { type: Object },
+  timezone: { type: String,default:"+44" },
   orderBill: { type: Number },
   approxGivenTime: { type: String, default: Date.now() },
   timeTaken: { type: String, default: Date.now() },
@@ -58,6 +59,7 @@ export interface Orders extends mongoose.Document {
   foodCreatorId: any;
   foodLoverId: any;
   orderStatus: string;
+  timezone: string;
   timestamp: string;
   locationTo: any;
   tokenName: string;
