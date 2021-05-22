@@ -51,24 +51,24 @@ export class AnalyticsService {
       if (!UserInfo) {
         throw "User not found";
       }
-      let revenuePerHour = await this.ordersModel.aggregate([
-        {
-          $project: {
-            hour: {$year:{date:{$toDate:{$toLong:"$timestamp"}},timezone:"+0500"}} ,
-            realOrderBill: 1,
-            timestamp:1
-          },
-        },
-        {
-          $group: {
-            _id: { hour: "$hour" },
-            total: { $sum: "$realOrderBill" },
-            // hour:"$hour"
-          },
-        },
+      // let revenuePerHour = await this.ordersModel.aggregate([
+      //   {
+      //     $project: {
+      //       hour: {$year:{date:{$toDate:{$toLong:"$timestamp"}},timezone:"+0500"}} ,
+      //       realOrderBill: 1,
+      //       timestamp:1
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: { hour: "$hour" },
+      //       total: { $sum: "$realOrderBill" },
+      //       // hour:"$hour"
+      //     },
+      //   },
         
-      ]);
-      return revenuePerHour
+      // ]);
+      // return revenuePerHour
       let todayReviews = await this.reviewModel.aggregate(
         todayReviewAnalyticQuery(UserInfo._id)
       );
