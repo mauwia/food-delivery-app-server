@@ -34,7 +34,7 @@ export const TransactionsSchema = new mongoose.Schema({
   },
   onReceiverModel: {
     type: String,
-    default:"FoodLover",
+    default: "FoodLover",
     enum: ["FoodLover", "FoodCreator"],
   },
   from: { type: String },
@@ -51,10 +51,13 @@ export const TransactionsSchema = new mongoose.Schema({
   memo: { type: String },
   reference: { type: String },
 
-  orderId:{type:String}
+  orderId: { type: String },
   //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
 });
 export const WalletSchema = new mongoose.Schema({
+  dedicatedAccountNumber: { type: String },
+  dedicatedAccountName: { type: String },
+  dedicatedBankName: { type: String },
   walletAddress: { type: String },
   publicKey: { type: String },
   encryptedPrivateKey: { type: String },
@@ -63,6 +66,9 @@ export const WalletSchema = new mongoose.Schema({
   requestReceivedForNoshies: { type: Array },
 });
 export interface Wallet extends mongoose.Document {
+  dedicatedAccountNumber: string;
+  dedicatedAccountName: string;
+  dedicatedBankName: string;
   walletAddress: string;
   publicKey: string;
   encryptedPrivateKey: string;
@@ -74,7 +80,7 @@ export interface Transactions extends mongoose.Document {
   transactionType: string;
   from: string;
   to: string;
-  orderId:string;
+  orderId: string;
   senderId: any;
   receiverId: any;
   onSenderModel: string;
@@ -89,7 +95,7 @@ export interface Transactions extends mongoose.Document {
   tokenAmountInUsd: number;
   gasFeeInUsd: number;
   memo: string;
-  reference:string;
+  reference: string;
   //   walletId:string
 }
 export interface Token extends mongoose.Document {

@@ -98,4 +98,10 @@ export class WalletController {
     let response=await this.walletService.initializeWithdraw(req)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/createDedicatedAccount")
+  async createDedicatedAccount(@Req() req:Request){
+    let response=await this.walletService.createDedicatedAccountNumber(req)
+    return response
+  }
 }
