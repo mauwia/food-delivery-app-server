@@ -787,6 +787,32 @@ export class WalletService {
       );
     }
   }
+  async getDedicatedAccountNumber(req){
+    try {
+      let { user } = req;
+      let UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      }).populate("walletId").select("walletId");
+      if (!UserInfo) {
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+   
+      
+      return { wallet:UserInfo.walletId };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async createDedicatedAccountNumber(req) {
     try {
       let { user } = req;
@@ -804,7 +830,7 @@ export class WalletService {
         dedicatedAccountNumber,
         dedicatedBankName,
       } = req.body;
-      let wallet = this.walletModel.findByIdAndUpdate(
+      let wallet = await this.walletModel.findByIdAndUpdate(
         UserInfo.walletId,
         {
           dedicatedAccountName,
@@ -813,6 +839,7 @@ export class WalletService {
         },
         { new: true }
       );
+      // console.log(wallet)
       return { wallet };
     } catch (error) {
       this.logger.error(error, error.stack);
