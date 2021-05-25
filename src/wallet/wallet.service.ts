@@ -136,6 +136,7 @@ export class WalletService {
           { status: "FAILED" }
         );
       }else if(event==="charge.success"){
+        console.log(data)
         let UserInfo=await this.foodLoverModel.findOne({customerCode:data.customer.customer_code})
         if (!UserInfo) {
           throw {
