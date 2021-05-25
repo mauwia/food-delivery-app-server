@@ -147,7 +147,7 @@ export class WalletService {
         let req={
           user:{phoneNo:UserInfo.phoneNo},
           body:{
-            amount:data.amount,
+            amount:data.amount/100,
             tokenName:"NOSH",
             timeStamp:moment(data.created_at).unix()
           }
