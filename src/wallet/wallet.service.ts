@@ -151,7 +151,7 @@ export class WalletService {
             timeStamp:moment(data.created_at).unix()
           }
         }
-        this.addNoshiesByCard(req,'Bought Noshies By Card')
+        await this.addNoshiesByCard(req,'Bought Noshies By Bank')
 
 
       }
