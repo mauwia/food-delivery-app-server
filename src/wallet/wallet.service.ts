@@ -9,6 +9,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { WALLET_MESSAGES } from "./constants/key-constants";
 import { AppGateway } from "../app.gateway";
+import * as moment from 'moment'
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
 const fetch = require("node-fetch");
@@ -125,7 +126,6 @@ export class WalletService {
         let asset = wallet.assets.find(
           (asset) => asset.tokenName == transaction.currency
         );
-        console.log(asset);
         asset.amount = asset.amount - transaction.amount;
         await wallet.save();
       } else if (event === "transfer.failed") {
@@ -135,6 +135,25 @@ export class WalletService {
           },
           { status: "FAILED" }
         );
+      }else if(event==="charge.success"){
+        let UserInfo=await this.foodLoverModel.findOne({customerCode:data.customer.customer_code})
+        if (!UserInfo) {
+          throw {
+            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+            status: HttpStatus.NOT_FOUND,
+          };
+        }
+        let req={
+          user:{phoneNo:UserInfo.phoneNo},
+          body:{
+            amount:data.amount,
+            tokenName:"NOSH",
+            timeStamp:moment(data.created_at).unix()
+          }
+        }
+        this.addNoshiesByCard(req,'Bought Noshies By Card')
+
+
       }
 
       res.sendStatus(200);

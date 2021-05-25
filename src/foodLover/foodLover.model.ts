@@ -29,6 +29,7 @@ export const FoodLoverSchema = new mongoose.Schema({
 
 export interface FoodLover extends mongoose.Document {
   dedicatedCustomer: boolean;
+  customerCode:string
   firstName: string;
   lastName: string;
   phoneNo: string;
