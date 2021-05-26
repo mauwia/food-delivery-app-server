@@ -50,7 +50,7 @@ export const TransactionsSchema = new mongoose.Schema({
   gasFeeInUsd: { type: Number },
   memo: { type: String },
   reference: { type: String },
-
+  bankName:{type:String},
   orderId: { type: String },
   //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
 });
@@ -92,6 +92,7 @@ export interface Transactions extends mongoose.Document {
   message: string;
   status: string;
   transactionHash: string;
+  bankName:string;
   tokenAmountInUsd: number;
   gasFeeInUsd: number;
   memo: string;

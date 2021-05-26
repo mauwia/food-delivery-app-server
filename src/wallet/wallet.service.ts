@@ -129,19 +129,37 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let {timeStamp,role,amount,memo}=req.body
-      await this.createTransaction({
+      let {timeStamp,role,amount,memo,bankName}=req.body
+      let transaction=await this.createTransaction({
         timeStamp,
         transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
         onSenderModel: role,
         senderId: UserInfo._id,
-        amount,
+        amount:amount-50,
         currency: "NOSH",
         message: "",
         status: "PENDING",
         memo,
+        bankName,
       });
+      let wallet = await this.walletModel.findById(
+       UserInfo.walletId
+      );
+      if (!wallet) {
+        throw {
+          msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let asset = wallet.assets.find(
+        (asset) => asset.tokenName == transaction.currency
+      );
+      console.log(amount,transaction.amount,asset.amount,asset.amount - transaction.amount)
+      asset.amount = asset.amount - (transaction.amount+50);
+      console.log(asset.amount)
+      wallet.escrow=wallet.escrow+(transaction.amount+50)
+      await wallet.save();
       return {message:"Transfer Initiated Successfully"}
     }
     catch(error){
@@ -160,7 +178,8 @@ export class WalletService {
       // console.log("WORKING", req.body);
       let { data, event } = req.body;
       if (event === "transfer.success") {
-        let transaction = await this.transactionsModel
+        setTimeout(async ()=>{
+          let transaction = await this.transactionsModel
           .findOneAndUpdate(
             {
               memo: data.transfer_code,
@@ -177,11 +196,14 @@ export class WalletService {
             status: HttpStatus.NOT_FOUND,
           };
         }
-        let asset = wallet.assets.find(
-          (asset) => asset.tokenName == transaction.currency
-        );
-        asset.amount = asset.amount - transaction.amount;
+        // let asset = wallet.assets.find(
+        //   (asset) => asset.tokenName == transaction.currency
+        // );
+        // asset.amount = asset.amount - transaction.amount;
+        wallet.escrow=wallet.escrow-(transaction.amount+50)
         await wallet.save();
+        },10000)
+        
       } else if (event === "transfer.failed") {
         let transaction = await this.transactionsModel.findOneAndUpdate(
           {
@@ -202,7 +224,7 @@ export class WalletService {
         let req = {
           user: { phoneNo: UserInfo.phoneNo },
           body: {
-            amount: data.amount / 100,
+            amount: (data.amount / 100)-150,
             tokenName: "NOSH",
             timeStamp: new Date(data.created_at).getTime(),
           },
@@ -1058,7 +1080,7 @@ export class WalletService {
         );
         return { transactions };
       }
-      console.log("getTransaction", transactions);
+      // console.log("getTransaction", transactions);
       return { transactions };
     } catch (error) {
       this.logger.error(error, error.stack);
