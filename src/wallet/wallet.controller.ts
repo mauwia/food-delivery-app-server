@@ -95,7 +95,13 @@ export class WalletController {
   @UseGuards(new JWTAuthGuard())
   @Post('/initiateWithdraw')
   async InitiateTransfer(@Req() req:Request){
-    let response=await this.walletService.initializeWithdraw(req)
+    let response=await this.walletService.initiateWithdraw(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/createRecipient')
+  async createRecipient(@Req() req:Request){
+    let response=await this.walletService.createRecipient(req)
     return response
   }
   @UseGuards(new JWTAuthGuard())

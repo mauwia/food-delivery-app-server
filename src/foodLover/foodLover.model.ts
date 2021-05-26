@@ -25,12 +25,14 @@ export const FoodLoverSchema = new mongoose.Schema({
   fcmRegistrationToken: { type: Array },
   subscribedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" }],
   isActive: { type: Boolean, default: true },
+  recipientCode:{type:String}
 });
 
 export interface FoodLover extends mongoose.Document {
   dedicatedCustomer: boolean;
   customerCode:string
   firstName: string;
+  recipientCode:string
   lastName: string;
   phoneNo: string;
   passHash: string;
