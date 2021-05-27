@@ -101,15 +101,16 @@ export class OrdersService {
         .populate([
           {
             path: "foodLoverId",
-            select: "username isActive",
+            select: "username isActive walletId",
           },
           {
             path: "foodCreatorId",
-            select: "businessName",
+            select: "businessName walletId",
           },
         ])
         .execPopulate();
       // console.log()
+      await this.changeBalanceAccordingToStatus("New",orderCreated,foodCreator,UserInfo)
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -267,21 +268,21 @@ export class OrdersService {
     orderStatusSender
   ) {
     try {
-      if (status === "Accepted") {
+      if (status === "New") {
         // console.log(order.foodLoverId)
         //Wallet of sender(FC) and reciever(FL)
-        let statusRecieverWallet = await this.walletModel.findById(
+        let statusSenderWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
-        let statusSenderWallet = await this.walletModel.findById(
+        let statusRecieverWallet = await this.walletModel.findById(
           orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
-        let senderAssets = statusRecieverWallet.assets.find(
+        let senderAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let receiverAssets = statusSenderWallet.assets.find(
+        let receiverAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         //bill distribution
