@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
+import { MenuItems } from "src/menu/menu.model";
 import { Orders } from "src/orders/orders.model";
 import { Review } from "./review.model";
 
@@ -13,7 +14,8 @@ export class ReviewService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly orderModel: Model<Orders>
+    @InjectModel("Orders") private readonly orderModel: Model<Orders>,
+    @InjectModel("MenuItems") private readonly menuItemModel:Model<MenuItems>
   ) {}
   private logger = new Logger("Reviews");
   async getUnreviewedMenuItems(req) {
@@ -198,11 +200,13 @@ export class ReviewService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId, {
+      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId
+        , {
         review: req.body.review,
         rating: req.body.rating,
         timestamp: req.body.timestamp,
-      });
+      }
+      );
       let unreviewedMenuItemsByOrder = await this.reviewModel.find({
         $and: [{ orderId: review.orderId }, { review: { $exists: false } }],
       });
@@ -213,32 +217,69 @@ export class ReviewService {
       }
       let orderRating = await this.reviewModel.aggregate([
         {
-          $match: {
-            foodCreatorId: new Types.ObjectId(review.foodCreatorId),
-          },
+          $facet:{
+            "ratedOrder":[
+              {
+                $match: {
+                  foodCreatorId: new Types.ObjectId(review.foodCreatorId),
+                },
+              },
+              {
+                $project: {
+                  foodCreatorId: 1,
+                  singleOrder: { $avg: "$rating" },
+                },
+              },
+              {
+                $group: {
+                  _id: "$foodCreatorId",
+                  orderAvg: { $avg: "$singleOrder" },
+                },
+              },
+            ],
+            "ratedMenu":[
+              {
+                $match: {
+                  menuItemId: new Types.ObjectId(review.menuItemId),
+                },
+              },
+              {
+                $project: {
+                  menuItemId: 1,
+                  singleOrder: { $avg: "$rating" },
+                },
+              },
+              {
+                $group: {
+                  _id: "$menuItemId",
+                  orderAvg: { $avg: "$singleOrder" },
+                },
+              },
+            ]
+          }
         },
-        {
-          $project: {
-            foodCreatorId: 1,
-            singleOrder: { $avg: "$rating" },
-          },
-        },
-        {
-          $group: {
-            _id: "$foodCreatorId",
-            orderAvg: { $avg: "$singleOrder" },
-          },
-        },
+        
       ]);
+      console.log(orderRating[0])
       let updateAvg = await this.foodCreatorModel.findByIdAndUpdate(
         review.foodCreatorId,
         {
           $set: {
-            avgRating: orderRating[0].orderAvg,
+            avgRating: orderRating[0].ratedOrder[0].orderAvg,
           },
         },
         { upsert: true }
       );
+      let updateMenuRatingAvg = await this.menuItemModel.findByIdAndUpdate(
+        review.menuItemId,
+        {
+          $set: {
+            rating: orderRating[0].ratedMenu[0].orderAvg,
+          },
+        },
+        { upsert: true }
+      );
+      console.log(updateMenuRatingAvg)
       return { message: "Review Updated" };
     } catch (error) {
       this.logger.error(error, error.stack);
