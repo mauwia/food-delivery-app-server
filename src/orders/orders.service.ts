@@ -275,7 +275,7 @@ export class OrdersService {
           order.foodLoverId.walletId
         );
         let statusRecieverWallet = await this.walletModel.findById(
-          orderStatusSender.walletId
+          orderStatusReciever.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
@@ -297,15 +297,15 @@ export class OrdersService {
             amount: orderBillSixty,
           };
           //create asset with amount of bill I.e 60% of total bill
-          console.log(token);
-          statusSenderWallet.assets.push(token);
+          // console.log(token);
+          statusRecieverWallet.assets.push(token);
           //setting escrow of FC with 40% of bill
-          statusSenderWallet.escrow =
-            statusSenderWallet.escrow + +orderBillForty;
+          statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow + +orderBillForty;
           //setting escrow of FL with 40% of bill
 
-          statusRecieverWallet.escrow =
-            statusRecieverWallet.escrow + +orderBillForty;
+          statusSenderWallet.escrow =
+            statusSenderWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
 
           senderAssets.amount = senderAssets.amount - order.orderBill;
