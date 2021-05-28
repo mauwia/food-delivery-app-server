@@ -385,7 +385,7 @@ export class OrdersService {
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount - orderBillSixty;
         FL_Assets.amount =
-          FL_Assets.amount + order.orderBill + order.NoshDeduct;
+          FL_Assets.amount + order.orderBill ;
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
@@ -422,7 +422,7 @@ export class OrdersService {
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount - orderBillSixty;
         FL_Assets.amount =
-          FL_Assets.amount + order.orderBill + order.NoshDeduct;
+          FL_Assets.amount + order.orderBill ;
           await statusRecieverWallet.save();
           await statusSenderWallet.save();
         await this.walletService.createTransaction({
