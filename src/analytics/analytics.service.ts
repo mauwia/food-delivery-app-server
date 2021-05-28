@@ -512,8 +512,11 @@ export class AnalyticsService {
       let allTimeReviews = await this.reviewModel.aggregate(
         allTimeReviewAnalyticQuery(UserInfo._id)
       );
-
+      let revenuePerYear = await this.ordersModel.aggregate(
+        revenuePerYearQuery(UserInfo._id)
+      );
       let analytics = {
+        revenuePerYear,
         fiveStars: {
           allTime: allTimeReviews[0].total5Stars.length
             ? allTimeReviews[0].total5Stars[0].fiveStars
