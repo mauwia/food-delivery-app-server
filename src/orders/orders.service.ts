@@ -403,7 +403,28 @@ export class OrdersService {
         await statusRecieverWallet.save();
         await statusSenderWallet.save();
       } else if (status === "Decline") {
-        console.log("order", orderStatusSender);
+        let statusRecieverWallet = await this.walletModel.findById(
+          order.foodLoverId.walletId
+        );
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
+        );
+        let FC_Assets = statusSenderWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let FL_Assets = statusRecieverWallet.assets.find(
+          (asset) => asset.tokenName == order.tokenName
+        );
+        let orderBillSixty = order.realOrderBill * 0.6;
+        let orderBillForty = order.realOrderBill * 0.4;
+        statusRecieverWallet.escrow =
+          statusRecieverWallet.escrow - orderBillForty;
+        statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
+        FC_Assets.amount = FC_Assets.amount - orderBillSixty;
+        FL_Assets.amount =
+          FL_Assets.amount + order.orderBill + order.NoshDeduct;
+          await statusRecieverWallet.save();
+          await statusSenderWallet.save();
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
