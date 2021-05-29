@@ -116,4 +116,10 @@ export class WalletController {
     let response=await this.walletService.getDedicatedAccountNumber(req)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/getSearchContacts")
+  async getSearchContacts(@Req() req:Request){
+    let response=await this.walletService.searchContact(req)
+    return response
+  }
 }

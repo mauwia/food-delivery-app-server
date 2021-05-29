@@ -1117,6 +1117,34 @@ export class WalletService {
       );
     }
   }
+  async searchContact(req){
+    try{
+      let {user}=req
+      this.validation(user)
+      let FoodLovers=await this.foodLoverModel.find({
+        $or:[
+          {phoneNo:req.body.search},
+          {username:req.body.search}
+        ]
+      }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
+      let FoodCreators=await this.foodCreatorModel.find({
+        $or:[
+          {phoneNo:req.body.search},
+          {username:req.body.search}
+        ]
+      }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
+      return {contacts:[...FoodLovers,...FoodCreators]}
+    }catch(error){
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
   async validation(user) {
     let UserInfo: any = await this.foodLoverModel
       .findOne({
