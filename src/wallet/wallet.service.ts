@@ -1120,16 +1120,16 @@ export class WalletService {
   async searchContact(req){
     try{
       let {user}=req
-      this.validation(user)
+      let UserInfo=await this.validation(user)
       let FoodLovers=await this.foodLoverModel.find({
         $or:[
-          {phoneNo:req.body.search},
+          {phoneNo:`${UserInfo.countryCode}${req.body.search}`},
           {username:req.body.search}
         ]
       }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
       let FoodCreators=await this.foodCreatorModel.find({
         $or:[
-          {phoneNo:req.body.search},
+          {phoneNo:`${UserInfo.countryCode}${req.body.search}`},
           {username:req.body.search}
         ]
       }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
