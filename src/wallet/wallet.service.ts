@@ -829,7 +829,7 @@ export class WalletService {
             amount,
             currency: tokenName,
             message: "Test message",
-            status: "SUCCESSFULL",
+            status: "SUCCESSFUL",
           });
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
@@ -865,7 +865,7 @@ export class WalletService {
           amount,
           currency: tokenName,
           message: "Test message",
-          status: "SUCCESSFULL",
+          status: "SUCCESSFUL",
         });
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
