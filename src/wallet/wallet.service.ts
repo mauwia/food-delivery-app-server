@@ -61,16 +61,22 @@ export class WalletService {
     try {
       let { user } = req;
       // let UserInfo = await this.validation(user);
-      console.log(req.body)
+      console.log(req.body);
       let UserInfo: any;
       if (req.body.role === "FoodCreator") {
-        UserInfo = await this.foodCreatorModel.findOneAndUpdate({
-          phoneNo: user.phoneNo,
-        },{recipientCode:req.body.recipientCode});
+        UserInfo = await this.foodCreatorModel.findOneAndUpdate(
+          {
+            phoneNo: user.phoneNo,
+          },
+          { recipientCode: req.body.recipientCode }
+        );
       } else if (req.body.role === "FoodLover") {
-        UserInfo = await this.foodLoverModel.findOneAndUpdate({ phoneNo: user.phoneNo },{
-          recipientCode:req.body.recipientCode
-        });
+        UserInfo = await this.foodLoverModel.findOneAndUpdate(
+          { phoneNo: user.phoneNo },
+          {
+            recipientCode: req.body.recipientCode,
+          }
+        );
       }
 
       if (!UserInfo) {
@@ -86,7 +92,7 @@ export class WalletService {
       //     status: HttpStatus.NOT_FOUND,
       //   };
       // }
-  
+
       // await this.createTransaction({
       //   timeStamp,
       //   transactionType: "Withdrawal to Bank",
@@ -111,8 +117,8 @@ export class WalletService {
       );
     }
   }
-  async initiateWithdraw(req){
-    try{
+  async initiateWithdraw(req) {
+    try {
       let { user } = req;
       let UserInfo: any;
       if (req.body.role === "FoodCreator") {
@@ -129,23 +135,21 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let {timeStamp,role,amount,memo,bankName}=req.body
-      let transaction=await this.createTransaction({
+      let { timeStamp, role, amount, memo, bankName } = req.body;
+      let transaction = await this.createTransaction({
         timeStamp,
         transactionType: "Withdrawal to Bank",
         from: UserInfo.phoneNo,
         onSenderModel: role,
         senderId: UserInfo._id,
-        amount:amount-50,
+        amount: amount - 50,
         currency: "NOSH",
         message: "",
         status: "PENDING",
         memo,
         bankName,
       });
-      let wallet = await this.walletModel.findById(
-       UserInfo.walletId
-      );
+      let wallet = await this.walletModel.findById(UserInfo.walletId);
       if (!wallet) {
         throw {
           msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
@@ -155,14 +159,18 @@ export class WalletService {
       let asset = wallet.assets.find(
         (asset) => asset.tokenName == transaction.currency
       );
-      console.log(amount,transaction.amount,asset.amount,asset.amount - transaction.amount)
-      asset.amount = asset.amount - (transaction.amount+50);
-      console.log(asset.amount)
-      wallet.escrow=wallet.escrow+(transaction.amount+50)
+      console.log(
+        amount,
+        transaction.amount,
+        asset.amount,
+        asset.amount - transaction.amount
+      );
+      asset.amount = asset.amount - (transaction.amount + 50);
+      console.log(asset.amount);
+      wallet.escrow = wallet.escrow + (transaction.amount + 50);
       await wallet.save();
-      return {message:"Transfer Initiated Successfully"}
-    }
-    catch(error){
+      return { message: "Transfer Initiated Successfully" };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -175,35 +183,34 @@ export class WalletService {
   }
   async withdrawNoshies(req, res) {
     try {
-      console.log("WORKING", req.body); 
+      console.log("WORKING", req.body);
       let { data, event } = req.body;
       if (event === "transfer.success") {
-        setTimeout(async ()=>{
+        setTimeout(async () => {
           let transaction = await this.transactionsModel
-          .findOneAndUpdate(
-            {
-              memo: data.transfer_code,
-            },
-            { status: "SUCCESSFUL" }
-          )
-          .populate("senderId", "walletId");
-        let wallet = await this.walletModel.findById(
-          transaction.senderId.walletId
-        );
-        if (!wallet) {
-          throw {
-            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
-            status: HttpStatus.NOT_FOUND,
-          };
-        }
-        // let asset = wallet.assets.find(
-        //   (asset) => asset.tokenName == transaction.currency
-        // );
-        // asset.amount = asset.amount - transaction.amount;
-        wallet.escrow=wallet.escrow-(transaction.amount+50)
-        await wallet.save();
-        },10000)
-        
+            .findOneAndUpdate(
+              {
+                memo: data.transfer_code,
+              },
+              { status: "SUCCESSFUL" }
+            )
+            .populate("senderId", "walletId");
+          let wallet = await this.walletModel.findById(
+            transaction.senderId.walletId
+          );
+          if (!wallet) {
+            throw {
+              msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+              status: HttpStatus.NOT_FOUND,
+            };
+          }
+          // let asset = wallet.assets.find(
+          //   (asset) => asset.tokenName == transaction.currency
+          // );
+          // asset.amount = asset.amount - transaction.amount;
+          wallet.escrow = wallet.escrow - (transaction.amount + 50);
+          await wallet.save();
+        }, 10000);
       } else if (event === "transfer.failed") {
         let transaction = await this.transactionsModel.findOneAndUpdate(
           {
@@ -211,9 +218,9 @@ export class WalletService {
           },
           { status: "FAILED" }
         );
-      }else if(event === "charge.success" && data.channel==="card"){
+      } else if (event === "charge.success" && data.channel === "card") {
         let UserInfo = await this.foodLoverModel.findOne({
-          customerCode:  data.customer.customer_code,
+          customerCode: data.customer.customer_code,
         });
         if (!UserInfo) {
           throw {
@@ -230,14 +237,22 @@ export class WalletService {
             status: HttpStatus.NOT_FOUND,
           };
         }
-        let transaction=await this.transactionsModel.findOne({reference:data.reference})
+        let transaction = await this.transactionsModel.findOne({
+          reference: data.reference,
+        });
         if (wallet.assets) {
           // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
-          let asset = wallet.assets.find((asset) => asset.tokenName == transaction.currency);
+          let asset = wallet.assets.find(
+            (asset) => asset.tokenName == transaction.currency
+          );
           if (!asset) {
-            let token = await this.createAsset(transaction.currency, wallet, transaction.amount);
-            transaction.status="SUCCESSFUL"
-            await transaction.save()
+            let token = await this.createAsset(
+              transaction.currency,
+              wallet,
+              transaction.amount
+            );
+            transaction.status = "SUCCESSFUL";
+            await transaction.save();
             return {
               message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
               totalAmount: token.amount,
@@ -246,23 +261,26 @@ export class WalletService {
           asset.amount = asset.amount + transaction.amount;
           wallet.save();
           // console.log(wallet)
-          transaction.status="SUCCESSFUL"
-          await transaction.save()
+          transaction.status = "SUCCESSFUL";
+          await transaction.save();
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: asset.amount,
           };
         } else {
-          let token = await this.createAsset(transaction.currency, wallet, transaction.amount);
-          transaction.status="SUCCESSFUL"
-          await transaction.save()
+          let token = await this.createAsset(
+            transaction.currency,
+            wallet,
+            transaction.amount
+          );
+          transaction.status = "SUCCESSFUL";
+          await transaction.save();
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: token.amount,
           };
         }
-      } 
-      else if (event === "charge.success") {
+      } else if (event === "charge.success") {
         let UserInfo = await this.foodLoverModel.findOne({
           customerCode: data.customer.customer_code,
         });
@@ -272,10 +290,13 @@ export class WalletService {
             status: HttpStatus.NOT_FOUND,
           };
         }
+        let amount = data.amount / 100;
+        let deductPercentage =
+          amount <= 2500 ? amount * 0.015 : amount * 0.015 + 100;
         let req = {
           user: { phoneNo: UserInfo.phoneNo },
           body: {
-            amount: (data.amount / 100)-150,
+            amount: amount - deductPercentage,
             tokenName: "NOSH",
             timeStamp: new Date(data.created_at).getTime(),
           },
@@ -1044,8 +1065,8 @@ export class WalletService {
       );
     }
   }
-  async initiateChargeCard(req){
-    try{
+  async initiateChargeCard(req) {
+    try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
         .findOne({
@@ -1058,7 +1079,7 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let {timeStamp,role,amount,tokenName,reference}=req.body
+      let { timeStamp, role, amount, tokenName, reference } = req.body;
       await this.createTransaction({
         transactionType: "Bought Noshies By Card",
         from: UserInfo.phoneNo,
@@ -1069,11 +1090,10 @@ export class WalletService {
         currency: tokenName,
         message: "Test message",
         status: "PENDING",
-        reference 
+        reference,
       });
-      return {message:"Transaction Initiated"}
-    }
-    catch(error){
+      return { message: "Transaction Initiated" };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -1208,24 +1228,30 @@ export class WalletService {
       );
     }
   }
-  async searchContact(req){
-    try{
-      let {user}=req
-      let UserInfo=await this.validation(user)
-      let FoodLovers=await this.foodLoverModel.find({
-        $or:[
-          {phoneNo:`${UserInfo.countryCode}${req.body.search}`},
-          {username:req.body.search}
-        ]
-      }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
-      let FoodCreators=await this.foodCreatorModel.find({
-        $or:[
-          {phoneNo:`${UserInfo.countryCode}${req.body.search}`},
-          {username:req.body.search}
-        ]
-      }).select("-fcmRegistrationToken -passHash -pinHash -recipientCode").lean()
-      return {contacts:[...FoodLovers,...FoodCreators]}
-    }catch(error){
+  async searchContact(req) {
+    try {
+      let { user } = req;
+      let UserInfo = await this.validation(user);
+      let FoodLovers = await this.foodLoverModel
+        .find({
+          $or: [
+            { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
+            { username: req.body.search },
+          ],
+        })
+        .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
+        .lean();
+      let FoodCreators = await this.foodCreatorModel
+        .find({
+          $or: [
+            { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
+            { username: req.body.search },
+          ],
+        })
+        .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
+        .lean();
+      return { contacts: [...FoodLovers, ...FoodCreators] };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
