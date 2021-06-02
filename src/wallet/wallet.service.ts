@@ -175,7 +175,7 @@ export class WalletService {
   }
   async withdrawNoshies(req, res) {
     try {
-      // console.log("WORKING", req.body);
+      console.log("WORKING", req.body); 
       let { data, event } = req.body;
       if (event === "transfer.success") {
         setTimeout(async ()=>{
@@ -211,7 +211,58 @@ export class WalletService {
           },
           { status: "FAILED" }
         );
-      } else if (event === "charge.success") {
+      }else if(event === "charge.success" && data.channel==="card"){
+        let UserInfo = await this.foodLoverModel.findOne({
+          customerCode:  data.customer.customer_code,
+        });
+        if (!UserInfo) {
+          throw {
+            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+            status: HttpStatus.NOT_FOUND,
+          };
+        }
+        let wallet = await this.walletModel.findById(UserInfo.walletId);
+        // let wallet=UserInfo.walletId.assets
+        // console.log("AAAAAAAAAAAAAAA",wallet)
+        if (!wallet) {
+          throw {
+            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+            status: HttpStatus.NOT_FOUND,
+          };
+        }
+        let transaction=await this.transactionsModel.findOne({reference:data.reference})
+        if (wallet.assets) {
+          // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
+          let asset = wallet.assets.find((asset) => asset.tokenName == transaction.currency);
+          if (!asset) {
+            let token = await this.createAsset(transaction.currency, wallet, transaction.amount);
+            transaction.status="SUCCESSFUL"
+            await transaction.save()
+            return {
+              message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+              totalAmount: token.amount,
+            };
+          }
+          asset.amount = asset.amount + transaction.amount;
+          wallet.save();
+          // console.log(wallet)
+          transaction.status="SUCCESSFUL"
+          await transaction.save()
+          return {
+            message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+            totalAmount: asset.amount,
+          };
+        } else {
+          let token = await this.createAsset(transaction.currency, wallet, transaction.amount);
+          transaction.status="SUCCESSFUL"
+          await transaction.save()
+          return {
+            message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+            totalAmount: token.amount,
+          };
+        }
+      } 
+      else if (event === "charge.success") {
         let UserInfo = await this.foodLoverModel.findOne({
           customerCode: data.customer.customer_code,
         });
@@ -230,7 +281,7 @@ export class WalletService {
           },
         };
 
-        await this.addNoshiesByCard(req, "Bought Noshies By Bank");
+        await this.addNoshiesByBank(req, "Bought Noshies By Bank");
       }
 
       res.sendStatus(200);
@@ -789,7 +840,7 @@ export class WalletService {
     }
   }
 
-  async addNoshiesByCard(req, source) {
+  async addNoshiesByBank(req, source) {
     try {
       let { user } = req;
       const UserInfo = await this.foodLoverModel
@@ -983,6 +1034,46 @@ export class WalletService {
         escrow: UserInfo.walletId.escrow,
       };
     } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async initiateChargeCard(req){
+    try{
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+      if (!UserInfo) {
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let {timeStamp,role,amount,tokenName,reference}=req.body
+      await this.createTransaction({
+        transactionType: "Bought Noshies By Card",
+        from: UserInfo.phoneNo,
+        onSenderModel: "FoodLover",
+        senderId: UserInfo._id,
+        timeStamp,
+        amount,
+        currency: tokenName,
+        message: "Test message",
+        status: "PENDING",
+        reference 
+      });
+      return {message:"Transaction Initiated"}
+    }
+    catch(error){
       this.logger.error(error, error.stack);
       throw new HttpException(
         {

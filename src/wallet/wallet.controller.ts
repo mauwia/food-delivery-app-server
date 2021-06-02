@@ -55,14 +55,14 @@ export class WalletController {
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByCard')
   async AddNoshiesByCard(@Req() req:Request){
-    let response=await this.walletService.addNoshiesByCard(req,"Bought Noshies By Card")
+    let response=await this.walletService.initiateChargeCard(req)
     return response
   }
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByBank')
   async AddNoshiesByBank(@Req() req:Request){
     ///Will update when paystack integrate
-    let response=await this.walletService.addNoshiesByCard(req,"Bought Noshies By Bank")
+    let response=await this.walletService.addNoshiesByBank(req,"Bought Noshies By Bank")
     return response
   }
 
