@@ -210,7 +210,7 @@ export class ReviewService {
       let reviewedOfFoodCreator = await this.reviewModel
         .find({
           $and: [
-            { orderId: req.params.foodCreatorId },
+            { foodCreatorId: req.params.foodCreatorId },
             { review: { $exists: true } },
           ],
         })
