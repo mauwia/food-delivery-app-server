@@ -142,7 +142,7 @@ export class WalletService {
         from: UserInfo.phoneNo,
         onSenderModel: role,
         senderId: UserInfo._id,
-        amount: amount - 50,
+        amount: amount ,
         currency: "NOSH",
         message: "",
         status: "PENDING",
@@ -165,9 +165,9 @@ export class WalletService {
         asset.amount,
         asset.amount - transaction.amount
       );
-      asset.amount = asset.amount - (transaction.amount + 50);
+      asset.amount = asset.amount - (transaction.amount );
       console.log(asset.amount);
-      wallet.escrow = wallet.escrow + (transaction.amount + 50);
+      wallet.escrow = wallet.escrow + (transaction.amount );
       await wallet.save();
       return { message: "Transfer Initiated Successfully" };
     } catch (error) {
@@ -208,7 +208,7 @@ export class WalletService {
           //   (asset) => asset.tokenName == transaction.currency
           // );
           // asset.amount = asset.amount - transaction.amount;
-          wallet.escrow = wallet.escrow - (transaction.amount + 50);
+          wallet.escrow = wallet.escrow - (transaction.amount );
           await wallet.save();
         }, 10000);
       } else if (event === "transfer.failed") {
@@ -292,7 +292,7 @@ export class WalletService {
         }
         let amount = data.amount / 100;
         let deductPercentage =
-          amount <= 2500 ? amount * 0.015 : amount * 0.015 + 100;
+          amount <= 2500 ? amount * 0.015 : (amount * 0.015) + 100;
         let req = {
           user: { phoneNo: UserInfo.phoneNo },
           body: {
@@ -1245,7 +1245,7 @@ export class WalletService {
         .find({
           $or: [
             { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
-            { username: req.body.search },
+            { username:  new RegExp(req.body.search, "i") },
           ],
         })
         .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
