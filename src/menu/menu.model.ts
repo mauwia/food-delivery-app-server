@@ -15,6 +15,7 @@ export const MenuItemSchema = new mongoose.Schema({
     type: Number,
   },
   reviews: [{ type: Object }],
+  rating: { type: Number },
   orderCounts: { type: Number, default: 0 },
 });
 export interface Menu extends mongoose.Document {
@@ -28,6 +29,7 @@ export interface MenuItems extends mongoose.Document {
   description: string;
   preparationTime: string;
   price: number;
+  rating: number;
   discount: number;
   reviews: Array<object>;
   orderCounts: number;
