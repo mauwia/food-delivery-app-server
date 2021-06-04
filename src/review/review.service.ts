@@ -15,7 +15,7 @@ export class ReviewService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Orders") private readonly orderModel: Model<Orders>,
-    @InjectModel("MenuItems") private readonly menuItemModel:Model<MenuItems>
+    @InjectModel("MenuItems") private readonly menuItemModel: Model<MenuItems>
   ) {}
   private logger = new Logger("Reviews");
   async getUnreviewedMenuItems(req) {
@@ -72,26 +72,28 @@ export class ReviewService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let reviewedMenuItems = await this.reviewModel.find({
-        $and: [
-          { menuItemId: req.params.menuItemId },
-          { review: { $exists: true } },
-        ],
-      }).populate([
-        {
-          path: "orderId",
-          select:
-            "orderedFood orderId foodCreatorLocation locationTo locationFrom",
-        },
-        {
-          path: "foodCreatorId",
-          select: "businessName imageUrl",
-        },
-        {
-          path: "foodLoverId",
-          select: "username imageUrl",
-        },
-      ]);
+      let reviewedMenuItems = await this.reviewModel
+        .find({
+          $and: [
+            { menuItemId: req.params.menuItemId },
+            { review: { $exists: true } },
+          ],
+        })
+        .populate([
+          {
+            path: "orderId",
+            select:
+              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+          },
+          {
+            path: "foodCreatorId",
+            select: "businessName imageUrl",
+          },
+          {
+            path: "foodLoverId",
+            select: "username imageUrl",
+          },
+        ]);
       return { reviewedMenuItems };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -191,6 +193,50 @@ export class ReviewService {
       );
     }
   }
+  async getReviewedByFoodCreatorId(req) {
+    try {
+      let { user } = req;
+      let UserInfo: any = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
+      if (!UserInfo) {
+        throw "USER_NOT_FOUND";
+      }
+      let reviewedOfFoodCreator = await this.reviewModel
+        .find({
+          $and: [
+            { orderId: req.params.foodCreatorId },
+            { review: { $exists: true } },
+          ],
+        })
+        .populate([
+          // {
+          //   path: "orderId",
+          //   select:
+          //     "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+          // },
+          {
+            path: "foodLoverId",
+            select: "username imageUrl",
+          },
+        ]);
+      return { reviewedOfFoodCreator };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async updateReview(req) {
     try {
       let { user } = req;
@@ -200,13 +246,11 @@ export class ReviewService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
-      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId
-        , {
+      let review = await this.reviewModel.findByIdAndUpdate(req.body.reviewId, {
         review: req.body.review,
         rating: req.body.rating,
         timestamp: req.body.timestamp,
-      }
-      );
+      });
       let unreviewedMenuItemsByOrder = await this.reviewModel.find({
         $and: [{ orderId: review.orderId }, { review: { $exists: false } }],
       });
@@ -217,8 +261,8 @@ export class ReviewService {
       }
       let orderRating = await this.reviewModel.aggregate([
         {
-          $facet:{
-            "ratedOrder":[
+          $facet: {
+            ratedOrder: [
               {
                 $match: {
                   foodCreatorId: new Types.ObjectId(review.foodCreatorId),
@@ -237,7 +281,7 @@ export class ReviewService {
                 },
               },
             ],
-            "ratedMenu":[
+            ratedMenu: [
               {
                 $match: {
                   menuItemId: new Types.ObjectId(review.menuItemId),
@@ -255,12 +299,11 @@ export class ReviewService {
                   orderAvg: { $avg: "$singleOrder" },
                 },
               },
-            ]
-          }
+            ],
+          },
         },
-        
       ]);
-      console.log(orderRating[0])
+      console.log(orderRating[0]);
       let updateAvg = await this.foodCreatorModel.findByIdAndUpdate(
         review.foodCreatorId,
         {
@@ -279,7 +322,7 @@ export class ReviewService {
         },
         { upsert: true }
       );
-      console.log(updateMenuRatingAvg)
+      console.log(updateMenuRatingAvg);
       return { message: "Review Updated" };
     } catch (error) {
       this.logger.error(error, error.stack);
