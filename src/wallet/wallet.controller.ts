@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req,Res,UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, Post, Req,Res,UseGuards } from "@nestjs/common";
 import { request, Request,Response } from "express";
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { WalletService } from "./wallet.service";
@@ -120,6 +120,12 @@ export class WalletController {
   @Post("/getSearchContacts")
   async getSearchContacts(@Req() req:Request){
     let response=await this.walletService.searchContact(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Delete('/deleteFailCardTx')
+  async deleteFailCardTx(@Req() req:Request){
+    let response=await this.walletService.deleteCardFailTx(req)
     return response
   }
 }

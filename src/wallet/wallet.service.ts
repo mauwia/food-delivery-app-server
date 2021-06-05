@@ -221,6 +221,7 @@ export class WalletService {
       } else if (event === "charge.success" && data.channel === "card") {
         let UserInfo = await this.foodLoverModel.findOne({
           customerCode: data.customer.customer_code,
+          // customerCode:"CUS_5tnymf7cv0yo4vx"
         });
         if (!UserInfo) {
           throw {
@@ -432,6 +433,33 @@ export class WalletService {
         };
       }
     } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
+  async deleteCardFailTx(req){
+    try{
+      let { user } = req;
+      let { reference } = req.body;
+      let UserInfo = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        throw {
+          msg: WALLET_MESSAGES.USER_NOT_FOUND,
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let tx=await this.transactionsModel.findOneAndDelete({reference})
+      return {message:"Transaction Deleted"}
+    }
+    catch(error){
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -1025,6 +1053,7 @@ export class WalletService {
       );
     }
   }
+  
   async getAllAssets(req) {
     try {
       let { user } = req;
