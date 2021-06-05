@@ -1265,7 +1265,7 @@ export class WalletService {
         .find({
           $or: [
             { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
-            { username: req.body.search },
+            { username: new RegExp(req.body.search, "i") },
           ],
         })
         .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
