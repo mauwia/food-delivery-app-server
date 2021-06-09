@@ -12,6 +12,7 @@ import { AppGateway } from "../app.gateway";
 import * as moment from "moment";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
+var crypto = require('crypto');
 const fetch = require("node-fetch");
 @Injectable()
 export class WalletService {
@@ -185,6 +186,8 @@ export class WalletService {
     try {
       console.log("WORKING", req.body);
       let { data, event } = req.body;
+      // let hash=crypto.createHmac('sha512', "secret").update(JSON.stringify(req.body)).digest('hex')
+      // if(true){
       if (event === "transfer.success") {
         setTimeout(async () => {
           let transaction = await this.transactionsModel
@@ -307,7 +310,7 @@ export class WalletService {
       }
 
       res.sendStatus(200);
-      // return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
+      // }// return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(

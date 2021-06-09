@@ -19,7 +19,7 @@ export class ProfileService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly ordersModel:Model<Orders>
+    @InjectModel("Orders") private readonly ordersModel: Model<Orders>
   ) {}
   private logger = new Logger("Profile");
 
@@ -31,7 +31,9 @@ export class ProfileService {
     }: {
       user: { phoneNo: string };
       body: {
-        password:string;
+        password: string;
+        videoUrl: string;
+        description: string;
         phoneNo: string;
         verified: boolean;
         firstName: string;
@@ -43,9 +45,9 @@ export class ProfileService {
         mobileRegisteredId: string;
         email: string;
         pin: string;
-        customerCode:string;
-        creatorThumbnail:string;
-        creatorFoodType:Array<string>
+        customerCode: string;
+        creatorThumbnail: string;
+        creatorFoodType: Array<string>;
       };
     } = request;
     let userType = query.user as string;
@@ -78,58 +80,71 @@ export class ProfileService {
         const userProfile = await model.findOne({
           phoneNo: user.phoneNo,
         });
-        console.log(body)
+        console.log(body);
         if (userProfile) {
           if (body.pin) {
             if (!bcrypt.compareSync(body.password, userProfile.passHash))
-            throw PROFILE_MESSAGES.WRONG_PASSWORD;
+              throw PROFILE_MESSAGES.WRONG_PASSWORD;
             pinHash = bcrypt.hashSync(body.pin, 8);
           }
-          if(body.username){
-
-            let usernameCheck=await model.findOne({username:body.username})
-            console.log(usernameCheck)
-            if(usernameCheck && usernameCheck.phoneNo !== userProfile.phoneNo){
-              throw "Username already in use"
+          if (body.username) {
+            let usernameCheck = await model.findOne({
+              username: body.username,
+            });
+            console.log(usernameCheck);
+            if (
+              usernameCheck &&
+              usernameCheck.phoneNo !== userProfile.phoneNo
+            ) {
+              throw "Username already in use";
             }
           }
-          if(body.email){
-            let emailCheck=await model.findOne({email:body.email})
-            console.log(emailCheck)
-            if(emailCheck && emailCheck.phoneNo !== userProfile.phoneNo){
-              throw "Email already in use"
+          if (body.email) {
+            let emailCheck = await model.findOne({ email: body.email });
+            console.log(emailCheck);
+            if (emailCheck && emailCheck.phoneNo !== userProfile.phoneNo) {
+              throw "Email already in use";
             }
           }
-          const updatedProfile = await model.findOneAndUpdate(
-            { phoneNo: user.phoneNo },
-            {
-              $set: {
-                phoneNo: body.phoneNo || userProfile.phoneNo,
-                verified: body.verified || userProfile.verified,
-                email: body.email || userProfile.email,
-                username: body.username || userProfile.username,
-                imageUrl: body.imageUrl || userProfile.imageUrl,
-                location: body.location || userProfile.location,
-                pinHash: pinHash || userProfile.pinHash,
-                mobileRegisteredId:
-                  body.mobileRegisteredId || userProfile.mobileRegisteredId,
-                ...(userType === "fl" && {
-                  firstName: body.firstName || userProfile.firstName,
-                  lastName:body.lastName||userProfile.lastName,
-                  customerCode:body.customerCode||userProfile.customerCode
-                }),
-                ...(userType === "fc" && {
-                  creatorThumbnail:body.creatorThumbnail||userProfile.creatorThumbnail,
-                  businessName: body.businessName || userProfile.businessName,
-                  creatorFoodType:body.creatorFoodType||userProfile.creatorFoodType
-                }),
+          const updatedProfile = await model
+            .findOneAndUpdate(
+              { phoneNo: user.phoneNo },
+              {
+                $set: {
+                  phoneNo: body.phoneNo || userProfile.phoneNo,
+                  verified: body.verified || userProfile.verified,
+                  email: body.email || userProfile.email,
+                  username: body.username || userProfile.username,
+                  imageUrl: body.imageUrl || userProfile.imageUrl,
+                  location: body.location || userProfile.location,
+                  pinHash: pinHash || userProfile.pinHash,
+                  mobileRegisteredId:
+                    body.mobileRegisteredId || userProfile.mobileRegisteredId,
+                  ...(userType === "fl" && {
+                    firstName: body.firstName || userProfile.firstName,
+                    lastName: body.lastName || userProfile.lastName,
+                    customerCode: body.customerCode || userProfile.customerCode,
+                  }),
+                  ...(userType === "fc" && {
+                    creatorThumbnail:
+                      body.creatorThumbnail || userProfile.creatorThumbnail,
+                    videoUrl: body.videoUrl || userProfile.videoUrl,
+                    description: body.description || userProfile.description,
+                    businessName: body.businessName || userProfile.businessName,
+                    creatorFoodType:
+                      body.creatorFoodType || userProfile.creatorFoodType,
+                  }),
+                },
               },
-            },
-            { new: true, fields: { passHash: 0, __v: 0 } }
-          ).lean();
+              { new: true, fields: { passHash: 0, __v: 0 } }
+            )
+            .lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
-      let totalOrders=await this.ordersModel.countDocuments({foodLoverId:userProfile._id,orderStatus:"Order Completed"})
-          return {...updatedProfile,totalOrders};
+          let totalOrders = await this.ordersModel.countDocuments({
+            foodLoverId: userProfile._id,
+            orderStatus: "Order Completed",
+          });
+          return { ...updatedProfile, totalOrders };
         } else {
           throw PROFILE_MESSAGES.USER_NOT_FOUND;
         }
@@ -150,7 +165,10 @@ export class ProfileService {
     let {
       user,
       body,
-    }: { user: { phoneNo: string }; body: { oldPassword: string,newPassword:string } } = request;
+    }: {
+      user: { phoneNo: string };
+      body: { oldPassword: string; newPassword: string };
+    } = request;
     let userType = query.user as string;
 
     if (this.isValidUsertype(query)) {
@@ -166,9 +184,9 @@ export class ProfileService {
           phoneNo: user.phoneNo,
         });
         if (!bcrypt.compareSync(body.oldPassword, userProfile.passHash))
-        throw PROFILE_MESSAGES.WRONG_PASSWORD;
-        if(bcrypt.compareSync(body.newPassword, userProfile.passHash)){
-          throw PROFILE_MESSAGES.ADD_NEW_PASSWORD
+          throw PROFILE_MESSAGES.WRONG_PASSWORD;
+        if (bcrypt.compareSync(body.newPassword, userProfile.passHash)) {
+          throw PROFILE_MESSAGES.ADD_NEW_PASSWORD;
         }
         if (userProfile) {
           userProfile.passHash = bcrypt.hashSync(body.newPassword, 8);
