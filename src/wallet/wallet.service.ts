@@ -227,8 +227,8 @@ export class WalletService {
           );
         } else if (event === "charge.success" && data.channel === "card") {
           let UserInfo = await this.foodLoverModel.findOne({
-            // customerCode: data.customer.customer_code,
-            customerCode: "CUS_onjsnospaheyq6s",
+            customerCode: data.customer.customer_code,
+            // customerCode: "CUS_onjsnospaheyq6s",
           });
           if (!UserInfo) {
             throw {
