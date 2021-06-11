@@ -12,7 +12,7 @@ import { AppGateway } from "../app.gateway";
 import * as moment from "moment";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
-var crypto = require('crypto');
+var crypto = require("crypto");
 const fetch = require("node-fetch");
 @Injectable()
 export class WalletService {
@@ -143,7 +143,7 @@ export class WalletService {
         from: UserInfo.phoneNo,
         onSenderModel: role,
         senderId: UserInfo._id,
-        amount: amount ,
+        amount: amount,
         currency: "NOSH",
         message: "",
         status: "PENDING",
@@ -166,9 +166,9 @@ export class WalletService {
         asset.amount,
         asset.amount - transaction.amount
       );
-      asset.amount = asset.amount - (transaction.amount );
+      asset.amount = asset.amount - transaction.amount;
       console.log(asset.amount);
-      wallet.escrow = wallet.escrow + (transaction.amount );
+      wallet.escrow = wallet.escrow + transaction.amount;
       await wallet.save();
       return { message: "Transfer Initiated Successfully" };
     } catch (error) {
@@ -186,71 +186,96 @@ export class WalletService {
     try {
       console.log("WORKING", req.body);
       let { data, event } = req.body;
-      let hash=crypto.createHmac('sha512', process.env.PAYSTACK_KEYS).update(JSON.stringify(req.body)).digest('hex')
+      let hash = crypto
+        .createHmac("sha512", process.env.PAYSTACK_KEYS)
+        .update(JSON.stringify(req.body))
+        .digest("hex");
       // console.log(hash == req.headers['x-paystack-signature'])
-      if(hash == req.headers['x-paystack-signature']){
-      if (event === "transfer.success") {
-        setTimeout(async () => {
-          let transaction = await this.transactionsModel
-            .findOneAndUpdate(
-              {
-                memo: data.transfer_code,
-              },
-              { status: "SUCCESSFUL" }
-            )
-            .populate("senderId", "walletId");
-          let wallet = await this.walletModel.findById(
-            transaction.senderId.walletId
+      if (hash == req.headers["x-paystack-signature"]) {
+        if (event === "transfer.success") {
+          setTimeout(async () => {
+            let transaction = await this.transactionsModel
+              .findOneAndUpdate(
+                {
+                  memo: data.transfer_code,
+                },
+                { status: "SUCCESSFUL" }
+              )
+              .populate("senderId", "walletId");
+            let wallet = await this.walletModel.findById(
+              transaction.senderId.walletId
+            );
+            if (!wallet) {
+              throw {
+                msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+                status: HttpStatus.NOT_FOUND,
+              };
+            }
+            // let asset = wallet.assets.find(
+            //   (asset) => asset.tokenName == transaction.currency
+            // );
+            // asset.amount = asset.amount - transaction.amount;
+            wallet.escrow = wallet.escrow - transaction.amount;
+            await wallet.save();
+          }, 10000);
+        } else if (event === "transfer.failed") {
+          let transaction = await this.transactionsModel.findOneAndUpdate(
+            {
+              reference: data.recipient.transfer_code,
+            },
+            { status: "FAILED" }
           );
+        } else if (event === "charge.success" && data.channel === "card") {
+          let UserInfo = await this.foodLoverModel.findOne({
+            // customerCode: data.customer.customer_code,
+            customerCode: "CUS_onjsnospaheyq6s",
+          });
+          if (!UserInfo) {
+            throw {
+              msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+              status: HttpStatus.NOT_FOUND,
+            };
+          }
+          let wallet = await this.walletModel.findById(UserInfo.walletId);
+          // let wallet=UserInfo.walletId.assets
+          // console.log("AAAAAAAAAAAAAAA",wallet)
           if (!wallet) {
             throw {
               msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
               status: HttpStatus.NOT_FOUND,
             };
           }
-          // let asset = wallet.assets.find(
-          //   (asset) => asset.tokenName == transaction.currency
-          // );
-          // asset.amount = asset.amount - transaction.amount;
-          wallet.escrow = wallet.escrow - (transaction.amount );
-          await wallet.save();
-        }, 10000);
-      } else if (event === "transfer.failed") {
-        let transaction = await this.transactionsModel.findOneAndUpdate(
-          {
-            reference: data.recipient.transfer_code,
-          },
-          { status: "FAILED" }
-        );
-      } else if (event === "charge.success" && data.channel === "card") {
-        let UserInfo = await this.foodLoverModel.findOne({
-          // customerCode: data.customer.customer_code,
-          customerCode:"CUS_onjsnospaheyq6s"
-        });
-        if (!UserInfo) {
-          throw {
-            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
-            status: HttpStatus.NOT_FOUND,
-          };
-        }
-        let wallet = await this.walletModel.findById(UserInfo.walletId);
-        // let wallet=UserInfo.walletId.assets
-        // console.log("AAAAAAAAAAAAAAA",wallet)
-        if (!wallet) {
-          throw {
-            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
-            status: HttpStatus.NOT_FOUND,
-          };
-        }
-        let transaction = await this.transactionsModel.findOne({
-          reference: data.reference,
-        });
-        if (wallet.assets) {
-          // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
-          let asset = wallet.assets.find(
-            (asset) => asset.tokenName == transaction.currency
-          );
-          if (!asset) {
+          let transaction = await this.transactionsModel.findOne({
+            reference: data.reference,
+          });
+          if (wallet.assets) {
+            // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
+            let asset = wallet.assets.find(
+              (asset) => asset.tokenName == transaction.currency
+            );
+            if (!asset) {
+              let token = await this.createAsset(
+                transaction.currency,
+                wallet,
+                transaction.amount
+              );
+              transaction.status = "SUCCESSFUL";
+              await transaction.save();
+              return {
+                message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+                totalAmount: token.amount,
+              };
+            }
+            asset.amount = asset.amount + transaction.amount;
+            wallet.save();
+            // console.log(wallet)
+            transaction.status = "SUCCESSFUL";
+            await transaction.save();
+            return {
+              message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
+              totalAmount: asset.amount,
+            };
+          } else {
             let token = await this.createAsset(
               transaction.currency,
               wallet,
@@ -263,57 +288,35 @@ export class WalletService {
               totalAmount: token.amount,
             };
           }
-          asset.amount = asset.amount + transaction.amount;
-          wallet.save();
-          // console.log(wallet)
-          transaction.status = "SUCCESSFUL";
-          await transaction.save();
-          return {
-            message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-            totalAmount: asset.amount,
+        } else if (event === "charge.success") {
+          let UserInfo = await this.foodLoverModel.findOne({
+            customerCode: data.customer.customer_code,
+          });
+          if (!UserInfo) {
+            throw {
+              msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
+              status: HttpStatus.NOT_FOUND,
+            };
+          }
+          let amount = data.amount / 100;
+          let deductPercentage =
+            amount <= 2500 ? amount * 0.015 : amount * 0.015 + 100;
+          let req = {
+            user: { phoneNo: UserInfo.phoneNo },
+            body: {
+              amount: amount - deductPercentage,
+              tokenName: "NOSH",
+              timeStamp: new Date(data.created_at).getTime(),
+            },
           };
-        } else {
-          let token = await this.createAsset(
-            transaction.currency,
-            wallet,
-            transaction.amount
-          );
-          transaction.status = "SUCCESSFUL";
-          await transaction.save();
-          return {
-            message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-            totalAmount: token.amount,
-          };
-        }
-      } else if (event === "charge.success") {
-        let UserInfo = await this.foodLoverModel.findOne({
-          customerCode: data.customer.customer_code,
-        });
-        if (!UserInfo) {
-          throw {
-            msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
-            status: HttpStatus.NOT_FOUND,
-          };
-        }
-        let amount = data.amount / 100;
-        let deductPercentage =
-          amount <= 2500 ? amount * 0.015 : (amount * 0.015) + 100;
-        let req = {
-          user: { phoneNo: UserInfo.phoneNo },
-          body: {
-            amount: amount - deductPercentage,
-            tokenName: "NOSH",
-            timeStamp: new Date(data.created_at).getTime(),
-          },
-        };
 
-        await this.addNoshiesByBank(req, "Bought Noshies By Bank");
-      }
+          await this.addNoshiesByBank(req, "Bought Noshies By Bank");
+        }
 
-      res.sendStatus(200);
-      }else{
-        res.sendStatus(404)
-      }// return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      } // return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
@@ -449,8 +452,8 @@ export class WalletService {
       );
     }
   }
-  async deleteCardFailTx(req){
-    try{
+  async deleteCardFailTx(req) {
+    try {
       let { user } = req;
       let { reference } = req.body;
       let UserInfo = await this.foodLoverModel.findOne({
@@ -462,10 +465,9 @@ export class WalletService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let tx=await this.transactionsModel.findOneAndDelete({reference})
-      return {message:"Transaction Deleted"}
-    }
-    catch(error){
+      let tx = await this.transactionsModel.findOneAndDelete({ reference });
+      return { message: "Transaction Deleted" };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -516,17 +518,17 @@ export class WalletService {
         if (user) {
           common.push(user);
         }
-        // if (req.body.forSent) {
-        const anotherUser = await this.foodCreatorModel
-          .findOne({
-            $or: [{ phoneNo: contacts[i] }],
-          })
-          .select("-passHash -pinHash");
-        // .populate("walletId", "publicKey");
-        if (anotherUser) {
-          common.push(anotherUser);
+        if (req.body.forSent) {
+          const anotherUser = await this.foodCreatorModel
+            .findOne({
+              $or: [{ phoneNo: contacts[i] }],
+            })
+            .select("-passHash -pinHash");
+          // .populate("walletId", "publicKey");
+          if (anotherUser) {
+            common.push(anotherUser);
+          }
         }
-        // }
       }
       return { contacts: common };
     } catch (error) {
@@ -1059,7 +1061,7 @@ export class WalletService {
       );
     }
   }
-  
+
   async getAllAssets(req) {
     try {
       let { user } = req;
@@ -1276,15 +1278,18 @@ export class WalletService {
         })
         .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
         .lean();
-      let FoodCreators = await this.foodCreatorModel
-        .find({
-          $or: [
-            { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
-            { username:  new RegExp(req.body.search, "i") },
-          ],
-        })
-        .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
-        .lean();
+        let FoodCreators =[]
+      if (req.body.forSent) {
+        FoodCreators= await this.foodCreatorModel
+          .find({
+            $or: [
+              { phoneNo: `${UserInfo.countryCode}${req.body.search}` },
+              { username: new RegExp(req.body.search, "i") },
+            ],
+          })
+          .select("-fcmRegistrationToken -passHash -pinHash -recipientCode")
+          .lean();
+      }
       return { contacts: [...FoodLovers, ...FoodCreators] };
     } catch (error) {
       this.logger.error(error, error.stack);
