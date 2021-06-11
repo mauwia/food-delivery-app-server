@@ -110,7 +110,6 @@ export class OrdersService {
         ])
         .execPopulate();
       // console.log()
-      await this.changeBalanceAccordingToStatus("New",orderCreated,foodCreator,UserInfo)
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -268,21 +267,21 @@ export class OrdersService {
     orderStatusSender
   ) {
     try {
-      if (status === "New") {
+      if (status === "Accepted") {
         // console.log(order.foodLoverId)
         //Wallet of sender(FC) and reciever(FL)
-        let statusSenderWallet = await this.walletModel.findById(
+        let statusRecieverWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
-        let statusRecieverWallet = await this.walletModel.findById(
-          orderStatusReciever.walletId
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
-        let senderAssets = statusSenderWallet.assets.find(
+        let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let receiverAssets = statusRecieverWallet.assets.find(
+        let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         //bill distribution
@@ -297,18 +296,18 @@ export class OrdersService {
             amount: orderBillSixty,
           };
           //create asset with amount of bill I.e 60% of total bill
-          // console.log(token);
-          statusRecieverWallet.assets.push(token);
+          console.log(token);
+          statusSenderWallet.assets.push(token);
           //setting escrow of FC with 40% of bill
-          statusRecieverWallet.escrow =
-          statusRecieverWallet.escrow + +orderBillForty;
-          //setting escrow of FL with 40% of bill
-
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
+          //setting escrow of FL with 40% of bill
+
+          statusRecieverWallet.escrow =
+            statusRecieverWallet.escrow + +orderBillForty;
+          await statusSenderWallet.save();
 
           senderAssets.amount = senderAssets.amount - order.orderBill;
-          await statusSenderWallet.save();
           console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {

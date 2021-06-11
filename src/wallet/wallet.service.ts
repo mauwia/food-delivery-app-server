@@ -186,8 +186,9 @@ export class WalletService {
     try {
       console.log("WORKING", req.body);
       let { data, event } = req.body;
-      // let hash=crypto.createHmac('sha512', "secret").update(JSON.stringify(req.body)).digest('hex')
-      // if(true){
+      let hash=crypto.createHmac('sha512', process.env.PAYSTACK_KEYS).update(JSON.stringify(req.body)).digest('hex')
+      // console.log(hash == req.headers['x-paystack-signature'])
+      if(hash == req.headers['x-paystack-signature']){
       if (event === "transfer.success") {
         setTimeout(async () => {
           let transaction = await this.transactionsModel
@@ -223,8 +224,8 @@ export class WalletService {
         );
       } else if (event === "charge.success" && data.channel === "card") {
         let UserInfo = await this.foodLoverModel.findOne({
-          customerCode: data.customer.customer_code,
-          // customerCode:"CUS_5tnymf7cv0yo4vx"
+          // customerCode: data.customer.customer_code,
+          customerCode:"CUS_onjsnospaheyq6s"
         });
         if (!UserInfo) {
           throw {
@@ -310,7 +311,9 @@ export class WalletService {
       }
 
       res.sendStatus(200);
-      // }// return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
+      }else{
+        res.sendStatus(404)
+      }// return { messages: WALLET_MESSAGES.WITHDRAW_SUCCESS, wallet };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(

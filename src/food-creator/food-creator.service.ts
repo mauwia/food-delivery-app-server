@@ -33,10 +33,12 @@ export class FoodCreatorService {
       if (!bcrypt.compareSync(req.password, userExist.passHash)) {
         throw FOOD_CREATOR_MESSAGES.WRONG_PASSWORD;
       }
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistrationToken)
-      if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
-        await userExist.save()
+      let tokenExist = userExist.fcmRegistrationToken.find(
+        (token) => token === req.fcmRegistrationToken
+      );
+      if (!tokenExist) {
+        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken);
+        await userExist.save();
       }
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
@@ -108,11 +110,9 @@ export class FoodCreatorService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user };
-      }
-      else if(uniqueNumberInLover){
+      } else if (uniqueNumberInLover) {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST_IN_FL;
-      } 
-      else {
+      } else {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST;
       }
     } catch (error) {
@@ -130,11 +130,21 @@ export class FoodCreatorService {
     try {
       let { user } = req;
       // console.log(user)
-      const UserInfo = await this.foodCreatorModel.findOne({
+
+      let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
+      if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      if (req.body.username) {
+        let user = await this.foodCreatorModel.findById(req.body.username);
+        return { user };
       }
       // let location=await this.locationModel.find({foodCreatorId:UserInfo._id})
       // UserInfo.location=location
@@ -260,7 +270,7 @@ export class FoodCreatorService {
         };
       }
       if (bcrypt.compareSync(req.body.password, UserInfo.passHash)) {
-        throw  {
+        throw {
           msg: FOOD_CREATOR_MESSAGES.EXIST_PASS,
           status: HttpStatus.NOT_ACCEPTABLE,
         };
@@ -353,21 +363,23 @@ export class FoodCreatorService {
       );
     }
   }
-  async logout(req){
-    try{
-      let {user}=req
+  async logout(req) {
+    try {
+      let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      await this.foodCreatorModel.findOneAndUpdate({phoneNo:user.phoneNo},{
-        $pull:{fcmRegistrationToken:req.body.fcmRegistrationToken}
-      })
-      return {message:"Logout Success"}
-
-    }catch(error){
+      await this.foodCreatorModel.findOneAndUpdate(
+        { phoneNo: user.phoneNo },
+        {
+          $pull: { fcmRegistrationToken: req.body.fcmRegistrationToken },
+        }
+      );
+      return { message: "Logout Success" };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -387,22 +399,26 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      if(req.body.username){
-        let usernameCheck=await this.foodCreatorModel.findOne({username:req.body.username})
-        if(usernameCheck && usernameCheck.phoneNo !== UserInfo.phoneNo){
-          throw "Username already in use"
+      if (req.body.username) {
+        let usernameCheck = await this.foodCreatorModel.findOne({
+          username: req.body.username,
+        });
+        if (usernameCheck && usernameCheck.phoneNo !== UserInfo.phoneNo) {
+          throw "Username already in use";
         }
       }
-      if(req.body.email){
-        let emailCheck=await this.foodCreatorModel.findOne({email:req.body.email})
-        console.log(emailCheck)
-        if(emailCheck && emailCheck.phoneNo !== UserInfo.phoneNo){
-          throw "Email already in use"
+      if (req.body.email) {
+        let emailCheck = await this.foodCreatorModel.findOne({
+          email: req.body.email,
+        });
+        console.log(emailCheck);
+        if (emailCheck && emailCheck.phoneNo !== UserInfo.phoneNo) {
+          throw "Email already in use";
         }
       }
       UserInfo.businessName = req.body.businessName;
-      UserInfo.username=req.body.username
-      UserInfo.email=req.body.email
+      UserInfo.username = req.body.username;
+      UserInfo.email = req.body.email;
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
