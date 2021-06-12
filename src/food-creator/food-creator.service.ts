@@ -27,7 +27,7 @@ export class FoodCreatorService {
     try {
       const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
       if(!isAlphaTester){
-        throw "Account Not Registered As Tester"
+        throw "Something Went Wrong"
       }
       const userExist = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,

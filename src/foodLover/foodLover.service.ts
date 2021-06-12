@@ -94,7 +94,7 @@ export class FoodLoverService {
     try {
       const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
       if(!isAlphaTester){
-        throw "Account Not Registered As Tester"
+        throw "Something Went Wrong"
       }
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
