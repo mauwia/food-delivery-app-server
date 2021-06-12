@@ -10,6 +10,7 @@ import * as utils from "../utils";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import { generateJWT } from "../utils/index";
 import { userInfo } from "os";
+import { Testers } from "src/profile/profile.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -21,6 +22,7 @@ export class FoodLoverService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
+    @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
@@ -90,6 +92,10 @@ export class FoodLoverService {
     mobileRegisteredId: string;
   }) {
     try {
+      const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      if(!isAlphaTester){
+        throw "Account Not Registered As Tester"
+      }
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });

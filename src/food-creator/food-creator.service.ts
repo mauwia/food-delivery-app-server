@@ -6,6 +6,7 @@ import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
+import { Testers } from "src/profile/profile.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -17,16 +18,21 @@ export class FoodCreatorService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
     private readonly foodLoverModel: Model<FoodLover>,
-
+    @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
   async signinCreator(req) {
     try {
+      const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      if(!isAlphaTester){
+        throw "Account Not Registered As Tester"
+      }
       const userExist = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
       });
+
       if (!userExist) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_EXIST;
       }

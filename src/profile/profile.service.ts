@@ -11,6 +11,7 @@ import { PROFILE_MESSAGES, PROFILE_DATA } from "./constants/key-constants";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { Orders } from "src/orders/orders.model";
+import { Testers } from "./profile.model";
 const bcrypt = require("bcryptjs");
 
 @Injectable()
@@ -19,7 +20,8 @@ export class ProfileService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    @InjectModel("Orders") private readonly ordersModel: Model<Orders>
+    @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
+    @InjectModel("Testers") private readonly testerModel:Model<Testers>
   ) {}
   private logger = new Logger("Profile");
 
@@ -217,4 +219,15 @@ export class ProfileService {
 
     return true;
   }
+  async addAlphas(req){
+    try{
+      await this.testerModel.collection.insertMany(req.body.testers)
+      return {message:"Tester added succcussfully"}
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+        throw new BadRequestException(error);
+    }
+  }
 }
+
