@@ -94,7 +94,7 @@ export class FoodLoverService {
     try {
       const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
       if(!isAlphaTester){
-        throw "Something Went Wrong"
+        throw "you are not authorized to access this app"
       }
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,

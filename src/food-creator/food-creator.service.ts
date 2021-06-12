@@ -27,7 +27,7 @@ export class FoodCreatorService {
     try {
       const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
       if(!isAlphaTester){
-        throw "Something Went Wrong"
+        throw "you are not authorized to access this app"
       }
       const userExist = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
