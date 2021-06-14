@@ -48,6 +48,11 @@ export class FoodLoverController {
     const response = await this.foodLoverService.getLoverInfo(request);
     return response;
   }
+  @Get("/getLoverInfo/:username")
+  async otherLoverInfo(@Req() request: Request) {
+    const response = await this.foodLoverService.getLoverInfo(request);
+    return response;
+  }
   @UseGuards(new JWTAuthGuard())
   @Post("/authenticateOTP")
   async AuthenticateCode(@Req() request: Request) {

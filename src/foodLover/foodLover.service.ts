@@ -186,10 +186,10 @@ export class FoodLoverService {
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       }
-      if(req.body.username){
+      if(req.params.username){
         let viewOtherUserInfo= await this.foodLoverModel
         .findOne({
-          username: req.body.username,
+          username: req.params.username,
         })
         .lean();
         let totalOrders = await this.ordersModel.countDocuments({
