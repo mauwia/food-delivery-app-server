@@ -149,7 +149,7 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       if (req.body.username) {
-        let user = await this.foodCreatorModel.findById(req.body.username);
+        let user = await this.foodCreatorModel.findOne({username:req.body.username});
         return { user };
       }
       // let location=await this.locationModel.find({foodCreatorId:UserInfo._id})
