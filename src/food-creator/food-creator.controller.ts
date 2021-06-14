@@ -43,7 +43,7 @@ export class FoodCreatorController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get("/getCreatorInfo")
+  @Get("/getCreatorInfo/:username")
   async getCreatorInfo(@Req() request: Request) {
     const response = await this.foodCreatorService.getCreatorInfo(request);
     return response;
