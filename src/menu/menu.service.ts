@@ -98,10 +98,13 @@ export class MenuService {
                   },
                 },
               },
-            },
+            }, 
             {
               menuExist: true,
             },
+            {
+              subscribers:{$nin:[Types.ObjectId(UserInfo._id)]}
+            }
           ],
         })
         .select(
