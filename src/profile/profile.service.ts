@@ -8,6 +8,9 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { PROFILE_MESSAGES, PROFILE_DATA } from "./constants/key-constants";
+import { Workbook } from "exceljs";
+import * as tmp from "tmp";
+import { writeFile } from "fs/promises";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { Orders } from "src/orders/orders.model";
@@ -21,7 +24,7 @@ export class ProfileService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
-    @InjectModel("Testers") private readonly testerModel:Model<Testers>
+    @InjectModel("Testers") private readonly testerModel: Model<Testers>
   ) {}
   private logger = new Logger("Profile");
 
@@ -219,15 +222,105 @@ export class ProfileService {
 
     return true;
   }
-  async addAlphas(req){
-    try{
-      await this.testerModel.collection.insertMany(req.body.testers)
-      return {message:"Tester added succcussfully"}
-    }
-    catch(error){
+  async addAlphas(req) {
+    try {
+      await this.testerModel.collection.insertMany(req.body.testers);
+      return { message: "Tester added succcussfully" };
+    } catch (error) {
       this.logger.error(error, error.stack);
-        throw new BadRequestException(error);
+      throw new BadRequestException(error);
+    }
+  }
+  async getAllFCs() {
+    try {
+      let data = await this.foodCreatorModel
+        .find({})
+        .select(
+          "-_id -__v -passHash -fcmRegistrationToken -customerCode -pinHash"
+        )
+        .lean();
+    
+      let rows = [];
+      data.forEach((doc) => {
+        rows.push(Object.values(doc));
+      });
+      let book = new Workbook();
+      let sheet = book.addWorksheet(`sheet1`);
+      rows.unshift(Object.keys(data[0]));
+      sheet.addRows(rows);
+      let File = await new Promise((resolve, reject) => {
+        tmp.file(
+          {
+            discardDescriptor: true,
+            prefix: `NoshifyTesterFC`,
+            postfix: ".xlsx",
+            mode: parseInt("0600", 8),
+          },
+          async (err, file) => {
+            if (err) {
+              throw new BadRequestException(err);
+            }
+            book.xlsx
+              .writeFile(file)
+              .then((_) => {
+                resolve(file);
+              })
+              .catch((err) => {
+                throw new BadRequestException(err);
+              });
+          }
+        );
+      });
+      return File;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new BadRequestException(error);
+    }
+  }
+  async getAllFL() {
+    try {
+      let data = await this.foodLoverModel
+        .find({})
+        .select(
+          "-_id -__v -passHash -fcmRegistrationToken -customerCode -pinHash"
+        )
+        .lean();
+    
+      let rows = [];
+      data.forEach((doc) => {
+        rows.push(Object.values(doc));
+      });
+      let book = new Workbook();
+      let sheet = book.addWorksheet(`sheet1`);
+      rows.unshift(Object.keys(data[0]));
+      sheet.addRows(rows);
+      let File = await new Promise((resolve, reject) => {
+        tmp.file(
+          {
+            discardDescriptor: true,
+            prefix: `NoshifyTesterFL`,
+            postfix: ".xlsx",
+            mode: parseInt("0600", 8),
+          },
+          async (err, file) => {
+            if (err) {
+              throw new BadRequestException(err);
+            }
+            book.xlsx
+              .writeFile(file)
+              .then((_) => {
+                resolve(file);
+              })
+              .catch((err) => {
+                throw new BadRequestException(err);
+              });
+          }
+        );
+      });
+      return File;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new BadRequestException(error);
     }
   }
 }
-
