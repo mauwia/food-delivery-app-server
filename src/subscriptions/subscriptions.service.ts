@@ -167,7 +167,30 @@ export class SubscriptionsService {
       throw new BadRequestException(error);
     }
   }
-
+  async getFlSubscription(request,foodLoverID){
+    let {
+      user,
+    }: {
+      user: { phoneNo: string; id: string };
+    } = request;
+    try{
+      let fcProfile = await this.foodLoverModel.findOne({
+        _id: foodLoverID,
+      });
+      if (!fcProfile) {
+        throw SUBSCRIPTION_MESSAGES.USER_NOT_FOUND;
+      } else {
+        return this.foodCreatorModel
+          .findOne({ _id: foodLoverID }, { subscribers: 1 })
+          .populate("subscribers", { username: 1, imageUrl: 1 })
+          .exec();
+      }
+    }
+    catch(error){
+      this.logger.error(error, error.stack);
+      throw new BadRequestException(error);
+    }
+  }
   async isFlSubscribedToFC(request, foodCreatorID) {
     let {
       user,
