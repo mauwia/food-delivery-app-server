@@ -174,15 +174,15 @@ export class SubscriptionsService {
       user: { phoneNo: string; id: string };
     } = request;
     try{
-      let fcProfile = await this.foodLoverModel.findOne({
+      let flProfile = await this.foodLoverModel.findOne({
         _id: foodLoverID,
       });
-      if (!fcProfile) {
+      if (!flProfile) {
         throw SUBSCRIPTION_MESSAGES.USER_NOT_FOUND;
       } else {
-        return this.foodCreatorModel
-          .findOne({ _id: foodLoverID }, { subscribers: 1 })
-          .populate("subscribers", { username: 1, imageUrl: 1 })
+        return this.foodLoverModel
+          .findOne({ _id: foodLoverID }, { subscribedTo: 1 })
+          .populate("subscribedTo", { username: 1, imageUrl: 1 })
           .exec();
       }
     }
