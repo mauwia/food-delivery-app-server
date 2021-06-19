@@ -204,13 +204,13 @@ export class SubscriptionsService {
         foodCreatorID
       );
       let flIsSubscribedToFC = {}
+      // console.log(fcSubscriptions)
       if (fcSubscriptions.subscribers.length) {
         flIsSubscribedToFC = fcSubscriptions.subscribers.filter(
           (subscriber) => subscriber._id.equals(user.id)
         )[0];
       }
-      
-      if (Object.keys(flIsSubscribedToFC).length === 0) {
+      if (!flIsSubscribedToFC) {
         return {
           isSubscribedToFC: false,
         };
