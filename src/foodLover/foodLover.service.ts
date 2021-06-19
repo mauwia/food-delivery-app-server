@@ -92,10 +92,10 @@ export class FoodLoverService {
     mobileRegisteredId: string;
   }) {
     try {
-      const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
-      if(!isAlphaTester){
-        throw "you are not authorized to access this app"
-      }
+      // const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      // if(!isAlphaTester){
+      //   throw "you are not authorized to access this app"
+      // }
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });

@@ -25,10 +25,10 @@ export class FoodCreatorService {
   private logger = new Logger("Food Creator");
   async signinCreator(req) {
     try {
-      const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
-      if(!isAlphaTester){
-        throw "you are not authorized to access this app"
-      }
+      // const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      // if(!isAlphaTester){
+      //   throw "you are not authorized to access this app"
+      // }
       const userExist = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
       });
