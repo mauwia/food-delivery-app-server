@@ -105,7 +105,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName walletId",
+            select: "businessName username walletId",
           },
         ])
         .execPopulate();
@@ -165,7 +165,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName avgRating imageUrl",
+            select: "businessName username avgRating imageUrl",
           },
           {
             path: "chatRoomId",
@@ -211,7 +211,7 @@ export class OrdersService {
         },
         {
           path: "foodCreatorId",
-          select: "businessName phoneNo fcmRegistrationToken walletId imageUrl",
+          select: "businessName phoneNo username fcmRegistrationToken walletId imageUrl",
         },
       ]);
       if (!checkStatus(order.orderStatus, status)) {
@@ -607,7 +607,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName phoneNo imageUrl",
+            select: "businessName phoneNo username imageUrl",
           },
         ]);
       return { Orders };
