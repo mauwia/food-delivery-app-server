@@ -27,6 +27,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
       "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg",
   },
   creatorUrls: { type: Array },
+  addressComponents:{ type: Array },
   description: { type: String },
   countryCode: { type: String },
   countryName: { type: String },
@@ -46,6 +47,7 @@ FoodCreatorSchema.index({ location: "2dsphere" });
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
   recipientCode: string;
+  addressComponents:any
   totalNoshedOrders: number;
   creatorUrls: any;
   description: string;

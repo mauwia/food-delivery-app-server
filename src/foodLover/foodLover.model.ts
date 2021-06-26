@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { Wallet } from "src/wallet/wallet.model";
+
 
 export const FoodLoverSchema = new mongoose.Schema({
   firstName: { type: String },
@@ -11,6 +11,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   countryCode: { type: String },
   countryName: { type: String },
   location: { type: Array },
+  addressComponents:{type:Array},
   email: { type: String },
   username: { type: String },
   dedicatedCustomer: { type: Boolean, default: false },
@@ -43,6 +44,7 @@ export interface FoodLover extends mongoose.Document {
   countryName: string;
   isActive: boolean;
   email: string;
+  addressComponents:any
   location: [];
   imageUrl: string;
   username: string;

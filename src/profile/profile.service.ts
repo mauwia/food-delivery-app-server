@@ -39,6 +39,7 @@ export class ProfileService {
         password: string;
         creatorUrls: string;
         description: string;
+        addressComponents:any
         phoneNo: string;
         verified: boolean;
         firstName: string;
@@ -120,6 +121,7 @@ export class ProfileService {
                   verified: body.verified || userProfile.verified,
                   email: body.email || userProfile.email,
                   username: body.username || userProfile.username,
+                  addressComponents:body.addressComponents||userProfile.addressComponents,
                   imageUrl: body.imageUrl || userProfile.imageUrl,
                   location: body.location || userProfile.location,
                   pinHash: pinHash || userProfile.pinHash,
