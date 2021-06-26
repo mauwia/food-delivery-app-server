@@ -105,12 +105,11 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName walletId",
+            select: "businessName username walletId",
           },
         ])
         .execPopulate();
       // console.log()
-      await this.changeBalanceAccordingToStatus("New",orderCreated,foodCreator,UserInfo)
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -166,7 +165,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName avgRating imageUrl",
+            select: "businessName username avgRating imageUrl",
           },
           {
             path: "chatRoomId",
@@ -212,7 +211,7 @@ export class OrdersService {
         },
         {
           path: "foodCreatorId",
-          select: "businessName phoneNo fcmRegistrationToken walletId imageUrl",
+          select: "businessName phoneNo username fcmRegistrationToken walletId imageUrl",
         },
       ]);
       if (!checkStatus(order.orderStatus, status)) {
@@ -268,21 +267,21 @@ export class OrdersService {
     orderStatusSender
   ) {
     try {
-      if (status === "New") {
+      if (status === "Accepted") {
         // console.log(order.foodLoverId)
         //Wallet of sender(FC) and reciever(FL)
-        let statusSenderWallet = await this.walletModel.findById(
+        let statusRecieverWallet = await this.walletModel.findById(
           order.foodLoverId.walletId
         );
-        let statusRecieverWallet = await this.walletModel.findById(
-          orderStatusReciever.walletId
+        let statusSenderWallet = await this.walletModel.findById(
+          orderStatusSender.walletId
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
-        let senderAssets = statusSenderWallet.assets.find(
+        let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
-        let receiverAssets = statusRecieverWallet.assets.find(
+        let receiverAssets = statusSenderWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
         //bill distribution
@@ -297,18 +296,18 @@ export class OrdersService {
             amount: orderBillSixty,
           };
           //create asset with amount of bill I.e 60% of total bill
-          // console.log(token);
-          statusRecieverWallet.assets.push(token);
+          console.log(token);
+          statusSenderWallet.assets.push(token);
           //setting escrow of FC with 40% of bill
-          statusRecieverWallet.escrow =
-          statusRecieverWallet.escrow + +orderBillForty;
-          //setting escrow of FL with 40% of bill
-
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
+          //setting escrow of FL with 40% of bill
+
+          statusRecieverWallet.escrow =
+            statusRecieverWallet.escrow + +orderBillForty;
+          await statusSenderWallet.save();
 
           senderAssets.amount = senderAssets.amount - order.orderBill;
-          await statusSenderWallet.save();
           console.log("Sender Assets", senderAssets);
           await statusRecieverWallet.save();
         } else {
@@ -403,28 +402,28 @@ export class OrdersService {
         await statusRecieverWallet.save();
         await statusSenderWallet.save();
       } else if (status === "Decline") {
-        let statusRecieverWallet = await this.walletModel.findById(
-          order.foodLoverId.walletId
-        );
-        let statusSenderWallet = await this.walletModel.findById(
-          orderStatusSender.walletId
-        );
-        let FC_Assets = statusSenderWallet.assets.find(
-          (asset) => asset.tokenName == order.tokenName
-        );
-        let FL_Assets = statusRecieverWallet.assets.find(
-          (asset) => asset.tokenName == order.tokenName
-        );
-        let orderBillSixty = order.realOrderBill * 0.6;
-        let orderBillForty = order.realOrderBill * 0.4;
-        statusRecieverWallet.escrow =
-          statusRecieverWallet.escrow - orderBillForty;
-        statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
-        FC_Assets.amount = FC_Assets.amount - orderBillSixty;
-        FL_Assets.amount =
-          FL_Assets.amount + order.orderBill ;
-          await statusRecieverWallet.save();
-          await statusSenderWallet.save();
+        // let statusRecieverWallet = await this.walletModel.findById(
+        //   order.foodLoverId.walletId
+        // );
+        // let statusSenderWallet = await this.walletModel.findById(
+        //   orderStatusSender.walletId
+        // );
+        // let FC_Assets = statusSenderWallet.assets.find(
+        //   (asset) => asset.tokenName == order.tokenName
+        // );
+        // let FL_Assets = statusRecieverWallet.assets.find(
+        //   (asset) => asset.tokenName == order.tokenName
+        // );
+        // let orderBillSixty = order.realOrderBill * 0.6;
+        // let orderBillForty = order.realOrderBill * 0.4;
+        // statusRecieverWallet.escrow =
+        //   statusRecieverWallet.escrow - orderBillForty;
+        // statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
+        // FC_Assets.amount = FC_Assets.amount - orderBillSixty;
+        // FL_Assets.amount =
+        //   FL_Assets.amount + order.orderBill ;
+        //   await statusRecieverWallet.save();
+        //   await statusSenderWallet.save();
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
@@ -608,7 +607,7 @@ export class OrdersService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName phoneNo imageUrl",
+            select: "businessName phoneNo username imageUrl",
           },
         ]);
       return { Orders };

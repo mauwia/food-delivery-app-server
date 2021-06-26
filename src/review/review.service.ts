@@ -39,7 +39,7 @@ export class ReviewService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName imageUrl",
+            select: "businessName username imageUrl",
           },
           {
             path: "foodLoverId",
@@ -87,7 +87,7 @@ export class ReviewService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName imageUrl",
+            select: "businessName username imageUrl",
           },
           {
             path: "foodLoverId",
@@ -130,7 +130,7 @@ export class ReviewService {
           },
           {
             path: "foodCreatorId",
-            select: "businessName imageUrl",
+            select: "businessName username imageUrl",
           },
           {
             path: "foodLoverId",
