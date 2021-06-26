@@ -37,7 +37,7 @@ export class ProfileService {
       user: { phoneNo: string };
       body: {
         password: string;
-        videoUrl: string;
+        creatorUrls: string;
         description: string;
         phoneNo: string;
         verified: boolean;
@@ -133,7 +133,7 @@ export class ProfileService {
                   ...(userType === "fc" && {
                     creatorThumbnail:
                       body.creatorThumbnail || userProfile.creatorThumbnail,
-                    videoUrl: body.videoUrl || userProfile.videoUrl,
+                      creatorUrls: body.creatorUrls || userProfile.creatorUrls,
                     description: body.description || userProfile.description,
                     businessName: body.businessName || userProfile.businessName,
                     creatorFoodType:

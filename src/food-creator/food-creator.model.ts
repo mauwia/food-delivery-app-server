@@ -26,7 +26,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
     default:
       "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg",
   },
-  videoUrl: { type: String },
+  creatorUrls: { type: Array },
   description: { type: String },
   countryCode: { type: String },
   countryName: { type: String },
@@ -47,7 +47,7 @@ export interface FoodCreator extends mongoose.Document {
   // location: Location[];
   recipientCode: string;
   totalNoshedOrders: number;
-  videoUrl: string;
+  creatorUrls: any;
   description: string;
   creatorThumbnail: string;
   username: string;
