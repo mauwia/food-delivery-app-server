@@ -425,6 +425,7 @@ export class FoodCreatorService {
       UserInfo.businessName = req.body.businessName;
       UserInfo.username = req.body.username;
       UserInfo.email = req.body.email;
+      UserInfo.addressComponents=req.body.addressComponents
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
