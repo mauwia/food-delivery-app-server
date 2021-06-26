@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req,Res,UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, Post, Req,Res,UseGuards } from "@nestjs/common";
 import { request, Request,Response } from "express";
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { WalletService } from "./wallet.service";
@@ -55,14 +55,14 @@ export class WalletController {
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByCard')
   async AddNoshiesByCard(@Req() req:Request){
-    let response=await this.walletService.addNoshiesByCard(req,"Bought Noshies By Card")
+    let response=await this.walletService.initiateChargeCard(req)
     return response
   }
   @UseGuards(new JWTAuthGuard())
   @Post('/addNoshiesByBank')
   async AddNoshiesByBank(@Req() req:Request){
     ///Will update when paystack integrate
-    let response=await this.walletService.addNoshiesByCard(req,"Bought Noshies By Bank")
+    let response=await this.walletService.addNoshiesByBank(req,"Bought Noshies By Bank")
     return response
   }
 
@@ -95,7 +95,37 @@ export class WalletController {
   @UseGuards(new JWTAuthGuard())
   @Post('/initiateWithdraw')
   async InitiateTransfer(@Req() req:Request){
-    let response=await this.walletService.initializeWithdraw(req)
+    let response=await this.walletService.initiateWithdraw(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post('/createRecipient')
+  async createRecipient(@Req() req:Request){
+    let response=await this.walletService.createRecipient(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/createDedicatedAccount")
+  async createDedicatedAccount(@Req() req:Request){
+    let response=await this.walletService.createDedicatedAccountNumber(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get("/getDedicatedAccount")
+  async getDedicatedAccount(@Req() req:Request){
+    let response=await this.walletService.getDedicatedAccountNumber(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/getSearchContacts")
+  async getSearchContacts(@Req() req:Request){
+    let response=await this.walletService.searchContact(req)
+    return response
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Delete('/deleteFailCardTx')
+  async deleteFailCardTx(@Req() req:Request){
+    let response=await this.walletService.deleteCardFailTx(req)
     return response
   }
 }

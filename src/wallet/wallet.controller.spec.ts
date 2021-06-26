@@ -199,21 +199,21 @@ describe("WalletController", () => {
     // let response=await walletController.GetAllTransactions(req)
     // expect(response.transactions).toStrictEqual([])
   });
-  test("addNoshiesByCard/addNoshiesByBank", async () => {
-    let req={
-        user:{
-            phoneNo:"123456789"
-        },
-        body:{
-            walletId:"123testId",
-            timeStamp:Date.now(),
-            amount:1,
-            tokenName:"testToken"
-        }
-    }as unknown as Request
-    let response=await walletController.AddNoshiesByCard(req)
-    expect(response.totalAmount).toBe(5)
-  });
+  // test("addNoshiesByCard/addNoshiesByBank", async () => {
+  //   let req={
+  //       user:{
+  //           phoneNo:"123456789"
+  //       },
+  //       body:{
+  //           walletId:"123testId",
+  //           timeStamp:Date.now(),
+  //           amount:1,
+  //           tokenName:"testToken"
+  //       }
+  //   }as unknown as Request
+  //   let response=await walletController.AddNoshiesByCard(req)
+  //   expect(response.totalAmount).toBe(5)
+  // });
   test("getNoshifyContacts", async () => {
         let req={
           user:{phoneNo:"123456789"},

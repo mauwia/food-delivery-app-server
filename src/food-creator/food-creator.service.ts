@@ -6,6 +6,7 @@ import { WalletService } from "../wallet/wallet.service";
 import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
+import { Testers } from "src/profile/profile.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -17,26 +18,33 @@ export class FoodCreatorService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
     private readonly foodLoverModel: Model<FoodLover>,
-
+    @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     private readonly walletService: WalletService
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
   async signinCreator(req) {
     try {
+      // const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      // if(!isAlphaTester){
+      //   throw "you are not authorized to access this app"
+      // }
       const userExist = await this.foodCreatorModel.findOne({
         phoneNo: req.phoneNo,
       });
+
       if (!userExist) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_EXIST;
       }
       if (!bcrypt.compareSync(req.password, userExist.passHash)) {
         throw FOOD_CREATOR_MESSAGES.WRONG_PASSWORD;
       }
-      let tokenExist=userExist.fcmRegistrationToken.find(token=>token===req.fcmRegistrationToken)
-      if(!tokenExist){
-        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken)
-        await userExist.save()
+      let tokenExist = userExist.fcmRegistrationToken.find(
+        (token) => token === req.fcmRegistrationToken
+      );
+      if (!tokenExist) {
+        userExist.fcmRegistrationToken.push(req.fcmRegistrationToken);
+        await userExist.save();
       }
       const token = jwt.sign(
         { phoneNo: userExist.phoneNo },
@@ -108,11 +116,9 @@ export class FoodCreatorService {
         user.pinHash = !!user.pinHash;
         user.passHash = "";
         return { token, user };
-      }
-      else if(uniqueNumberInLover){
+      } else if (uniqueNumberInLover) {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST_IN_FL;
-      } 
-      else {
+      } else {
         throw FOOD_CREATOR_MESSAGES.USER_EXIST;
       }
     } catch (error) {
@@ -130,11 +136,21 @@ export class FoodCreatorService {
     try {
       let { user } = req;
       // console.log(user)
-      const UserInfo = await this.foodCreatorModel.findOne({
+
+      let UserInfo: any = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
+        UserInfo = await this.foodLoverModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
+      if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      if (req.params.username) {
+        let user = await this.foodCreatorModel.findOne({username:req.params.username});
+        return { user };
       }
       // let location=await this.locationModel.find({foodCreatorId:UserInfo._id})
       // UserInfo.location=location
@@ -260,7 +276,7 @@ export class FoodCreatorService {
         };
       }
       if (bcrypt.compareSync(req.body.password, UserInfo.passHash)) {
-        throw  {
+        throw {
           msg: FOOD_CREATOR_MESSAGES.EXIST_PASS,
           status: HttpStatus.NOT_ACCEPTABLE,
         };
@@ -353,21 +369,23 @@ export class FoodCreatorService {
       );
     }
   }
-  async logout(req){
-    try{
-      let {user}=req
+  async logout(req) {
+    try {
+      let { user } = req;
       const UserInfo = await this.foodCreatorModel.findOne({
         phoneNo: user.phoneNo,
       });
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      await this.foodCreatorModel.findOneAndUpdate({phoneNo:user.phoneNo},{
-        $pull:{fcmRegistrationToken:req.body.fcmRegistrationToken}
-      })
-      return {message:"Logout Success"}
-
-    }catch(error){
+      await this.foodCreatorModel.findOneAndUpdate(
+        { phoneNo: user.phoneNo },
+        {
+          $pull: { fcmRegistrationToken: req.body.fcmRegistrationToken },
+        }
+      );
+      return { message: "Logout Success" };
+    } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
         {
@@ -387,22 +405,26 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
-      if(req.body.username){
-        let usernameCheck=await this.foodCreatorModel.findOne({username:req.body.username})
-        if(usernameCheck && usernameCheck.phoneNo !== UserInfo.phoneNo){
-          throw "Username already in use"
+      if (req.body.username) {
+        let usernameCheck = await this.foodCreatorModel.findOne({
+          username: req.body.username,
+        });
+        if (usernameCheck && usernameCheck.phoneNo !== UserInfo.phoneNo) {
+          throw "Username already in use";
         }
       }
-      if(req.body.email){
-        let emailCheck=await this.foodCreatorModel.findOne({email:req.body.email})
-        console.log(emailCheck)
-        if(emailCheck && emailCheck.phoneNo !== UserInfo.phoneNo){
-          throw "Email already in use"
+      if (req.body.email) {
+        let emailCheck = await this.foodCreatorModel.findOne({
+          email: req.body.email,
+        });
+        console.log(emailCheck);
+        if (emailCheck && emailCheck.phoneNo !== UserInfo.phoneNo) {
+          throw "Email already in use";
         }
       }
       UserInfo.businessName = req.body.businessName;
-      UserInfo.username=req.body.username
-      UserInfo.email=req.body.email
+      UserInfo.username = req.body.username;
+      UserInfo.email = req.body.email;
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;

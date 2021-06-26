@@ -10,6 +10,7 @@ import * as utils from "../utils";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import { generateJWT } from "../utils/index";
 import { userInfo } from "os";
+import { Testers } from "src/profile/profile.model";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -21,6 +22,7 @@ export class FoodLoverService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
+    @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService
   ) {}
@@ -90,6 +92,10 @@ export class FoodLoverService {
     mobileRegisteredId: string;
   }) {
     try {
+      // const isAlphaTester=await this.testerModel.findOne({phoneNo:req.phoneNo})
+      // if(!isAlphaTester){
+      //   throw "you are not authorized to access this app"
+      // }
       const uniqueNumber = await this.foodLoverModel.findOne({
         phoneNo: req.phoneNo,
       });
@@ -163,83 +169,103 @@ export class FoodLoverService {
     }
   }
   async getLoverInfo(req) {
-    // try {
-    //   let { user } = req;
-    //   const UserInfo = await this.foodLoverModel
-    //     .findOne({
-    //       phoneNo: user.phoneNo,
-    //     })
-    //     .lean();
-    //   if (!UserInfo) {
-    //     throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
-    //   }
-    //   let totalOrders = await this.ordersModel.countDocuments({
-    //     foodLoverId: UserInfo._id,
-    //     orderStatus: "Order Completed",
-    //   });
-    //   console.log("totalOrders", { ...UserInfo, totalOrders });
-    //   UserInfo.passHash = "";
-    //   return { user: { ...UserInfo, totalOrders } };
-
-      try {
-        let { user } = req;
-        const UserInfo = await this.foodLoverModel
-          .findOne({ phoneNo: user.phoneNo })
-          .select("-passHash -fcmRegistrationToken")
-          .lean();
-          UserInfo.pinHash= !!UserInfo.pinHash
-        if (!UserInfo) {
-          throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
-        }
+    try {
+      let { user } = req;
+      let UserInfo:any = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .lean();
+      if(!UserInfo){
+         UserInfo = await this.foodCreatorModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .lean();
+      }
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      }
+      if(req.params.username){
+        let viewOtherUserInfo= await this.foodLoverModel
+        .findOne({
+          username: req.params.username,
+        })
+        .lean();
         let totalOrders = await this.ordersModel.countDocuments({
-          $and: [
-            { foodLoverId: UserInfo._id },
-            { orderStatus: "Order Completed" },
-          ],
+          foodLoverId: UserInfo._id,
+          orderStatus: "Order Completed",
         });
-        // console.log("totalOrders", { ...UserInfo, totalOrders });
+      return { user: { ...viewOtherUserInfo, totalOrders } };
+      }
+      let totalOrders = await this.ordersModel.countDocuments({
+        foodLoverId: UserInfo._id,
+        orderStatus: "Order Completed",
+      });
+      console.log("totalOrders", { ...UserInfo, totalOrders });
+      UserInfo.passHash = "";
+      return { user: { ...UserInfo, totalOrders } };
+    
 
-        const lastOrder = await this.ordersModel
-          .find({ orderStatus: "Order Completed" })
-          .limit(1)
-          .sort({ $natural: -1 });
-        // console.log(lastOrder)
-        //   // Get orders a FL has made from FCs they are subscribed to
-        const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
-          {
-            $match: {
-              foodCreatorId: { $in: UserInfo.subscribedTo },
-              orderStatus: "Order Completed",
-            },
-          },
-          { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
-        ]);
-        // console.log(ordersFromSubscribedFCs);
-        if (!!req.body.id && user.id !== req.body.id) {
-          // return public profile
-          console.log("here11")
-          const { username, location, imageUrl } = UserInfo;
-          return {
-            user: {
-              username,
-              location,
-              imageUrl,
-              totalOrders,
-              ordersFromSubscribedFCs,
-              lastOrder,
-            },
-          };
-        } else {
-          console.log("here")
-              return {
-                user: {
-                  ...UserInfo,
-                  totalOrders,
-                  ordersFromSubscribedFCs,
-                  lastOrder,
-                },
-              };
-        }
+      // try {
+      //   let { user } = req;
+      //   const UserInfo = await this.foodLoverModel
+      //     .findOne({ phoneNo: user.phoneNo })
+      //     .select("-passHash -fcmRegistrationToken")
+      //     .lean();
+      //     UserInfo.pinHash= !!UserInfo.pinHash
+      //   if (!UserInfo) {
+      //     throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      //   }
+      //   let totalOrders = await this.ordersModel.countDocuments({
+      //     $and: [
+      //       { foodLoverId: UserInfo._id },
+      //       { orderStatus: "Order Completed" },
+      //     ],
+      //   });
+      //   // console.log("totalOrders", { ...UserInfo, totalOrders });
+
+      //   const lastOrder = await this.ordersModel
+      //     .find({ orderStatus: "Order Completed" })
+      //     .limit(1)
+      //     .sort({ $natural: -1 });
+      //   // console.log(lastOrder)
+      //   //   // Get orders a FL has made from FCs they are subscribed to
+      //   const ordersFromSubscribedFCs = await this.ordersModel.aggregate([
+      //     {
+      //       $match: {
+      //         foodCreatorId: { $in: UserInfo.subscribedTo },
+      //         orderStatus: "Order Completed",
+      //       },
+      //     },
+      //     { $group: { _id: "$foodCreatorId", totalOrders: { $sum: 1 } } },
+      //   ]);
+      //   // console.log(ordersFromSubscribedFCs);
+      //   if (!!req.body.id && user.id !== req.body.id) {
+      //     // return public profile
+      //     console.log("here11")
+      //     const { username, location, imageUrl } = UserInfo;
+      //     return {
+      //       user: {
+      //         username,
+      //         location,
+      //         imageUrl,
+      //         totalOrders,
+      //         ordersFromSubscribedFCs,
+      //         lastOrder,
+      //       },
+      //     };
+      //   } else {
+      //     console.log("here")
+      //         return {
+      //           user: {
+      //             ...UserInfo,
+      //             totalOrders,
+      //             ordersFromSubscribedFCs,
+      //             lastOrder,
+      //           },
+      //         };
+      //   }
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(

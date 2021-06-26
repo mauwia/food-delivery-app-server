@@ -5,6 +5,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { FoodCreatorSchema } from "../food-creator/food-creator.model";
 import { OrdersSchema } from 'src/orders/orders.model';
+import { TestersSchema } from './profile.model';
 
 
 @Module({
@@ -12,7 +13,8 @@ import { OrdersSchema } from 'src/orders/orders.model';
     MongooseModule.forFeature([
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
-      {name:"Orders",schema:OrdersSchema}
+      {name:"Orders",schema:OrdersSchema},
+      {name:"Testers",schema:TestersSchema}
     ]),
   ],
   controllers: [ProfileController],

@@ -49,6 +49,12 @@ export class FoodCreatorController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
+  @Get("/getCreatorInfo/:username")
+  async getCreatorOtherInfo(@Req() request: Request) {
+    const response = await this.foodCreatorService.getCreatorInfo(request);
+    return response;
+  }
+  @UseGuards(new JWTAuthGuard())
   @Post("/authenticateOTP")
   async AuthenticateCode(@Req() request: Request) {
     const response = await this.foodCreatorService.authenticateOTP_and_forgetPasswordOTP(

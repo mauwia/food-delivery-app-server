@@ -31,10 +31,17 @@ export class ReviewController {
       return response
     }
     @UseGuards(new JWTAuthGuard())
+    @Get('/getReviewedByFoodCreatorId/:foodCreatorId')
+    async getReviewedByFoodCreatorId(@Req() req:Request){
+      let response=await this.reviewService.getReviewedByFoodCreatorId(req)
+      return response
+    }
+    @UseGuards(new JWTAuthGuard())
     @Put('/updateReview')
     async updateReview(@Req() req:Request){
       let response=await this.reviewService.updateReview(req)
       return response
     }
+    
     
 }

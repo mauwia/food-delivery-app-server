@@ -1,5 +1,5 @@
-import { Request } from "express";
-import { Controller, Put, Req, UseGuards, Patch, Query } from '@nestjs/common';
+import { Request,Response } from "express";
+import { Controller, Put, Req, UseGuards, Patch, Query, Post, Get, Header, Res } from '@nestjs/common';
 import { JWTAuthGuard } from "../foodLover/jwt/jwt-auth.guard";
 import { ProfileService } from './profile.service';
 
@@ -20,4 +20,22 @@ export class ProfileController {
     const response = await this.profileService.updatePassword(req, query);
     return response;
   }
+  @Post('/addTesters')
+  async addTesters(@Req() req: Request){
+    const response = await this.profileService.addAlphas(req);
+    return response;
+  }
+  @Get("/getAllFCs")
+  @Header('Content-Type','text/xlsx')
+  async getAllFCs(@Res() res:Response){
+      let response=await this.profileService.getAllFCs()
+      res.download(`${response}`)
+  }
+  @Get("/getAllFLs")
+  @Header('Content-Type','text/xlsx')
+  async getAllFLs(@Res() res:Response){
+      let response=await this.profileService.getAllFL()
+      res.download(`${response}`)
+  }
+
 }

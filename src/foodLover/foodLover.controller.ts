@@ -43,8 +43,14 @@ export class FoodLoverController {
     return response;
   }
   @UseGuards(new JWTAuthGuard())
-  @Get("/getLoverInfo/")
+  @Get("/getLoverInfo")
   async LoverInfo(@Req() request: Request) {
+    const response = await this.foodLoverService.getLoverInfo(request);
+    return response;
+  }
+  @UseGuards(new JWTAuthGuard())
+  @Get("/getLoverInfo/:username")
+  async otherLoverInfo(@Req() request: Request) {
     const response = await this.foodLoverService.getLoverInfo(request);
     return response;
   }

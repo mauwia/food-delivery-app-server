@@ -85,7 +85,31 @@ export class MenuService {
       let { lng, lat } = req.body;
       console.log(lng, lat);
 
-      let nearByFoodCreators = await this.foodCreatorModel
+      let [nearByFoodCreators,nearByFoodCreatorSubscribed]=await Promise.all([this.foodCreatorModel
+        .find({
+          $and: [
+            {
+              location: {
+                $near: {
+                  $maxDistance: 30000,
+                  $geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat],
+                  },
+                },
+              },
+            }, 
+            {
+              menuExist: true,
+            },
+            {
+              subscribers:{$nin:[Types.ObjectId(UserInfo._id)]}
+            }
+          ],
+        })
+        .select(
+          "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+        ).lean(),this.foodCreatorModel
         .find({
           $and: [
             {
@@ -102,13 +126,15 @@ export class MenuService {
             {
               menuExist: true,
             },
+            {
+              subscribers:{$in:[Types.ObjectId(UserInfo._id)]}
+            }
           ],
         })
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
-        );
-      console.log(nearByFoodCreators);
-      return { nearByFoodCreators };
+        ).lean()])
+      return { nearByFoodCreators,nearByFoodCreatorSubscribed };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
