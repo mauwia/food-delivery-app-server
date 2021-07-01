@@ -12,6 +12,8 @@ import { AppGateway } from "../app.gateway";
 import * as moment from "moment";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
+import { Notification } from "src/notification/notification.model";
+import { NotificationService } from "src/notification/notification.service";
 var crypto = require("crypto");
 const fetch = require("node-fetch");
 @Injectable()
@@ -23,6 +25,8 @@ export class WalletService {
     private readonly transactionsModel: Model<Transactions>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Notification") private readonly notificationModel:Model<Notification>,
+    private readonly notificationService:NotificationService,
     private readonly appGatway: AppGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -399,6 +403,12 @@ export class WalletService {
           currency: tokenName,
           message,
         });
+        await this.notificationService.createNotification({
+          notificationType:"Send Noshies",
+          transactionId:transaction._id,
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction, {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
@@ -429,6 +439,11 @@ export class WalletService {
           currency: tokenName,
           message,
         });
+        await this.notificationService.createNotification({
+          transactionId:transaction._id,
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction, {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
@@ -729,7 +744,7 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
-
+     
       this.appGatway.handleRequestNoshies(requestedTophoneNo, transaction, {
         requestReceiverfcmRegistrationToken:
           requestReceiverUser.fcmRegistrationToken,

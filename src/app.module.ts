@@ -13,7 +13,7 @@ import { ChatModule } from "./chat/chat.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
 import { ReviewModule } from './review/review.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-import { AdminModule } from './admin/admin.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { AdminModule } from './admin/admin.module';
     SubscriptionsModule,
     ReviewModule,
     AnalyticsModule,
-    AdminModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

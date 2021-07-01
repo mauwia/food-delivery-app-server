@@ -8,6 +8,8 @@ import { JwtStrategy } from "../foodLover/jwt/jwt.strategy";
 import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { AppGateway } from "../app.gateway";
 import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
+import { NotificationSchema } from "src/notification/notification.model";
+import { NotificationModule } from "src/notification/notification.module";
 
 @Module({
   imports: [
@@ -16,14 +18,17 @@ import { FoodCreatorSchema } from "src/food-creator/food-creator.model";
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "Transactions", schema: TransactionsSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
+      {name:"Notification",schema:NotificationSchema}
+
     ]),
+    NotificationModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: { expiresIn: "1h" },
     }),
   ],
   controllers: [WalletController],
-  providers: [WalletService, JwtStrategy, AppGateway],
+  providers: [WalletService, JwtStrategy, AppGateway,],
   exports: [WalletService],
 })
 export class WalletModule {}
