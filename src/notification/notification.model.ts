@@ -22,8 +22,21 @@ export const NotificationSchema = new mongoose.Schema({
     required: true,
   },
   menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
-  foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
-  foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
+  senderId: { type: mongoose.Schema.Types.ObjectId, refPath: "onSenderModel" },
+  receiverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: "onReceiverModel",
+  },
+  onSenderModel: {
+    type: String,
+    required: true,
+    enum: ["FoodLover", "FoodCreator"],
+  },
+  onReceiverModel: {
+    type: String,
+    default: "FoodLover",
+    enum: ["FoodLover", "FoodCreator"],
+  },
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   transactionId: { type: mongoose.Schema.Types.ObjectId, ref: "Transactions" },
@@ -32,12 +45,14 @@ export const NotificationSchema = new mongoose.Schema({
 });
 export interface Notification extends mongoose.Document {
   notificationType: string;
-  menuItemId: string;
-  foodLoverId: string
-  foodCreatorId: string
-  orderId: string 
-  chatRoomId: string
-  transactionId: string
+  menuItemId: any;
+  orderId: any 
+  chatRoomId: any
+  transactionId: any
   createdAt: string
   updatedAt: string
+  senderId: any
+  receiverId: any
+  onSenderModel: string
+  onReceiverModel: string
 }

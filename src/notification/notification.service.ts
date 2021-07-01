@@ -1,13 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {Notification} from './notification.model'
+import { HttpStatus, Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { FoodCreator } from "src/food-creator/food-creator.model";
+import { FoodLover } from "src/foodLover/foodLover.model";
+import { Notification } from "./notification.model";
 
 @Injectable()
 export class NotificationService {
-    constructor(@InjectModel("Notification") private readonly notificationModel:Model<Notification>){}
-    async createNotification(body){
-       let newNotification=new this.notificationModel(body)
-       return await this.notificationModel.create(newNotification)
-    }
+  constructor(
+    @InjectModel("Notification")
+    private readonly notificationModel: Model<Notification>,
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
+    @InjectModel("FoodCreator")
+    private readonly foodCreatorModel: Model<FoodCreator>
+  ) {}
+  async createNotification(body) {
+    let newNotification = new this.notificationModel(body);
+    return await this.notificationModel.create(newNotification);
+  }
+  async getNotificationsFL(req) {
+    try {
+      let { user } = req;
+      let UserInfo: any = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel
+          .findOne({
+            phoneNo: user.phoneNo,
+          })
+          .populate("walletId");
+      }
+      if (!UserInfo) {
+        throw {
+          msg: "USER NOT FOUND",
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      let notifications = await this.notificationModel.find({
+        $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
+      });
+      return { notifications };
+    } catch (error) {}
+  }
 }

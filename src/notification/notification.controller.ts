@@ -1,9 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { JWTAuthGuard } from 'src/foodLover/jwt/jwt-auth.guard';
 import { NotificationService } from './notification.service';
+import { request, Request } from "express";
 
 @Controller('notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
-  
+  @UseGuards(new JWTAuthGuard())
+    @Get('/fl')
+    async AddMenu(@Req() request:Request){
+        let response=await this.notificationService.getNotificationsFL(request)
+        return response
+    }
 
 }
