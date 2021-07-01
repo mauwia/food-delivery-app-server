@@ -741,6 +741,16 @@ export class WalletService {
         message,
         status: "PENDING",
       });
+      await this.notificationService.createNotification({
+        notificationType:"Request Noshies",
+        transactionId:transaction._id,
+        senderId: UserInfo._id,
+        onSenderModel: "FoodLover",
+        receiverId: requestReceiverUser._id,
+        onReceiverModel: requestReceiverRoll,
+        createdAt:timeStamp,
+        updatedAt:timeStamp
+      })
       // console.log(transaction)
       //PUSHING Request of NOSH in Wallet Schema of Request Receiver
       requestReceiverWallet.requestReceivedForNoshies.push({
@@ -753,7 +763,7 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
-     
+    
       this.appGatway.handleRequestNoshies(requestedTophoneNo, transaction, {
         requestReceiverfcmRegistrationToken:
           requestReceiverUser.fcmRegistrationToken,

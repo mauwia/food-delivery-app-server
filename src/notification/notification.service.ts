@@ -41,7 +41,21 @@ export class NotificationService {
       }
       let notifications = await this.notificationModel.find({
         $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
-      });
+      }).populate([
+        {
+          path: "receiverId",
+          select: "phoneNo username imageUrl ",
+        },
+        {
+          path: "senderId",
+          select: "username imageUrl",
+        },
+        {
+          path:"transactionId",
+          select: "amount",
+
+        }
+      ])
       return { notifications };
     } catch (error) {}
   }
