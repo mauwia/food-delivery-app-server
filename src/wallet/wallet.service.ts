@@ -444,7 +444,12 @@ export class WalletService {
           message,
         });
         await this.notificationService.createNotification({
+          notificationType:"Send Noshies",
           transactionId:transaction._id,
+          senderId: UserInfo._id,
+          onSenderModel: roles.sender,
+          receiverId: ReceiverInfo._id,
+          onReceiverModel: roles.receiver,
           createdAt:timeStamp,
           updatedAt:timeStamp
         })
