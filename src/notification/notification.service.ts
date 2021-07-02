@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { FoodCreator } from "src/food-creator/food-creator.model";
@@ -57,6 +57,16 @@ export class NotificationService {
         }
       ])
       return { notifications };
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    
+    }
   }
 }

@@ -6,6 +6,7 @@ export const NotificationSchema = new mongoose.Schema({
     enum: [
       "Subscription",
       "Order",
+      "Bought Noshies",
       "Request Noshies",
       "Request Success Noshies",
       "Request Fail Noshies",
