@@ -857,9 +857,9 @@ export class WalletService {
           await this.notificationService.createNotification({
             notificationType:"Request Success Noshies",
             transactionId:transaction._id,
-            senderId: UserInfo._id,
+            senderId: transaction.senderId,
             onSenderModel: "FoodLover",
-            receiverId: transaction.senderId,
+            receiverId: UserInfo._id,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp
@@ -894,9 +894,9 @@ export class WalletService {
           await this.notificationService.createNotification({
             notificationType:"Request Success Noshies",
             transactionId:transaction._id,
-            senderId: UserInfo._id,
+            senderId: transaction.senderId,
             onSenderModel: "FoodLover",
-            receiverId: transaction.senderId,
+            receiverId: UserInfo._id,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp
@@ -937,9 +937,9 @@ export class WalletService {
           await this.notificationService.createNotification({
             notificationType:"Request Fail Noshies",
             transactionId:transaction._id,
-            senderId: UserInfo._id,
+            senderId: transaction.senderId,
             onSenderModel: "FoodLover",
-            receiverId: transaction.senderId,
+            receiverId: UserInfo._id,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp

@@ -13,6 +13,7 @@ import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
 import { Review } from "src/review/review.model";
+import { NotificationService } from "src/notification/notification.service";
 let turf = require("@turf/distance");
 let helper = require("@turf/helpers");
 
@@ -28,7 +29,8 @@ export class OrdersService {
     @InjectModel("Reviews") private readonly reviewModel: Model<any>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
-    private readonly chatService: ChatService
+    private readonly chatService: ChatService,
+    private readonly notificationService:NotificationService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -348,7 +350,7 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
-        await this.walletService.createTransaction({
+        let transaction=await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
@@ -362,6 +364,16 @@ export class OrdersService {
           currency: order.tokenName,
           status: "SUCCESSFUL",
         });
+        await this.notificationService.createNotification({
+          notificationType:"Payment Received Success",
+          transactionId:transaction._id,
+          senderId: transaction.senderId,
+          onSenderModel: "FoodLover",
+          receiverId: transaction.receiverId,
+          onReceiverModel: "FoodCreator",
+          createdAt:transaction.timeStamp,
+          updatedAt:transaction.timeStamp
+        })
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
       } else if (status === "Cancel") {
