@@ -239,7 +239,7 @@ export class OrdersService {
       await this.notificationService.createNotification({
         notificationType:"Order",
         orderId:order._id,
-        orderStatus:order.orderStatus,
+        orderStatus:status,
         senderId:order.foodCreatorId._id,
         onSenderModel: "FoodCreator",
         receiverId: order.foodLoverId._id,

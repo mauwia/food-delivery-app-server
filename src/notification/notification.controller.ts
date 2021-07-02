@@ -7,7 +7,7 @@ import { request, Request } from "express";
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
   @UseGuards(new JWTAuthGuard())
-    @Get('/fl')
+    @Get('/fl/:page')
     async AddMenu(@Req() request:Request){
         let response=await this.notificationService.getNotificationsFL(request)
         return response

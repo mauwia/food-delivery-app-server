@@ -39,26 +39,34 @@ export class NotificationService {
           status: HttpStatus.NOT_FOUND,
         };
       }
-      let notifications = await this.notificationModel.find({
-        $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
-      }).populate([
-        {
-          path: "receiverId",
-          select: "phoneNo username imageUrl ",
-        },
-        {
-          path: "senderId",
-          select: "username imageUrl",
-        },
-        {
-          path:"transactionId",
-          select: "amount message",
-        },
-{
-        path:"orderId",
-        select: "orderId",
-      }
-      ])
+      const resultsPerPage = 10;
+      let page = req.params.page >= 1 ? req.params.page : 1;
+      console.log(req.params.page)
+      page = page - 1
+      let notifications = await this.notificationModel
+        .find({
+          $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
+        }).sort({updatedAt:"desc"})
+        // .limit(resultsPerPage)
+        // .skip(resultsPerPage * page)
+        .populate([
+          {
+            path: "receiverId",
+            select: "phoneNo username imageUrl ",
+          },
+          {
+            path: "senderId",
+            select: "username imageUrl",
+          },
+          {
+            path: "transactionId",
+            select: "amount message",
+          },
+          {
+            path: "orderId",
+            select: "orderId orderedFood",
+          },
+        ]);
       return { notifications };
     } catch (error) {
       console.log(error, error.stack);
@@ -69,7 +77,6 @@ export class NotificationService {
         },
         error.status
       );
-    
     }
   }
 }
