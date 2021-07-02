@@ -859,7 +859,7 @@ export class WalletService {
             transactionId:transaction._id,
             senderId: UserInfo._id,
             onSenderModel: "FoodLover",
-            receiverId: transaction.receiverId,
+            receiverId: transaction.senderId,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp
@@ -896,7 +896,7 @@ export class WalletService {
             transactionId:transaction._id,
             senderId: UserInfo._id,
             onSenderModel: "FoodLover",
-            receiverId: transaction.receiverId,
+            receiverId: transaction.senderId,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp
@@ -939,7 +939,7 @@ export class WalletService {
             transactionId:transaction._id,
             senderId: UserInfo._id,
             onSenderModel: "FoodLover",
-            receiverId: transaction.receiverId,
+            receiverId: transaction.senderId,
             onReceiverModel: "FoodLover",
             createdAt:transaction.timeStamp,
             updatedAt:transaction.timeStamp
