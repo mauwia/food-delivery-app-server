@@ -111,7 +111,16 @@ export class OrdersService {
           },
         ])
         .execPopulate();
-      // console.log()
+        await this.notificationService.createNotification({
+          notificationType:"Payment Received Success",
+          orderId:order._id,
+          senderId: order.foodLoverId._id,
+          onSenderModel: "FoodLover",
+          receiverId: order.foodCreatorId._id,
+          onReceiverModel: "FoodCreator",
+          createdAt:order.timeStamp,
+          updatedAt:order.timeStamp
+        })
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -227,6 +236,17 @@ export class OrdersService {
         });
         order.chatRoomId = chatroom.chatroom._id;
       }
+      await this.notificationService.createNotification({
+        notificationType:"Order",
+        orderId:order._id,
+        orderStatus:order.orderStatus,
+        senderId:order.foodCreatorId._id,
+        onSenderModel: "FoodCreator",
+        receiverId: order.foodLoverId._id,
+        onReceiverModel: "FoodLover",
+        createdAt:order.timestamp,
+        updatedAt:req.body.timestamp
+      })
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -280,6 +300,7 @@ export class OrdersService {
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
+       
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -304,7 +325,7 @@ export class OrdersService {
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
           //setting escrow of FL with 40% of bill
-
+          
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();

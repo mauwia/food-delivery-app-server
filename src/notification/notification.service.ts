@@ -53,8 +53,11 @@ export class NotificationService {
         {
           path:"transactionId",
           select: "amount message",
-
-        }
+        },
+{
+        path:"orderId",
+        select: "orderId",
+      }
       ])
       return { notifications };
     } catch (error) {

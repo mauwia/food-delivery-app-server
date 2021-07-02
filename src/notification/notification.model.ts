@@ -41,19 +41,21 @@ export const NotificationSchema = new mongoose.Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   chatRoomId: { type: mongoose.Schema.Types.ObjectId, ref: "Chatroom" },
   transactionId: { type: mongoose.Schema.Types.ObjectId, ref: "Transactions" },
+  orderStatus: { type: String },
   createdAt: { type: String, default: Date.now() },
   updatedAt: { type: String, default: Date.now() },
 });
 export interface Notification extends mongoose.Document {
   notificationType: string;
+  orderStatus: string;
   menuItemId: any;
-  orderId: any 
-  chatRoomId: any
-  transactionId: any
-  createdAt: string
-  updatedAt: string
-  senderId: any
-  receiverId: any
-  onSenderModel: string
-  onReceiverModel: string
+  orderId: any;
+  chatRoomId: any;
+  transactionId: any;
+  createdAt: string;
+  updatedAt: string;
+  senderId: any;
+  receiverId: any;
+  onSenderModel: string;
+  onReceiverModel: string;
 }
