@@ -52,7 +52,7 @@ export class NotificationService {
         },
         {
           path:"transactionId",
-          select: "amount",
+          select: "amount message",
 
         }
       ])
