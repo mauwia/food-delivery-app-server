@@ -64,7 +64,7 @@ export class NotificationService {
           },
           {
             path: "orderId",
-            select: "orderId orderedFood",
+            select: "orderId orderedFood reason",
           },
         ]);
       return { notifications };
