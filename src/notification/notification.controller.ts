@@ -8,7 +8,12 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
   @UseGuards(new JWTAuthGuard())
     @Get('/fl/:page')
-    async AddMenu(@Req() request:Request){
+    async GetFlNotification(@Req() request:Request){
+        let response=await this.notificationService.getNotificationsFL(request)
+        return response
+    }
+    @Get('/fc/:page')
+    async GetFcNotification(@Req() request:Request){
         let response=await this.notificationService.getNotificationsFL(request)
         return response
     }

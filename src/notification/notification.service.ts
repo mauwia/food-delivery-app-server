@@ -79,4 +79,65 @@ export class NotificationService {
       );
     }
   }
+  async getNotificationsFC(req) {
+    try {
+      let { user } = req;
+      let UserInfo: any = await this.foodLoverModel
+        .findOne({
+          phoneNo: user.phoneNo,
+        })
+        .populate("walletId");
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel
+          .findOne({
+            phoneNo: user.phoneNo,
+          })
+          .populate("walletId");
+      }
+      if (!UserInfo) {
+        throw {
+          msg: "USER NOT FOUND",
+          status: HttpStatus.NOT_FOUND,
+        };
+      }
+      const resultsPerPage = 10;
+      let page = req.params.page >= 1 ? req.params.page : 1;
+      console.log(req.params.page)
+      page = page - 1
+      let notifications = await this.notificationModel
+        .find({
+          $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
+        }).sort({updatedAt:"desc"})
+        // .limit(resultsPerPage)
+        // .skip(resultsPerPage * page)
+        .populate([
+          {
+            path: "receiverId",
+            select: "phoneNo username imageUrl ",
+          },
+          {
+            path: "senderId",
+            select: "username imageUrl",
+          },
+          {
+            path: "transactionId",
+            select: "amount message",
+          },
+          {
+            path: "orderId",
+            select: "orderId orderedFood",
+          },
+        ]);
+      return { notifications };
+    } catch (error) {
+      console.log(error, error.stack);
+      throw new HttpException(
+        {
+          status: error.status,
+          msg: error.msg,
+        },
+        error.status
+      );
+    }
+  }
 }
