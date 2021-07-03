@@ -398,7 +398,7 @@ export class OrdersService {
         })
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
-      } else if (status === "Cancel") {
+      } else if (status === "Cancel" && order.orderStatus!=="New") {
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
