@@ -128,6 +128,8 @@ export class NotificationService {
             select: "orderId orderedFood",
           },
         ]);
+        console.log(notifications)
+
       return { notifications };
     } catch (error) {
       console.log(error, error.stack);

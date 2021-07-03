@@ -113,11 +113,11 @@ export class OrdersService {
         .execPopulate();
         await this.notificationService.createNotification({
           notificationType:"Order",
-          orderId:order._id,
+          orderId:orderCreated._id,
           orderStatus:"New",
           senderId:order.foodCreatorId._id,
           onSenderModel: "FoodCreator",
-          receiverId: order.foodLoverId._id,
+          receiverId: order.foodLoverId,
           onReceiverModel: "FoodLover",
           createdAt:order.timestamp,
           updatedAt:order.timestamp
