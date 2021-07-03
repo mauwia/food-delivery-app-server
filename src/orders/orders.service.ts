@@ -112,14 +112,15 @@ export class OrdersService {
         ])
         .execPopulate();
         await this.notificationService.createNotification({
-          notificationType:"Payment Received Success",
+          notificationType:"Order",
           orderId:order._id,
-          senderId: order.foodLoverId._id,
-          onSenderModel: "FoodLover",
-          receiverId: order.foodCreatorId._id,
-          onReceiverModel: "FoodCreator",
-          createdAt:order.timeStamp,
-          updatedAt:order.timeStamp
+          orderStatus:"New",
+          senderId:order.foodCreatorId._id,
+          onSenderModel: "FoodCreator",
+          receiverId: order.foodLoverId._id,
+          onReceiverModel: "FoodLover",
+          createdAt:order.timestamp,
+          updatedAt:order.timestamp
         })
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,

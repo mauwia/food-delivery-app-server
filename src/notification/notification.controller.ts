@@ -12,9 +12,10 @@ export class NotificationController {
         let response=await this.notificationService.getNotificationsFL(request)
         return response
     }
+  @UseGuards(new JWTAuthGuard())    
     @Get('/fc/:page')
     async GetFcNotification(@Req() request:Request){
-        let response=await this.notificationService.getNotificationsFL(request)
+        let response=await this.notificationService.getNotificationsFC(request)
         return response
     }
 
