@@ -91,7 +91,7 @@ export class MenuService {
             {
               location: {
                 $near: {
-                  $maxDistance: 30000,
+                  $maxDistance: 7000,
                   $geometry: {
                     type: "Point",
                     coordinates: [lng, lat],
@@ -115,7 +115,7 @@ export class MenuService {
             {
               location: {
                 $near: {
-                  $maxDistance: 30000,
+                  $maxDistance: 7000,
                   $geometry: {
                     type: "Point",
                     coordinates: [lng, lat],
