@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Wallet } from "src/wallet/wallet.model";
 
 export const FoodLoverSchema = new mongoose.Schema({
@@ -27,6 +28,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   recipientCode:{type:String}
 });
+FoodLoverSchema.plugin(mongoosePaginate);
 
 export interface FoodLover extends mongoose.Document {
   dedicatedCustomer: boolean;
