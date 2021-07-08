@@ -19,10 +19,12 @@ export class NotificationService {
     return await this.notificationModel.create(newNotification);
   }
   async updateNotification(body){
-    await this.notificationModel.findByIdAndUpdate(body.chatroomId,{
+  
+    let update=await this.notificationModel.findByIdAndUpdate(body.chatroomId,{
       messageId:body.messageId,
       updatedAt:body.updatedAt
     })
+    console.log(update)
   }
   async getNotificationsFL(req) {
     try {

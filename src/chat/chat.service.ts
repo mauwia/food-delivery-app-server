@@ -43,9 +43,9 @@ export class ChatService {
         await this.notificationService.createNotification({
           notificationType:"Chat",
           chatRoomId:chatroom._id,
-          senderId: foodCreatorId,
+          senderId: chatroom.foodCreatorId,
           onSenderModel: "FoodCreator",
-          receiverId:foodLoverId,
+          receiverId:chatroom.foodLoverId,
           onReceiverModel: "FoodLover",
           createdAt:chatroom.timeStamp,
           updatedAt:chatroom.timeStamp
