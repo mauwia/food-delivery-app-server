@@ -6,6 +6,8 @@ import { ChatGateway } from './chat.gateway';
 import { ChatroomSchema, MessageSchema } from "./chat.model";
 import { OrdersSchema } from 'src/orders/orders.model';
 import { FoodLoverSchema } from 'src/foodLover/foodLover.model';
+import { NotificationService } from 'src/notification/notification.service';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -14,7 +16,7 @@ import { FoodLoverSchema } from 'src/foodLover/foodLover.model';
       {name:"FoodLover",schema:FoodLoverSchema},
       { name: "Message", schema: MessageSchema },
       {name:"Orders",schema:OrdersSchema},
-    ]),
+    ]),NotificationModule
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway],

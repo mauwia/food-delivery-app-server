@@ -44,6 +44,7 @@ export const NotificationSchema = new mongoose.Schema({
   orderStatus: { type: String },
   createdAt: { type: String, default: Date.now() },
   updatedAt: { type: String, default: Date.now() },
+  messageId:{type: mongoose.Schema.Types.ObjectId, ref: "Message"}
 });
 export interface Notification extends mongoose.Document {
   notificationType: string;
@@ -58,4 +59,5 @@ export interface Notification extends mongoose.Document {
   receiverId: any;
   onSenderModel: string;
   onReceiverModel: string;
+  messageId:any
 }

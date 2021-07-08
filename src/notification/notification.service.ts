@@ -18,6 +18,12 @@ export class NotificationService {
     let newNotification = new this.notificationModel(body);
     return await this.notificationModel.create(newNotification);
   }
+  async updateNotification(body){
+    await this.notificationModel.findByIdAndUpdate(body.chatroomId,{
+      messageId:body.messageId,
+      updatedAt:body.updatedAt
+    })
+  }
   async getNotificationsFL(req) {
     try {
       let { user } = req;
@@ -41,7 +47,6 @@ export class NotificationService {
       }
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
-      console.log(req.params.page)
       page = page - 1
       let notifications = await this.notificationModel
         .find({
@@ -60,12 +65,13 @@ export class NotificationService {
           },
           {
             path: "transactionId",
-            select: "amount message",
           },
           {
             path: "orderId",
-            select: "orderId orderedFood reason",
           },
+          {
+            path:"messageId"
+          }
         ]);
       return { notifications };
     } catch (error) {
