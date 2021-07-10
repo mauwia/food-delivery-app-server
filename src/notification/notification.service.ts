@@ -20,7 +20,7 @@ export class NotificationService {
   }
   async updateNotification(body){
   
-    let update=await this.notificationModel.findByIdAndUpdate(body.chatroomId,{
+    let update=await this.notificationModel.findOneAndUpdate({chatRoomId:body.chatroomId},{
       messageId:body.messageId,
       updatedAt:body.updatedAt
     })
@@ -67,9 +67,23 @@ export class NotificationService {
           },
           {
             path: "transactionId",
+            populate:[ {
+              path: 'senderId',
+              select:"username imageUrl businessName"
+            } ,{
+              path: 'receiverId',
+              select:"username imageUrl businessName"
+            }]
           },
           {
             path: "orderId",
+            populate:[ {
+              path: 'foodCreatorId',
+              select:"username imageUrl businessName"
+            } ,{
+              path: 'foodLoverId',
+              select:"username imageUrl"
+            }]
           },
           {
             path:"messageId"
