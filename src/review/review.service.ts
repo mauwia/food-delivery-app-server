@@ -207,10 +207,13 @@ export class ReviewService {
       if (!UserInfo) {
         throw "USER_NOT_FOUND";
       }
+      let foodLoverPublic = await this.foodLoverModel.findOne({
+        username:req.params.username 
+      });
       let reviewedOfFoodLover = await this.reviewModel
         .find({
           $and: [
-            { username: req.params.username },
+            { foodLoverId: foodLoverPublic._id },
             { review: { $exists: true } },
           ],
         })
