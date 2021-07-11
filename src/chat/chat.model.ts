@@ -41,7 +41,7 @@ export const MessageSchema = new mongoose.Schema({
 });
 
 export interface Message extends mongoose.Document {
-  timestamp: string;
+  timeStamp: string;
   onSenderModel: any;
   onReceiverModel: any;
   chatroomId: string;

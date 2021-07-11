@@ -146,7 +146,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
           .execPopulate();
         await this.notificationService.updateNotification({
           messageId:message._id,
-          updatedAt:message.timestamp,
+          updatedAt:message.timeStamp,
           chatroomId:chatroom._id
         })
         if (this.onlineUsers[message.receiverId.phoneNo]) {

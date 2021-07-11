@@ -148,11 +148,23 @@ export class NotificationService {
           },
           {
             path: "transactionId",
-            select: "amount message",
+            populate:[ {
+              path: 'senderId',
+              select:"username imageUrl businessName"
+            } ,{
+              path: 'receiverId',
+              select:"username imageUrl businessName"
+            }]
           },
           {
             path: "orderId",
-            select: "orderId orderedFood reason",
+            populate:[ {
+              path: 'foodCreatorId',
+              select:"username imageUrl businessName"
+            } ,{
+              path: 'foodLoverId',
+              select:"username imageUrl"
+            }]
           },
           {
             path:"messageId"
