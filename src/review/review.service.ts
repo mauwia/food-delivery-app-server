@@ -193,7 +193,7 @@ export class ReviewService {
       );
     }
   }
-  async getReviewedByFoodLoverId(req) {
+  async getReviewedByFoodLoverUsername(req) {
     try {
       let { user } = req;
       let UserInfo: any = await this.foodLoverModel.findOne({
@@ -210,7 +210,7 @@ export class ReviewService {
       let reviewedOfFoodLover = await this.reviewModel
         .find({
           $and: [
-            { foodLoverId: req.params.foodLoverId },
+            { username: req.params.username },
             { review: { $exists: true } },
           ],
         })

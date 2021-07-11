@@ -59,11 +59,11 @@ export class NotificationService {
         .populate([
           {
             path: "receiverId",
-            select: "phoneNo username imageUrl ",
+            select: "phoneNo username imageUrl businessName avgRating ",
           },
           {
             path: "senderId",
-            select: "username imageUrl",
+            select: "username imageUrl businessName avgRating",
           },
           {
             path: "transactionId",
@@ -87,8 +87,13 @@ export class NotificationService {
           },
           {
             path:"messageId"
-          }
+          },
+          // {
+          //   path:"chatRoomId",
+           
+          // }
         ]);
+        // console.log(notifications)
       return { notifications };
     } catch (error) {
       console.log(error, error.stack);
@@ -149,6 +154,10 @@ export class NotificationService {
             path: "orderId",
             select: "orderId orderedFood reason",
           },
+          {
+            path:"messageId"
+          },
+         
         ]);
         console.log(notifications)
 

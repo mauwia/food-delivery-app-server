@@ -37,9 +37,9 @@ export class ReviewController {
       return response
     }
     @UseGuards(new JWTAuthGuard())
-    @Get('/getReviewedByFoodLoverId/:foodLoverId')
+    @Get('/getReviewedByUsername/:username')
     async getReviewedByFoodLoverId(@Req() req:Request){
-      let response=await this.reviewService.getReviewedByFoodLoverId(req)
+      let response=await this.reviewService.getReviewedByFoodLoverUsername(req)
       return response
     }
     @UseGuards(new JWTAuthGuard())
