@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
@@ -44,6 +45,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   fcmRegistrationToken: { type: Array },
 });
 FoodCreatorSchema.index({ location: "2dsphere" });
+FoodCreatorSchema.plugin(mongoosePaginate);
+
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
   recipientCode: string;

@@ -14,6 +14,9 @@ import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
 import { ReviewModule } from './review/review.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationModule } from './notification/notification.module';
+import { AdminModule } from './admin/admin.module';
+import { RouterModule } from 'nest-router';
+import routes from './admin/routes';
 
 @Module({
   imports: [
@@ -41,7 +44,8 @@ import { NotificationModule } from './notification/notification.module';
     SubscriptionsModule,
     ReviewModule,
     AnalyticsModule,
-    NotificationModule,
+    AdminModule,
+    RouterModule.forRoutes(routes), // setup the admin routes
   ],
   controllers: [AppController],
   providers: [
