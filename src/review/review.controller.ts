@@ -37,6 +37,12 @@ export class ReviewController {
       return response
     }
     @UseGuards(new JWTAuthGuard())
+    @Get('/getReviewedByUsername/:username')
+    async getReviewedByFoodLoverId(@Req() req:Request){
+      let response=await this.reviewService.getReviewedByFoodLoverUsername(req)
+      return response
+    }
+    @UseGuards(new JWTAuthGuard())
     @Put('/updateReview')
     async updateReview(@Req() req:Request){
       let response=await this.reviewService.updateReview(req)

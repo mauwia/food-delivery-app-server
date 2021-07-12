@@ -14,13 +14,15 @@ import { CHAT_MESSAGES } from "./constants/key-constants";
 import * as admin from "firebase-admin";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import getNumberOfFLChats from "./constants/getNumberOfFLChats";
+import { NotificationService } from "src/notification/notification.service";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(
     @InjectModel("Message") private readonly messageModel: Model<Message>,
     @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>,
-    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
+    private readonly notificationService:NotificationService
   ) {}
   socket_id: any;
   users: any[] = [];
@@ -142,7 +144,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             },
           ])
           .execPopulate();
-        // console.log(message);
+        await this.notificationService.updateNotification({
+          messageId:message._id,
+          updatedAt:message.timeStamp,
+          chatroomId:chatroom._id
+        })
         if (this.onlineUsers[message.receiverId.phoneNo]) {
           this.server
             .to(this.onlineUsers[message.receiverId.phoneNo].socketId)

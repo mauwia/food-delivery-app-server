@@ -13,6 +13,7 @@ import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
 import { Review } from "src/review/review.model";
+import { NotificationService } from "src/notification/notification.service";
 let turf = require("@turf/distance");
 let helper = require("@turf/helpers");
 
@@ -28,7 +29,8 @@ export class OrdersService {
     @InjectModel("Reviews") private readonly reviewModel: Model<any>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
-    private readonly chatService: ChatService
+    private readonly chatService: ChatService,
+    private readonly notificationService:NotificationService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -109,7 +111,17 @@ export class OrdersService {
           },
         ])
         .execPopulate();
-      // console.log()
+        await this.notificationService.createNotification({
+          notificationType:"Order",
+          orderId:orderCreated._id,
+          orderStatus:"New",
+          senderId:order.foodCreatorId._id,
+          onSenderModel: "FoodCreator",
+          receiverId: order.foodLoverId,
+          onReceiverModel: "FoodLover",
+          createdAt:order.timestamp,
+          updatedAt:order.timestamp
+        })
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -225,6 +237,17 @@ export class OrdersService {
         });
         order.chatRoomId = chatroom.chatroom._id;
       }
+      await this.notificationService.createNotification({
+        notificationType:"Order",
+        orderId:order._id,
+        orderStatus:status,
+        senderId:order.foodCreatorId._id,
+        onSenderModel: "FoodCreator",
+        receiverId: order.foodLoverId._id,
+        onReceiverModel: "FoodLover",
+        createdAt:order.timestamp,
+        updatedAt:req.body.timestamp
+      })
       await this.changeBalanceAccordingToStatus(
         status,
         order,
@@ -278,6 +301,7 @@ export class OrdersService {
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
+       
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -302,7 +326,7 @@ export class OrdersService {
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
           //setting escrow of FL with 40% of bill
-
+          
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
@@ -348,7 +372,7 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
-        await this.walletService.createTransaction({
+        let transaction=await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
@@ -362,9 +386,19 @@ export class OrdersService {
           currency: order.tokenName,
           status: "SUCCESSFUL",
         });
+        await this.notificationService.createNotification({
+          notificationType:"Payment Received Success",
+          transactionId:transaction._id,
+          senderId: transaction.senderId,
+          onSenderModel: "FoodLover",
+          receiverId: transaction.receiverId,
+          onReceiverModel: "FoodCreator",
+          createdAt:transaction.timeStamp,
+          updatedAt:transaction.timeStamp
+        })
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
-      } else if (status === "Cancel") {
+      } else if (status === "Cancel" && order.orderStatus!=="New") {
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );

@@ -50,7 +50,7 @@ export class OrdersGateway
           {
             location: {
               $near: {
-                $maxDistance: 30000,
+                $maxDistance: 35000,
                 $geometry: {
                   type: "Point",
                   coordinates: [payload.lng, payload.lat],

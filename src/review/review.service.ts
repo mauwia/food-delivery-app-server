@@ -193,6 +193,60 @@ export class ReviewService {
       );
     }
   }
+  async getReviewedByFoodLoverUsername(req) {
+    try {
+      let { user } = req;
+      let UserInfo: any = await this.foodLoverModel.findOne({
+        phoneNo: user.phoneNo,
+      });
+      if (!UserInfo) {
+        UserInfo = await this.foodCreatorModel.findOne({
+          phoneNo: user.phoneNo,
+        });
+      }
+      if (!UserInfo) {
+        throw "USER_NOT_FOUND";
+      }
+      let foodLoverPublic = await this.foodLoverModel.findOne({
+        username:req.params.username 
+      });
+      let reviewedOfFoodLover = await this.reviewModel
+        .find({
+          $and: [
+            { foodLoverId: foodLoverPublic._id },
+            { review: { $exists: true } },
+          ],
+        })
+        .populate([
+          // {
+          //   path: "orderId",
+          //   select:
+          //     "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+          // },
+          {
+            path: "foodLoverId",
+            select: "username imageUrl",
+          },
+          {
+            path: "foodCreatorId",
+            select: "username imageUrl",
+          },
+          {
+            path:"menuItemId",
+          }
+        ]);
+      return { reviewedOfFoodLover };
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async getReviewedByFoodCreatorId(req) {
     try {
       let { user } = req;

@@ -3,7 +3,7 @@ import * as mongoose from "mongoose";
 export const ChatroomSchema = new mongoose.Schema({
   foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
-  orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   timeStamp: { type: String, default: Date.now() },
   isActive: { type: Boolean, default: true },
 });
@@ -41,7 +41,7 @@ export const MessageSchema = new mongoose.Schema({
 });
 
 export interface Message extends mongoose.Document {
-  timestamp: string;
+  timeStamp: string;
   onSenderModel: any;
   onReceiverModel: any;
   chatroomId: string;

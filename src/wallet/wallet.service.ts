@@ -12,6 +12,8 @@ import { AppGateway } from "../app.gateway";
 import * as moment from "moment";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import axios from "axios";
+import { Notification } from "src/notification/notification.model";
+import { NotificationService } from "src/notification/notification.service";
 var crypto = require("crypto");
 const fetch = require("node-fetch");
 @Injectable()
@@ -23,6 +25,8 @@ export class WalletService {
     private readonly transactionsModel: Model<Transactions>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("Notification") private readonly notificationModel:Model<Notification>,
+    private readonly notificationService:NotificationService,
     private readonly appGatway: AppGateway
   ) {}
   private logger = new Logger("Wallet");
@@ -248,6 +252,14 @@ export class WalletService {
           let transaction = await this.transactionsModel.findOne({
             reference: data.reference,
           });
+          await this.notificationService.createNotification({
+            notificationType:"Bought Noshies",
+            transactionId:transaction._id,
+            senderId: UserInfo._id,
+            onSenderModel: "FoodLover",
+            createdAt:transaction.timeStamp,  
+            updatedAt:transaction.timeStamp
+          })
           if (wallet.assets) {
             // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
             let asset = wallet.assets.find(
@@ -399,6 +411,16 @@ export class WalletService {
           currency: tokenName,
           message,
         });
+        await this.notificationService.createNotification({
+          notificationType:"Send Noshies",
+          transactionId:transaction._id,
+          senderId: UserInfo._id,
+          onSenderModel: roles.sender,
+          receiverId: ReceiverInfo._id,
+          onReceiverModel: roles.receiver,
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction, {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
@@ -429,6 +451,16 @@ export class WalletService {
           currency: tokenName,
           message,
         });
+        await this.notificationService.createNotification({
+          notificationType:"Send Noshies",
+          transactionId:transaction._id,
+          senderId: UserInfo._id,
+          onSenderModel: roles.sender,
+          receiverId: ReceiverInfo._id,
+          onReceiverModel: roles.receiver,
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         this.appGatway.handlesendNoshies(ReceiverInfo.phoneNo, transaction, {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
@@ -717,6 +749,16 @@ export class WalletService {
         message,
         status: "PENDING",
       });
+      await this.notificationService.createNotification({
+        notificationType:"Request Noshies",
+        transactionId:transaction._id,
+        senderId: UserInfo._id,
+        onSenderModel: "FoodLover",
+        receiverId: requestReceiverUser._id,
+        onReceiverModel: requestReceiverRoll,
+        createdAt:timeStamp,
+        updatedAt:timeStamp
+      })
       // console.log(transaction)
       //PUSHING Request of NOSH in Wallet Schema of Request Receiver
       requestReceiverWallet.requestReceivedForNoshies.push({
@@ -729,7 +771,7 @@ export class WalletService {
         transactionId: transaction._id,
       });
       await requestReceiverWallet.save();
-
+    
       this.appGatway.handleRequestNoshies(requestedTophoneNo, transaction, {
         requestReceiverfcmRegistrationToken:
           requestReceiverUser.fcmRegistrationToken,
@@ -812,6 +854,16 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           transaction.status = action;
           await wallet.save();
+          await this.notificationService.createNotification({
+            notificationType:"Request Success Noshies",
+            transactionId:transaction._id,
+            senderId: transaction.senderId,
+            onSenderModel: "FoodLover",
+            receiverId: UserInfo._id,
+            onReceiverModel: "FoodLover",
+            createdAt:transaction.timeStamp,
+            updatedAt:transaction.timeStamp
+          })
           let updatedTransaction = await transaction.save();
 
           this.appGatway.handleApproveRequestNoshies(
@@ -839,6 +891,16 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           await receiverWallet.save();
           await wallet.save();
+          await this.notificationService.createNotification({
+            notificationType:"Request Success Noshies",
+            transactionId:transaction._id,
+            senderId: transaction.senderId,
+            onSenderModel: "FoodLover",
+            receiverId: UserInfo._id,
+            onReceiverModel: "FoodLover",
+            createdAt:transaction.timeStamp,
+            updatedAt:transaction.timeStamp
+          })
           let updatedTransaction = await transaction.save();
           console.log(pendingNoshRequest.fcmRegistrationToken);
 
@@ -872,6 +934,16 @@ export class WalletService {
               body: "Tap to view details",
             },
           });
+          await this.notificationService.createNotification({
+            notificationType:"Request Fail Noshies",
+            transactionId:transaction._id,
+            senderId: transaction.senderId,
+            onSenderModel: "FoodLover",
+            receiverId: UserInfo._id,
+            onReceiverModel: "FoodLover",
+            createdAt:transaction.timeStamp,
+            updatedAt:transaction.timeStamp
+          })
         this.appGatway.handleApproveRequestNoshies(
           pendingNoshRequest.phoneNo,
           updatedTransaction,
@@ -928,7 +1000,7 @@ export class WalletService {
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
         if (!asset) {
           let token = await this.createAsset(tokenName, wallet, amount);
-          await this.createTransaction({
+          let transaction=await this.createTransaction({
             transactionType: source,
             timeStamp,
             from: UserInfo.phoneNo,
@@ -939,6 +1011,14 @@ export class WalletService {
             message: "Test message",
             status: "SUCCESSFUL",
           });
+          await this.notificationService.createNotification({
+            notificationType:"Bought Noshies",
+            transactionId:transaction._id,
+            senderId: UserInfo._id,
+            onSenderModel: "FoodLover",
+            createdAt:timeStamp,
+            updatedAt:timeStamp
+          })
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: token.amount,
@@ -947,7 +1027,7 @@ export class WalletService {
         asset.amount = asset.amount + amount;
         wallet.save();
         // console.log(wallet)
-        await this.createTransaction({
+        let transaction = await this.createTransaction({
           transactionType: source,
           timeStamp,
           onSenderModel: "FoodLover",
@@ -958,13 +1038,21 @@ export class WalletService {
           message: "Test message",
           status: "SUCCESSFUL",
         });
+        await this.notificationService.createNotification({
+          notificationType:"Bought Noshies",
+          transactionId:transaction._id,
+          senderId: UserInfo._id,
+          onSenderModel: "FoodLover",
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
         };
       } else {
         let token = await this.createAsset(tokenName, wallet, amount);
-        await this.createTransaction({
+        let transaction=await this.createTransaction({
           transactionType: source,
           from: UserInfo.phoneNo,
           onSenderModel: "FoodLover",
@@ -975,6 +1063,14 @@ export class WalletService {
           message: "Test message",
           status: "SUCCESSFUL",
         });
+        await this.notificationService.createNotification({
+          notificationType:"Bought Noshies",
+          transactionId:transaction._id,
+          senderId: UserInfo._id,
+          onSenderModel: "FoodLover",
+          createdAt:timeStamp,
+          updatedAt:timeStamp
+        })
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: token.amount,

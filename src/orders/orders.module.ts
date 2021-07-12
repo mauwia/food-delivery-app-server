@@ -11,6 +11,7 @@ import { WalletModule } from "src/wallet/wallet.module";
 import { ChatModule } from "src/chat/chat.module";
 import { MenuItemSchema } from "src/menu/menu.model";
 import { ReviewSchema } from "src/review/review.model";
+import { NotificationModule } from "src/notification/notification.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ReviewSchema } from "src/review/review.model";
     ]),
     WalletModule,
     ChatModule,
+    NotificationModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersGateway],

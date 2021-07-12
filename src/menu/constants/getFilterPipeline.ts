@@ -4,7 +4,7 @@ export const filterPipelineRating= (lng,lat,searchKey,rating)=>{
           {
             location: {
               $near: {
-                $maxDistance: 30000,
+                $maxDistance: 7000,
                 $geometry: {
                   type: "Point",
                   coordinates: [lng, lat],
@@ -56,7 +56,7 @@ export const filterPipelineCategory= (lng,lat,searchKey)=>{
         {
           location: {
             $near: {
-              $maxDistance: 30000,
+              $maxDistance: 7000,
               $geometry: {
                 type: "Point",
                 coordinates: [lng, lat],
