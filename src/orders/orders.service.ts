@@ -252,7 +252,7 @@ export class OrdersService {
         status,
         order,
         orderStatusReciever,
-        UserInfo
+        UserInfo,req.body.timestamp
       );
       order.orderStatus = status;
       order.reason = reason ? reason : "";
@@ -287,7 +287,7 @@ export class OrdersService {
     status,
     order,
     orderStatusReciever,
-    orderStatusSender
+    orderStatusSender,timestamp
   ) {
     try {
       if (status === "Accepted") {
@@ -393,8 +393,8 @@ export class OrdersService {
           onSenderModel: "FoodLover",
           receiverId: transaction.receiverId,
           onReceiverModel: "FoodCreator",
-          createdAt:transaction.timeStamp,
-          updatedAt:transaction.timeStamp
+          createdAt:timestamp,
+          updatedAt:timestamp
         })
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
