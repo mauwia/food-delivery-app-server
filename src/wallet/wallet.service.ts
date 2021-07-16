@@ -252,6 +252,9 @@ export class WalletService {
           let transaction = await this.transactionsModel.findOne({
             reference: data.reference,
           });
+          if(transaction.status==="SUCCESSFUL"){
+            res.sendStatus(404);
+          }
           await this.notificationService.createNotification({
             notificationType:"Bought Noshies",
             transactionId:transaction._id,

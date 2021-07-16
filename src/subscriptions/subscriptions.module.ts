@@ -4,6 +4,7 @@ import { SubscriptionsService } from './subscriptions.service';
 import { MongooseModule } from "@nestjs/mongoose";
 import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { FoodCreatorSchema } from "../food-creator/food-creator.model";
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -11,7 +12,9 @@ import { FoodCreatorSchema } from "../food-creator/food-creator.model";
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
     ]),
+    NotificationModule
   ],
+
   controllers: [SubscriptionsController],
   providers: [SubscriptionsService]
 })
