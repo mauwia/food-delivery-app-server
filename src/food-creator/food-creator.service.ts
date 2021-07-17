@@ -188,7 +188,7 @@ export class FoodCreatorService {
         //   UserInfo.phoneNo
         // );
         let check = await this.checkSmsVerification(
-          UserInfo.phoneNo,
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
           otp,
           otp.length
         );

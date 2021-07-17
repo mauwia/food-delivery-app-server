@@ -296,7 +296,7 @@ export class FoodLoverService {
         //   UserInfo.phoneNo
         // );
         let check = await this.checkSmsVerification(
-          UserInfo.phoneNo,
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
           otp,
           otp.length
         );
@@ -507,6 +507,7 @@ export class FoodLoverService {
   }
   async checkSmsVerification(phoneNo, code, codeLength = 6) {
     try {
+      
       let response = await this.client.verify
         .services(
           codeLength == 6
