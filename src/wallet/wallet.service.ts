@@ -1222,7 +1222,7 @@ export class WalletService {
         onSenderModel: "FoodLover",
         senderId: UserInfo._id,
         timeStamp,
-        amount,
+        amount:Number(amount),
         currency: tokenName,
         message: "Test message",
         status: "PENDING",

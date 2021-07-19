@@ -20,6 +20,6 @@ async function bootstrap() {
   });
   app.enableCors();
   logger.log("hello")
-  await app.listen(process.env.PORT||3001);
+  await app.listen(process.env.PORT||3000);
 }
 bootstrap();
