@@ -44,7 +44,8 @@ export const FoodCreatorSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
   unseenNotification: { type: Number, default: 0 },
-});
+},
+{ timestamps: true });
 FoodCreatorSchema.index({ location: "2dsphere" });
 FoodCreatorSchema.plugin(mongoosePaginate);
 
