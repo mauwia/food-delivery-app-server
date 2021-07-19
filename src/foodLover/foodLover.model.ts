@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import * as mongoosePaginate from 'mongoose-paginate-v2';
+import * as mongoosePaginate from "mongoose-paginate-v2";
 import { Wallet } from "src/wallet/wallet.model";
 
 export const FoodLoverSchema = new mongoose.Schema({
@@ -12,7 +12,7 @@ export const FoodLoverSchema = new mongoose.Schema({
   countryCode: { type: String },
   countryName: { type: String },
   location: { type: Array },
-  addressComponents:{type:Array},
+  addressComponents: { type: Array },
   email: { type: String },
   username: { type: String },
   dedicatedCustomer: { type: Boolean, default: false },
@@ -27,15 +27,18 @@ export const FoodLoverSchema = new mongoose.Schema({
   fcmRegistrationToken: { type: Array },
   subscribedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" }],
   isActive: { type: Boolean, default: true },
-  recipientCode:{type:String}
+  recipientCode: { type: String },
+  unseenNotification: { type: Number, default: 0 },
 });
 FoodLoverSchema.plugin(mongoosePaginate);
 
 export interface FoodLover extends mongoose.Document {
+  unseenNotification: number;
+
   dedicatedCustomer: boolean;
-  customerCode:string
+  customerCode: string;
   firstName: string;
-  recipientCode:string
+  recipientCode: string;
   lastName: string;
   phoneNo: string;
   passHash: string;
@@ -46,7 +49,7 @@ export interface FoodLover extends mongoose.Document {
   countryName: string;
   isActive: boolean;
   email: string;
-  addressComponents:any
+  addressComponents: any;
   location: [];
   imageUrl: string;
   username: string;
