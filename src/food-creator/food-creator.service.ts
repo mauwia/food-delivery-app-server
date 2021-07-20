@@ -8,7 +8,9 @@ import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
 import { Testers } from "src/profile/profile.model";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
-
+import { AdminNotification } from 'src/admin/admin-notification/admin-notifications.model'
+import { AdminGateway } from "src/admin/admin.gateway";
+import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -22,7 +24,10 @@ export class FoodCreatorService {
     private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     @InjectTwilio() private readonly client: TwilioClient,
-    private readonly walletService: WalletService
+    @InjectModel("AdminNotification") private readonly notificationModel:Model<AdminNotification>,
+    private readonly walletService: WalletService,
+    private readonly adminGateway: AdminGateway,
+    private readonly notificationService: AdminNotificationService,
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -102,8 +107,11 @@ export class FoodCreatorService {
         // const denver = { type: 'Point', coordinates: [-104.9903, 39.7392] };
         // req.location=denver
         const newUser = new this.foodCreatorModel(req);
-
         const user = await this.foodCreatorModel.create(newUser);
+
+        const notification = await this.notificationService.saveNotification('newFc', user);
+        this.adminGateway.handleFCSignup({ notification, user });
+
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET

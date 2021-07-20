@@ -1,7 +1,8 @@
 import { Routes } from 'nest-router';
 import { AdminModule } from '../admin/admin.module';
-import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module';
 import { FoodLoversModule } from '../admin/food-lovers/food-lovers.module';
+import { AdminNotificationModule } from './admin-notification/admin-notification.module'
+import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module';
 
 const routes: Routes = [
   {
@@ -15,7 +16,11 @@ const routes: Routes = [
       {
         path: '/food-lovers',
         module: FoodLoversModule,
-      }
+      },
+      {
+        path: '/notifications',
+        module: AdminNotificationModule,
+      },
     ],
   },
 ];
