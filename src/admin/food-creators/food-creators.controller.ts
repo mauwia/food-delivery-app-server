@@ -33,4 +33,9 @@ export class FoodCreatorsController {
   async updateVerificationStage (@Param('id') id, @Body('stage') newStage): Promise<FoodCreator> {
     return await this.adminFoodCreatorsService.updateVerificationStage(id, newStage);
   }
+
+  @Get('/metrics/all')
+  async getCreatorsMetrics () {
+    return await this.adminFoodCreatorsService.getCreatorsMetrics();
+  }
 }
