@@ -21,8 +21,7 @@ import routes from './admin/routes';
 @Module({
   imports: [
     FoodLoverModule,
-    MongooseModule.forRoot(
-      `mongodb+srv://${process.env.MONGOOSE_PASSWORD}:nestonep@cluster0.arej3.mongodb.net/${process.env.MONGOOSE_DB_NAME}?retryWrites=true&w=majority`,
+    MongooseModule.forRoot( `${process.env.MONGO_URI}`,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
