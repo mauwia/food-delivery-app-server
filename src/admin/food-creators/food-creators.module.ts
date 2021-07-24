@@ -3,10 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { FoodCreatorsController } from './food-creators.controller';
 import { FoodCreatorsService } from './food-creators.service';
 import { FoodCreatorSchema } from '../../food-creator/food-creator.model';
+import { OrdersSchema } from '../../orders/orders.model';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'FoodCreator', schema: FoodCreatorSchema }]),
+    MongooseModule.forFeature([
+      { name: 'FoodCreator', schema: FoodCreatorSchema },
+      { name: 'Orders', schema: OrdersSchema }
+    ]),
   ],
   controllers: [FoodCreatorsController],
   providers: [FoodCreatorsService]

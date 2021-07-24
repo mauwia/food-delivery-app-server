@@ -8,7 +8,6 @@ export const ReviewSchema = new mongoose.Schema({
   review:{type:String},
   rating:{type:Number},
   timestamp: { type: String, default: Date.now() },
-  
 });
 export interface Review extends mongoose.Document {
     menuItemId:any;
