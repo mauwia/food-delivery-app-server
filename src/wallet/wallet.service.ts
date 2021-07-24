@@ -253,7 +253,7 @@ export class WalletService {
             reference: data.reference,
           });
           if(transaction.status==="SUCCESSFUL"){
-            res.sendStatus(404);
+            res.sendStatus(200);
           }
           await this.notificationService.createNotification({
             notificationType:"Bought Noshies",
@@ -303,7 +303,7 @@ export class WalletService {
               totalAmount: token.amount,
             };
           }
-        } else if (event === "charge.success") {
+        } else if (event === "charge.success" && data.channel !== "card") {
           let UserInfo = await this.foodLoverModel.findOne({
             customerCode: data.customer.customer_code,
           });
