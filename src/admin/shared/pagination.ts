@@ -6,6 +6,7 @@ export interface GetAllRequestParams {
   sortOrder?: string;
   page?: number;
   limit?: number;
+  filter?: string;
 }
 
 interface MongoosePaginateParams {

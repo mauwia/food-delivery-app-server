@@ -22,6 +22,7 @@ export class FoodLoversService {
       query = {
         $or: [          
           { email: new RegExp(queryParams.search, 'i') },
+          { phoneNo: new RegExp(queryParams.search, 'i') },
           { lastName: new RegExp(queryParams.search, 'i') },
           { username: new RegExp(queryParams.search, 'i') },
           { firstName: new RegExp(queryParams.search, 'i') },
