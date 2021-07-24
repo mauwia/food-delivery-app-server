@@ -44,7 +44,38 @@ export const FoodCreatorSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
   unseenNotification: { type: Number, default: 0 },
-});
+  adminVerified: {
+    type: String,
+    default: "Pending",
+    enum: [
+      "Pending",
+      "Ongoing",
+      "Suspended",
+      "Completed",
+      "Verified", // required for onsite verification stage
+    ],
+  },
+  adminVerificationStage: {
+    type: String,
+    enum: [
+      "KYC Request",
+      "KYC Submitted",
+      "KYC Verification",
+      "Interview Scheduled",
+      "Interview Completed",
+      "Profile Assessment",
+      "Assessment Completed",
+      "Account Activated",
+    ],
+  },
+  adminVerificationStart: {
+    type: Date
+  },
+  adminVerificationComplete: {
+    type: Date
+  }
+},
+{ timestamps: true });
 FoodCreatorSchema.index({ location: "2dsphere" });
 FoodCreatorSchema.plugin(mongoosePaginate);
 

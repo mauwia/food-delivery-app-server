@@ -29,7 +29,8 @@ export const FoodLoverSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   recipientCode: { type: String },
   unseenNotification: { type: Number, default: 0 },
-});
+},
+{ timestamps: true });
 FoodLoverSchema.plugin(mongoosePaginate);
 
 export interface FoodLover extends mongoose.Document {
