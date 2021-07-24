@@ -89,6 +89,9 @@ export class FoodCreatorsService {
       }},
       { new: true }
     );
+    if (newStage === 'Account Activated') {
+      await this.updateVerificationStatus(id, 'Completed');
+    }
     return updatedFC;
   }
 
