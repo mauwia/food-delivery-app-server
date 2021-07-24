@@ -27,6 +27,7 @@ export class FoodCreatorsService {
       query = {
         $or: [          
           { email: new RegExp(queryParams.search, 'i') },
+          { phoneNo: new RegExp(queryParams.search, 'i') },
           { username: new RegExp(queryParams.search, 'i') },
           { businessName: new RegExp(queryParams.search, 'i') },
           { 'location.address': new RegExp(queryParams.search, 'i') },
@@ -57,6 +58,10 @@ export class FoodCreatorsService {
         { businessName: new RegExp(queryParams.search, 'i') },
         { 'location.address': new RegExp(queryParams.search, 'i') },
       ];
+    }
+
+    if (queryParams.filter) {
+      query['adminVerificationStage'] = queryParams.filter;
     }
 
     const result = await this.foodCreatorModel.paginate(query, options);
