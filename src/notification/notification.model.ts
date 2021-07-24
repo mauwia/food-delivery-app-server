@@ -4,7 +4,8 @@ export const NotificationSchema = new mongoose.Schema({
   notificationType: {
     type: String,
     enum: [
-      "Subscription",
+      "Subscribe",
+      "Unsubscribe",
       "Order",
       "Bought Noshies",
       "Request Noshies",

@@ -53,7 +53,8 @@ export class FoodLoverService {
 
       const token = generateJWT(userExist.id, userExist.phoneNo);
       if (!userExist.verified) {
-        // await this.sendSMS(userExist.phoneNo);
+        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        //Example OTP
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -113,7 +114,8 @@ export class FoodLoverService {
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
         const token = generateJWT(user._id, req.phoneNo);
-        // await this.sendSMS(req.phoneNo);
+        await this.sendSMS(`${user.countryCode}${user.phoneNo}`);
+        //Example otp hardcoded
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -287,21 +289,21 @@ export class FoodLoverService {
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
-        // let { otp } = req.body;
-        let checked = utils.checkExpiry(
-          this.OTP,
-          req.body.otp,
-          UserInfo.phoneNo
-        );
-        // let check = await this.checkSmsVerification(
-        //   UserInfo.phoneNo,
-        //   otp,
-        //   otp.length
+        let { otp } = req.body;
+        // let checked = utils.checkExpiry(
+        //   this.OTP,
+        //   req.body.otp,
+        //   UserInfo.phoneNo
         // );
-        // let checked = {
-        //   validated: check.valid,
-        //   message: check.status,
-        // };
+        let check = await this.checkSmsVerification(
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
+          otp,
+          otp.length
+        );
+        let checked = {
+          validated: check.valid,
+          message: check.status,
+        };
         console.log(checked);
         if (!checked.validated) {
           throw checked.message;
@@ -353,7 +355,8 @@ export class FoodLoverService {
       if (!UserInfo) {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
-        // await this.sendSMS(user.phoneNo, req.body.codeLength);
+        
+        await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)
@@ -504,6 +507,7 @@ export class FoodLoverService {
   }
   async checkSmsVerification(phoneNo, code, codeLength = 6) {
     try {
+      
       let response = await this.client.verify
         .services(
           codeLength == 6

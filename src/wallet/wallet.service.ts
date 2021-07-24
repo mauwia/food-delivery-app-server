@@ -252,6 +252,9 @@ export class WalletService {
           let transaction = await this.transactionsModel.findOne({
             reference: data.reference,
           });
+          if(transaction.status==="SUCCESSFUL"){
+            res.sendStatus(200);
+          }
           await this.notificationService.createNotification({
             notificationType:"Bought Noshies",
             transactionId:transaction._id,
@@ -300,7 +303,7 @@ export class WalletService {
               totalAmount: token.amount,
             };
           }
-        } else if (event === "charge.success") {
+        } else if (event === "charge.success" && data.channel !== "card") {
           let UserInfo = await this.foodLoverModel.findOne({
             customerCode: data.customer.customer_code,
           });
@@ -1219,7 +1222,7 @@ export class WalletService {
         onSenderModel: "FoodLover",
         senderId: UserInfo._id,
         timeStamp,
-        amount,
+        amount:Number(amount),
         currency: tokenName,
         message: "Test message",
         status: "PENDING",
