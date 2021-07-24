@@ -12,8 +12,7 @@ export const orderFoodSchema = new mongoose.Schema({
   imageUrls: { type: Array },
   review: { type: String },
   rating: { type: Number },
-},
-{ timestamps: true });
+});
 export const OrdersSchema = new mongoose.Schema({
   foodLoverId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodLover" },
   foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
@@ -53,8 +52,7 @@ export const OrdersSchema = new mongoose.Schema({
   orderedFood: [orderFoodSchema],
   realOrderBill: { type: Number },
   orderReviewed: { type: Boolean, default: false },
-},
-{ timestamps: true });
+});
 
 export interface Orders extends mongoose.Document {
   realOrderBill: number;
