@@ -84,6 +84,9 @@ export class FoodCreatorsService {
   }
 
   async updateVerificationStage(id, newStage) {
+    if (newStage === 'Account Activated') {
+      await this.updateVerificationStatus(id, 'Completed');
+    }
     const updatedFC = await this.foodCreatorModel.findOneAndUpdate(
       { _id: id },
       { $set: {
@@ -91,9 +94,7 @@ export class FoodCreatorsService {
       }},
       { new: true }
     );
-    if (newStage === 'Account Activated') {
-      await this.updateVerificationStatus(id, 'Completed');
-    }
+
     return updatedFC;
   }
 
