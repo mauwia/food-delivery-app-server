@@ -3,12 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodCreator } from "../../food-creator/food-creator.model";
 import { Orders } from '../../orders/orders.model';
+import { VerificationDetail } from '../food-creators/verification-detail.model';
 import { 
   getPaginationOptions,
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { FulfillingFcToday } from '../analyticsQueries/dayQueries'
+import { FulfillingFcToday, ActiveFcToday } from '../analyticsQueries/dayQueries'
 import { FulfillingFcWeek } from '../analyticsQueries/weekQueries'
 import { FulfillingFcMonth } from '../analyticsQueries/monthQueries'
 
@@ -17,6 +18,7 @@ export class FoodCreatorsService {
   constructor(
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
+    @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
   ) {}
 
   async getAllCreators(queryParams: GetAllRequestParams): Promise<Paginated> {
@@ -95,6 +97,20 @@ export class FoodCreatorsService {
     return updatedFC;
   }
 
+  async addKycData (id, kycData) {
+    kycData.fcId = id;
+    const kyc = await this.verificationDetail.findOneAndReplace({ fcId: id },
+      kycData, { upsert: true, new: true }
+    );
+
+    return kyc;
+  }
+
+  async getKycData (id) {
+    const result = await this.verificationDetail.find({ fcId: id });
+    return result[0];
+  }
+
   async getCreatorsMetrics() {
     const totalCreators = await this.foodCreatorModel.estimatedDocumentCount();
     const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }})
@@ -117,6 +133,7 @@ export class FoodCreatorsService {
           ? fulfillingMonth[0].fulfillingMonthCount
           : 0,
       },
+      active: {},
     }
   }
 }

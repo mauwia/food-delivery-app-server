@@ -1,8 +1,9 @@
 import { Types } from 'mongoose';
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { QueryParams } from './interfaces';
 import { FoodCreatorsService } from '../food-creators/food-creators.service';
 import { FoodCreator } from '../../food-creator/food-creator.model';
+import { VerificationDetail } from './verification-detail.model';
 
 @Controller()
 export class FoodCreatorsController {
@@ -37,5 +38,15 @@ export class FoodCreatorsController {
   @Get('/metrics/all')
   async getCreatorsMetrics () {
     return await this.adminFoodCreatorsService.getCreatorsMetrics();
+  }
+
+  @Post('/:id/kyc/new')
+  async addVerificationDetails(@Param('id') id, @Body('kycData') kycData): Promise<VerificationDetail> {
+    return await this.adminFoodCreatorsService.addKycData(id, kycData);
+  }
+
+  @Get('/:id/kyc/view')
+  async getKycDetails (@Param('id') id): Promise<VerificationDetail> {
+    return await this.adminFoodCreatorsService.getKycData(id);
   }
 }
