@@ -1,4 +1,8 @@
 import * as mongoose from "mongoose";
+import * as mongoosePaginate from "mongoose-paginate-v2";
+// @ts-ignore
+import * as aggregatePaginate from "mongoose-aggregate-paginate-v2";
+
 export const orderFoodSchema = new mongoose.Schema({
   menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" },
   menuItemName: { type: String },
@@ -53,6 +57,8 @@ export const OrdersSchema = new mongoose.Schema({
   realOrderBill: { type: Number },
   orderReviewed: { type: Boolean, default: false },
 });
+OrdersSchema.plugin(mongoosePaginate);
+OrdersSchema.plugin(aggregatePaginate);
 
 export interface Orders extends mongoose.Document {
   realOrderBill: number;
