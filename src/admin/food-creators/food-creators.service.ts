@@ -2,23 +2,21 @@ import { Model, PaginateModel, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodCreator } from "../../food-creator/food-creator.model";
-import { Orders } from '../../orders/orders.model';
 import { VerificationDetail } from '../food-creators/verification-detail.model';
+import { OrdersService } from '../orders/orders.service';
 import { 
   getPaginationOptions,
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { FulfillingFcToday, ActiveFcToday } from '../analyticsQueries/dayQueries'
-import { FulfillingFcWeek } from '../analyticsQueries/weekQueries'
-import { FulfillingFcMonth } from '../analyticsQueries/monthQueries'
+import { ActiveFcToday } from '../analyticsQueries/dayQueries'
 
 @Injectable()
 export class FoodCreatorsService {
   constructor(
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
-    @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
+    private readonly adminOrdersService: OrdersService,
   ) {}
 
   async getAllCreators(queryParams: GetAllRequestParams): Promise<Paginated> {
@@ -114,10 +112,10 @@ export class FoodCreatorsService {
 
   async getCreatorsMetrics() {
     const totalCreators = await this.foodCreatorModel.estimatedDocumentCount();
-    const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }})
-    const fulfillingDay = await this.ordersModel.aggregate(FulfillingFcToday());
-    const fulfillingWeek = await this.ordersModel.aggregate(FulfillingFcWeek());
-    const fulfillingMonth = await this.ordersModel.aggregate(FulfillingFcMonth());
+    const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }});
+    const fulfillingDay = await this.adminOrdersService.getFCsDailyOrdersCount();
+    const fulfillingWeek = await this.adminOrdersService.getFCsWeeklyOrdersCount();
+    const fulfillingMonth = await this.adminOrdersService.getFCsMonthlyOrdersCount();
     
     return {
       // total, verified, fulfilling, active
