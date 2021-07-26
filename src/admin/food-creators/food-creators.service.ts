@@ -9,7 +9,6 @@ import {
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { ActiveFcToday } from '../analyticsQueries/dayQueries'
 
 @Injectable()
 export class FoodCreatorsService {
