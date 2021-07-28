@@ -20,8 +20,8 @@ export class AdminNotificationService {
     const payload = {
       type,
       subjectId: resource._id,
-      subjectName: resource.businessName,
-      subjectImgUrl: resource.imageUrl,
+      subjectName: resource?.businessName,
+      subjectImgUrl: resource?.imageUrl,
     }
 
     const newNotification = new this.notificationModel(payload);
