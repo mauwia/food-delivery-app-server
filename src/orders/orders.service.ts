@@ -30,7 +30,7 @@ export class OrdersService {
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService,
-    private readonly notificationService:NotificationService
+    private readonly notificationService: NotificationService
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -111,17 +111,17 @@ export class OrdersService {
           },
         ])
         .execPopulate();
-        await this.notificationService.createNotification({
-          notificationType:"Order",
-          orderId:orderCreated._id,
-          orderStatus:"New",
-          senderId:order.foodCreatorId._id,
-          onSenderModel: "FoodCreator",
-          receiverId: order.foodLoverId,
-          onReceiverModel: "FoodLover",
-          createdAt:order.timestamp,
-          updatedAt:order.timestamp
-        })
+      await this.notificationService.createNotification({
+        notificationType: "Order",
+        orderId: orderCreated._id,
+        orderStatus: "New",
+        senderId: order.foodCreatorId._id,
+        onSenderModel: "FoodCreator",
+        receiverId: order.foodLoverId,
+        onReceiverModel: "FoodLover",
+        createdAt: order.timestamp,
+        updatedAt: order.timestamp,
+      });
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
@@ -223,7 +223,8 @@ export class OrdersService {
         },
         {
           path: "foodCreatorId",
-          select: "businessName phoneNo username fcmRegistrationToken walletId imageUrl",
+          select:
+            "businessName phoneNo username fcmRegistrationToken walletId imageUrl",
         },
       ]);
       if (!checkStatus(order.orderStatus, status)) {
@@ -238,21 +239,22 @@ export class OrdersService {
         order.chatRoomId = chatroom.chatroom._id;
       }
       await this.notificationService.createNotification({
-        notificationType:"Order",
-        orderId:order._id,
-        orderStatus:status,
-        senderId:order.foodCreatorId._id,
+        notificationType: "Order",
+        orderId: order._id,
+        orderStatus: status,
+        senderId: order.foodCreatorId._id,
         onSenderModel: "FoodCreator",
         receiverId: order.foodLoverId._id,
         onReceiverModel: "FoodLover",
-        createdAt:order.timestamp,
-        updatedAt:req.body.timestamp
-      })
+        createdAt: order.timestamp,
+        updatedAt: req.body.timestamp,
+      });
       await this.changeBalanceAccordingToStatus(
         status,
         order,
         orderStatusReciever,
-        UserInfo,req.body.timestamp
+        UserInfo,
+        req.body.timestamp
       );
       order.orderStatus = status;
       order.reason = reason ? reason : "";
@@ -287,7 +289,8 @@ export class OrdersService {
     status,
     order,
     orderStatusReciever,
-    orderStatusSender,timestamp
+    orderStatusSender,
+    timestamp
   ) {
     try {
       if (status === "Accepted") {
@@ -301,7 +304,7 @@ export class OrdersService {
         );
         // console.log(statusRecieverWallet,statusSenderWallet)
         //Retrieving assets of both FC and FL
-       
+
         let senderAssets = statusRecieverWallet.assets.find(
           (asset) => asset.tokenName == order.tokenName
         );
@@ -326,7 +329,7 @@ export class OrdersService {
           statusSenderWallet.escrow =
             statusSenderWallet.escrow + +orderBillForty;
           //setting escrow of FL with 40% of bill
-          
+
           statusRecieverWallet.escrow =
             statusRecieverWallet.escrow + +orderBillForty;
           await statusSenderWallet.save();
@@ -372,7 +375,7 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
-        let transaction=await this.walletService.createTransaction({
+        let transaction = await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
@@ -387,18 +390,18 @@ export class OrdersService {
           status: "SUCCESSFUL",
         });
         await this.notificationService.createNotification({
-          notificationType:"Payment Received Success",
-          transactionId:transaction._id,
+          notificationType: "Payment Received Success",
+          transactionId: transaction._id,
           senderId: transaction.senderId,
           onSenderModel: "FoodLover",
           receiverId: transaction.receiverId,
           onReceiverModel: "FoodCreator",
-          createdAt:timestamp,
-          updatedAt:timestamp
-        })
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
-      } else if (status === "Cancel" && order.orderStatus!=="New") {
+      } else if (status === "Cancel" && order.orderStatus !== "New") {
         let statusRecieverWallet = await this.walletModel.findById(
           order.foodCreatorId.walletId
         );
@@ -417,8 +420,7 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         FC_Assets.amount = FC_Assets.amount - orderBillSixty;
-        FL_Assets.amount =
-          FL_Assets.amount + order.orderBill ;
+        FL_Assets.amount = FL_Assets.amount + order.orderBill;
         await this.walletService.createTransaction({
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
@@ -656,7 +658,33 @@ export class OrdersService {
       );
     }
   }
-
+  async updateNotificationCount(to) {
+    try {
+      let updatedNotification = await this.foodCreatorModel.findOneAndUpdate(
+        { phoneNo: to },
+        {
+          $inc: { unseenNotification: 1 },
+        }
+      );
+      if(!updatedNotification){
+        updatedNotification = await this.foodLoverModel.findOneAndUpdate(
+          { phoneNo: to },
+          {
+            $inc: { unseenNotification: 1 },
+          }
+        );
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async checkPromo(req) {
     try {
       let { user } = req;

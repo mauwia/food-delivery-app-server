@@ -17,6 +17,8 @@ import { NotificationModule } from './notification/notification.module';
 import { AdminModule } from './admin/admin.module';
 import { RouterModule } from 'nest-router';
 import routes from './admin/routes';
+import { FoodLoverSchema } from "./foodLover/foodLover.model";
+import { FoodCreatorSchema } from "./food-creator/food-creator.model";
 
 @Module({
   imports: [
@@ -29,6 +31,10 @@ import routes from './admin/routes';
         useFindAndModify: false,
       }
     ),
+    MongooseModule.forFeature([
+      { name: "FoodLover", schema: FoodLoverSchema },
+      { name: "FoodCreator", schema: FoodCreatorSchema },
+    ]),
     // MorganModule.forRoot(),
     ProfileModule,
     WalletModule,
