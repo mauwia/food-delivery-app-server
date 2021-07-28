@@ -3,6 +3,7 @@ import { AdminModule } from '../admin/admin.module';
 import { FoodLoversModule } from '../admin/food-lovers/food-lovers.module';
 import { AdminNotificationModule } from './admin-notification/admin-notification.module'
 import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module';
+import { OrdersModule } from './orders/orders.module';
 
 const routes: Routes = [
   {
@@ -20,6 +21,10 @@ const routes: Routes = [
       {
         path: '/notifications',
         module: AdminNotificationModule,
+      },
+      {
+        path: '/orders',
+        module: OrdersModule,
       },
     ],
   },

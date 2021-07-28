@@ -2,21 +2,20 @@ import { Model, PaginateModel, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodCreator } from "../../food-creator/food-creator.model";
-import { Orders } from '../../orders/orders.model';
+import { VerificationDetail } from '../food-creators/verification-detail.model';
+import { OrdersService } from '../orders/orders.service';
 import { 
   getPaginationOptions,
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { FulfillingFcToday } from '../analyticsQueries/dayQueries'
-import { FulfillingFcWeek } from '../analyticsQueries/weekQueries'
-import { FulfillingFcMonth } from '../analyticsQueries/monthQueries'
 
 @Injectable()
 export class FoodCreatorsService {
   constructor(
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
-    @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
+    @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
+    private readonly adminOrdersService: OrdersService,
   ) {}
 
   async getAllCreators(queryParams: GetAllRequestParams): Promise<Paginated> {
@@ -82,6 +81,9 @@ export class FoodCreatorsService {
   }
 
   async updateVerificationStage(id, newStage) {
+    if (newStage === 'Account Activated') {
+      await this.updateVerificationStatus(id, 'Completed');
+    }
     const updatedFC = await this.foodCreatorModel.findOneAndUpdate(
       { _id: id },
       { $set: {
@@ -89,18 +91,30 @@ export class FoodCreatorsService {
       }},
       { new: true }
     );
-    if (newStage === 'Account Activated') {
-      await this.updateVerificationStatus(id, 'Completed');
-    }
+
     return updatedFC;
+  }
+
+  async addKycData (id, kycData) {
+    kycData.fcId = id;
+    const kyc = await this.verificationDetail.findOneAndReplace({ fcId: id },
+      kycData, { upsert: true, new: true }
+    );
+
+    return kyc;
+  }
+
+  async getKycData (id) {
+    const result = await this.verificationDetail.find({ fcId: id });
+    return result[0];
   }
 
   async getCreatorsMetrics() {
     const totalCreators = await this.foodCreatorModel.estimatedDocumentCount();
-    const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }})
-    const fulfillingDay = await this.ordersModel.aggregate(FulfillingFcToday());
-    const fulfillingWeek = await this.ordersModel.aggregate(FulfillingFcWeek());
-    const fulfillingMonth = await this.ordersModel.aggregate(FulfillingFcMonth());
+    const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }});
+    const fulfillingDay = await this.adminOrdersService.getFCsDailyOrdersCount();
+    const fulfillingWeek = await this.adminOrdersService.getFCsWeeklyOrdersCount();
+    const fulfillingMonth = await this.adminOrdersService.getFCsMonthlyOrdersCount();
     
     return {
       // total, verified, fulfilling, active
@@ -117,6 +131,7 @@ export class FoodCreatorsService {
           ? fulfillingMonth[0].fulfillingMonthCount
           : 0,
       },
+      active: {},
     }
   }
 }
