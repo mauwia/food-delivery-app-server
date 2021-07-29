@@ -188,7 +188,7 @@ export class WalletService {
   }
   async withdrawNoshies(req, res) {
     try {
-      console.log("WORKING", req.body);
+      // console.log("WORKING", req.body);
       let { data, event } = req.body;
       let hash = crypto
         .createHmac("sha512", process.env.PAYSTACK_KEYS)
@@ -230,16 +230,19 @@ export class WalletService {
             { status: "FAILED" }
           );
         } else if (event === "charge.success" && data.channel === "card") {
+          console.log("HERE")
           let UserInfo = await this.foodLoverModel.findOne({
             customerCode: data.customer.customer_code,
             // customerCode: "CUS_onjsnospaheyq6s",
           });
+          console.log(UserInfo)
           if (!UserInfo) {
             throw {
               msg: WALLET_MESSAGES.WALLET_NOT_FOUND,
               status: HttpStatus.NOT_FOUND,
             };
           }
+          console.log("WERE HERE AGAIN")
           let wallet = await this.walletModel.findById(UserInfo.walletId);
           // let wallet=UserInfo.walletId.assets
           // console.log("AAAAAAAAAAAAAAA",wallet)
@@ -286,10 +289,7 @@ export class WalletService {
             // console.log(wallet)
             transaction.status = "SUCCESSFUL";
             await transaction.save();
-            return {
-              message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-              totalAmount: asset.amount,
-            };
+            
           } else {
             let token = await this.createAsset(
               transaction.currency,
@@ -298,10 +298,6 @@ export class WalletService {
             );
             transaction.status = "SUCCESSFUL";
             await transaction.save();
-            return {
-              message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
-              totalAmount: token.amount,
-            };
           }
         } else if (event === "charge.success" && data.channel !== "card") {
           let UserInfo = await this.foodLoverModel.findOne({
@@ -326,7 +322,7 @@ export class WalletService {
           };
 
           await this.addNoshiesByBank(req, "Bought Noshies By Bank");
-        }
+        } 
 
         res.sendStatus(200);
       } else {
