@@ -208,13 +208,14 @@ export class ReviewService {
         throw "USER_NOT_FOUND";
       }
       let foodLoverPublic = await this.foodLoverModel.findOne({
-        username:req.params.username 
+        username: req.params.username,
       });
       let reviewedOfFoodLover = await this.reviewModel
         .find({
           $and: [
             { foodLoverId: foodLoverPublic._id },
             { review: { $exists: true } },
+            { isShareAblePost: true },
           ],
         })
         .populate([
@@ -232,8 +233,8 @@ export class ReviewService {
             select: "username imageUrl",
           },
           {
-            path:"menuItemId",
-          }
+            path: "menuItemId",
+          },
         ]);
       return { reviewedOfFoodLover };
     } catch (error) {
@@ -304,6 +305,7 @@ export class ReviewService {
         review: req.body.review,
         rating: req.body.rating,
         timestamp: req.body.timestamp,
+        isShareAblePost: req.body.isShareAblePost,
       });
       let unreviewedMenuItemsByOrder = await this.reviewModel.find({
         $and: [{ orderId: review.orderId }, { review: { $exists: false } }],
