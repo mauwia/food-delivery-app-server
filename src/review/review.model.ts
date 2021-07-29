@@ -7,7 +7,7 @@ export const ReviewSchema = new mongoose.Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   review:{type:String},
   rating:{type:Number},
-  isShareAblePost:{type:Boolean.length,default:true},
+  isShareAblePost:{type:Boolean,default:true},
   timestamp: { type: String, default: Date.now() },
 });
 export interface Review extends mongoose.Document {
