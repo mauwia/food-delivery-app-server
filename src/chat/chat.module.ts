@@ -8,6 +8,7 @@ import { OrdersSchema } from 'src/orders/orders.model';
 import { FoodLoverSchema } from 'src/foodLover/foodLover.model';
 import { NotificationService } from 'src/notification/notification.service';
 import { NotificationModule } from 'src/notification/notification.module';
+import { FoodCreatorSchema } from 'src/food-creator/food-creator.model';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationModule } from 'src/notification/notification.module';
       {name:"FoodLover",schema:FoodLoverSchema},
       { name: "Message", schema: MessageSchema },
       {name:"Orders",schema:OrdersSchema},
+      {name:"FoodCreator",schema:FoodCreatorSchema}
     ]),NotificationModule
   ],
   controllers: [ChatController],
