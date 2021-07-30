@@ -40,6 +40,13 @@ export class OrdersService {
   async getOrdersByStatus (queryParams: GetAllRequestParams, status: string) {
     const options = getPaginationOptions(queryParams);
     const query = { orderStatus: status };
+
+    if (queryParams.search) {
+      query['$or'] = [          
+        { orderId: new RegExp(queryParams.search, 'i') },
+      ];
+    }
+
     const pipeline = await this.getOrderPipeline(query);
     const aggregate = this.ordersModel.aggregate(pipeline);
 

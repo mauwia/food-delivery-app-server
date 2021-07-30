@@ -8,7 +8,6 @@ export class OrdersController {
 
   @Get('/:param')
   async getOrderByIdOrParam (@Query() queryParams, @Param('param') param): Promise<any> {
-    console.log('here');
     const validOrderStatus = [
       "New", "Accepted", "Being Prepared", "Prepared", "InTransit", "Decline", "Cancel", "Order Completed"
     ];
