@@ -110,7 +110,12 @@ export class FoodCreatorService {
         const newUser = new this.foodCreatorModel(req);
         const user = await this.foodCreatorModel.create(newUser);
 
-        const notification = await this.notificationService.saveNotification('newFc', user);
+        const notification = await this.notificationService.saveNotification(
+          'newFc',
+          user._id,
+          user.phoneNo,
+          user?.imageUrl,
+        );
         this.adminGateway.handleFCSignup({ notification, user });
 
         const token = jwt.sign(
