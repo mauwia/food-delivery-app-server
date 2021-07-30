@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationSchema } from './notification.model';
 import { FoodCreatorSchema } from 'src/food-creator/food-creator.model';
 import { FoodLoverSchema } from 'src/foodLover/foodLover.model';
+import { NotificationGateway } from './notification.gateway';
 
 @Module({
   imports:[
@@ -14,7 +15,7 @@ import { FoodLoverSchema } from 'src/foodLover/foodLover.model';
       { name: "FoodCreator", schema: FoodCreatorSchema }
     ])
   ],
-  providers: [NotificationService],
+  providers: [NotificationService,NotificationGateway],
   controllers: [NotificationController],
   exports:[NotificationService]
 })

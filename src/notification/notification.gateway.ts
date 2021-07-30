@@ -30,8 +30,13 @@ import { FoodCreator } from "src/food-creator/food-creator.model";
     afterInit(server: Server) {
       this.logger.log("Init");
     }
-    handleNotification(client:Socket){
-        
+    async updateNotificationCountToZero(to) {
+      this.server
+      .to(this.onlineUsers[to].socketId)
+      .emit(
+        "update-notification-count",
+        0
+      );
     }
     handleDisconnect(client: Socket) {
       if (this.onlineUsers[client.handshake.query.userNo]) {

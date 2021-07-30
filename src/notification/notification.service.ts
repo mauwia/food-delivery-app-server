@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { FoodCreator } from "src/food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
+import { NotificationGateway } from "./notification.gateway";
 import { Notification } from "./notification.model";
 
 @Injectable()
@@ -12,7 +13,8 @@ export class NotificationService {
     private readonly notificationModel: Model<Notification>,
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    private readonly notificationGateway:NotificationGateway
   ) {}
   async createNotification(body) {
     let newNotification = new this.notificationModel(body);
@@ -50,6 +52,9 @@ export class NotificationService {
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
       page = page - 1
+      UserInfo.unseenNotification=0
+      UserInfo.save()
+      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo)
       let notifications = await this.notificationModel
         .find({
           $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
