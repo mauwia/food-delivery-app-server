@@ -111,6 +111,30 @@ export class OrdersService {
           },
         ])
         .execPopulate();
+        let transaction = await this.walletService.createTransaction({
+          transactionType: "Payment Received",
+          to: order.foodCreatorId.phoneNo,
+          onSenderModel: "FoodLover",
+          senderId: UserInfo._id,
+          onReceiverModel: "FoodCreator",
+          receiverId: order.foodCreatorId._id,
+          from: UserInfo.phoneNo,
+          deductAmount: order.NoshDeduct,
+          orderId: order.orderId,
+          amount: order.orderBill,
+          currency: order.tokenName,
+          status: "SUCCESSFUL",
+        });
+        await this.notificationService.createNotification({
+          notificationType: "Payment Received Success",
+          transactionId: transaction._id,
+          senderId: transaction.senderId,
+          onSenderModel: "FoodLover",
+          receiverId: transaction.receiverId,
+          onReceiverModel: "FoodCreator",
+          createdAt: order.timestamp,
+          updatedAt: order.timestamp,
+        });
       await this.notificationService.createNotification({
         notificationType: "Order",
         orderId: orderCreated._id,
@@ -375,30 +399,30 @@ export class OrdersService {
           statusRecieverWallet.escrow - orderBillForty;
         statusSenderWallet.escrow = statusSenderWallet.escrow - orderBillForty;
         // console.log('===============>',orderStatusSender.phoneNo,"==============>",order.foodCreatorId.phoneNo)
-        let transaction = await this.walletService.createTransaction({
-          transactionType: "Payment Received",
-          to: order.foodCreatorId.phoneNo,
-          onSenderModel: "FoodLover",
-          senderId: orderStatusSender._id,
-          onReceiverModel: "FoodCreator",
-          receiverId: order.foodCreatorId._id,
-          from: orderStatusSender.phoneNo,
-          deductAmount: order.NoshDeduct,
-          orderId: order.orderId,
-          amount: order.orderBill,
-          currency: order.tokenName,
-          status: "SUCCESSFUL",
-        });
-        await this.notificationService.createNotification({
-          notificationType: "Payment Received Success",
-          transactionId: transaction._id,
-          senderId: transaction.senderId,
-          onSenderModel: "FoodLover",
-          receiverId: transaction.receiverId,
-          onReceiverModel: "FoodCreator",
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        });
+        // let transaction = await this.walletService.createTransaction({
+        //   transactionType: "Payment Received",
+        //   to: order.foodCreatorId.phoneNo,
+        //   onSenderModel: "FoodLover",
+        //   senderId: orderStatusSender._id,
+        //   onReceiverModel: "FoodCreator",
+        //   receiverId: order.foodCreatorId._id,
+        //   from: orderStatusSender.phoneNo,
+        //   deductAmount: order.NoshDeduct,
+        //   orderId: order.orderId,
+        //   amount: order.orderBill,
+        //   currency: order.tokenName,
+        //   status: "SUCCESSFUL",
+        // });
+        // await this.notificationService.createNotification({
+        //   notificationType: "Payment Received Success",
+        //   transactionId: transaction._id,
+        //   senderId: transaction.senderId,
+        //   onSenderModel: "FoodLover",
+        //   receiverId: transaction.receiverId,
+        //   onReceiverModel: "FoodCreator",
+        //   createdAt: timestamp,
+        //   updatedAt: timestamp,
+        // });
         await statusSenderWallet.save();
         await statusRecieverWallet.save();
       } else if (status === "Cancel" && order.orderStatus !== "New") {

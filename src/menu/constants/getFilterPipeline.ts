@@ -16,6 +16,9 @@ export const filterPipelineRating= (lng,lat,searchKey,rating)=>{
             menuExist: true,
           },
           {
+            adminVerified:"Verified"
+          },
+          {
             $and: [
               {
                 $or: [
@@ -66,6 +69,9 @@ export const filterPipelineCategory= (lng,lat,searchKey)=>{
         },
         {
           menuExist: true,
+        },
+        {
+          adminVerified:"Verified"
         },
         {
           $and: [

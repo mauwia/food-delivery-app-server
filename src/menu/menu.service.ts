@@ -103,6 +103,9 @@ export class MenuService {
               menuExist: true,
             },
             {
+              adminVerified:"Verified"
+            },
+            {
               subscribers:{$nin:[Types.ObjectId(UserInfo._id)]}
             }
           ],
@@ -122,6 +125,9 @@ export class MenuService {
                   },
                 },
               },
+            },
+            {
+              adminVerified:"Verified"
             },
             {
               menuExist: true,
