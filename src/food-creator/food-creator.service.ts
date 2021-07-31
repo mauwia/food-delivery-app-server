@@ -8,8 +8,6 @@ import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
 import { Testers } from "src/profile/profile.model";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
-
-import { AdminNotification } from 'src/admin/admin-notification/admin-notifications.model'
 import { AdminGateway } from "src/admin/admin.gateway";
 import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 const jwt = require("jsonwebtoken");
@@ -26,7 +24,6 @@ export class FoodCreatorService {
     @InjectModel("Testers") private readonly testerModel:Model<Testers>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService,
-    @InjectModel("AdminNotification") private readonly notificationModel:Model<AdminNotification>,
     private readonly adminGateway: AdminGateway,
     private readonly notificationService: AdminNotificationService,
   ) {}
