@@ -1,5 +1,7 @@
 import * as mongoose from "mongoose";
 import * as mongoosePaginate from "mongoose-paginate-v2";
+// @ts-ignore
+import * as aggregatePaginate from "mongoose-aggregate-paginate-v2";
 import { Wallet } from "src/wallet/wallet.model";
 
 export const FoodLoverSchema = new mongoose.Schema({
@@ -32,6 +34,7 @@ export const FoodLoverSchema = new mongoose.Schema({
 },
 { timestamps: true });
 FoodLoverSchema.plugin(mongoosePaginate);
+FoodLoverSchema.plugin(aggregatePaginate);
 
 export interface FoodLover extends mongoose.Document {
   unseenNotification: number;

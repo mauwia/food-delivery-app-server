@@ -12,6 +12,9 @@ import { ChatModule } from "src/chat/chat.module";
 import { MenuItemSchema } from "src/menu/menu.model";
 import { ReviewSchema } from "src/review/review.model";
 import { NotificationModule } from "src/notification/notification.module";
+import { AdminModule } from "src/admin/admin.module";
+import { AdminNotificationModule } from "src/admin/admin-notification/admin-notification.module";
+import { AdminNotificationSchema } from 'src/admin/admin-notification/admin-notifications.model'
 
 @Module({
   imports: [
@@ -23,10 +26,13 @@ import { NotificationModule } from "src/notification/notification.module";
       { name: "MenuItems", schema: MenuItemSchema },
       { name: "OrderedFood", schema: orderFoodSchema },
       { name: "Reviews", schema: ReviewSchema },
+      { name: "AdminNotification", schema: AdminNotificationSchema },
     ]),
     WalletModule,
     ChatModule,
-    NotificationModule
+    NotificationModule,
+    AdminModule,
+    AdminNotificationModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersGateway],
