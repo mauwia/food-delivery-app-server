@@ -352,7 +352,7 @@ export class OrdersService {
           transactionType: "Payment Received",
           to: order.foodCreatorId.phoneNo,
           onSenderModel: "FoodLover",
-          senderId: orderStatusReciever._id,
+          senderId: order.foodLoverId._id,
           onReceiverModel: "FoodCreator",
           receiverId: order.foodCreatorId._id,
           from: orderStatusReciever.phoneNo,
