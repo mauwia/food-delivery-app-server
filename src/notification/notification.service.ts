@@ -136,6 +136,9 @@ export class NotificationService {
       let page = req.params.page >= 1 ? req.params.page : 1;
       console.log(req.params.page)
       page = page - 1
+      UserInfo.unseenNotification=0
+      UserInfo.save()
+      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo)
       let notifications = await this.notificationModel
         .find({
           $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
