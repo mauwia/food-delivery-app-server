@@ -68,9 +68,11 @@ export class AdminNotificationService {
     };
 
     const unread = await this.notificationModel.aggregate(unreadCount());
+    const count = unread.length > 0 ? unread[0].unreadCount : 0;
+
     const result = await this.notificationModel.paginate(query, options);
     const paginatedResult = getPaginatedResult(result);
   
-    return {...paginatedResult, unreadNotification: unread[0].unreadCount }
+    return {...paginatedResult, unreadNotification: count }
   }
 }
