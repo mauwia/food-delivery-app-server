@@ -16,12 +16,12 @@ export class AdminNotificationService {
     @InjectModel('AdminNotification') private readonly  notificationModel:PaginateModel<AdminNotification>,
   ) {}
 
-  async saveNotification(type, resource) {
+  async saveNotification(type, id, subject, img = '') {
     const payload = {
       type,
-      subjectId: resource._id,
-      subjectName: resource?.businessName,
-      subjectImgUrl: resource?.imageUrl,
+      subjectId: id,
+      subjectName: subject,
+      subjectImgUrl: img,
     }
 
     const newNotification = new this.notificationModel(payload);
@@ -56,7 +56,21 @@ export class AdminNotificationService {
       };
     }
 
+    let unreadCount = () => {
+      return [
+        {
+          $match: {
+            viewed: false 
+          },
+        },
+        { $count: "unreadCount" },
+      ];
+    };
+
+    const unread = await this.notificationModel.aggregate(unreadCount());
     const result = await this.notificationModel.paginate(query, options);
-    return getPaginatedResult(result);
+    const paginatedResult = getPaginatedResult(result);
+  
+    return {...paginatedResult, unreadNotification: unread[0].unreadCount }
   }
 }

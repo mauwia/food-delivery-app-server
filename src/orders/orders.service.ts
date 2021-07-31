@@ -14,6 +14,8 @@ import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
 import { Review } from "src/review/review.model";
 import { NotificationService } from "src/notification/notification.service";
+import { AdminGateway } from "src/admin/admin.gateway";
+import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 let turf = require("@turf/distance");
 let helper = require("@turf/helpers");
 
@@ -30,7 +32,9 @@ export class OrdersService {
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly adminGateway: AdminGateway,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
   private logger = new Logger("Wallet");
   async createOrder(req) {
@@ -127,6 +131,13 @@ export class OrdersService {
         orderCreated,
         foodCreator.fcmRegistrationToken
       );
+
+      const notification = await this.adminNotificationService.saveNotification(
+        'newOrder',
+        orderCreated._id,
+        foodCreator.businessName,
+      );
+      this.adminGateway.handleNewOrder({ notification, orderCreated });
       return orderCreated;
     } catch (error) {
       this.logger.error(error, error.stack);

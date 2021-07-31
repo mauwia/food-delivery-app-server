@@ -8,4 +8,8 @@ export class AdminGateway {
   handleFCSignup(@MessageBody() payload: unknown ) {
     this.server.emit('fcSignupToClient', payload)
   }
+
+  handleNewOrder(@MessageBody() payload: unknown ) {
+    this.server.emit('newOrderToClient', payload)
+  }
 }
