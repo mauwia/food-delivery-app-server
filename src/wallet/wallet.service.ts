@@ -1228,7 +1228,7 @@ export class WalletService {
         onSenderModel: "FoodLover",
         senderId: UserInfo._id,
         timeStamp,
-        amount: Number(amount),
+        amount: amount,
         currency: tokenName,
         message: "Test message",
         status: "PENDING",
@@ -1354,7 +1354,7 @@ export class WalletService {
         tokenAddress: "NOSH",
         tokenSymbol: tokenName,
         tokenName,
-        amount: parseInt(amount),
+        amount: parseFloat(amount),
       };
       wallet.assets.push(token);
       await wallet.save();
