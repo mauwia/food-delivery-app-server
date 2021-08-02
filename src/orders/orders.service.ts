@@ -366,7 +366,7 @@ export class OrdersService {
           senderId: order.foodLoverId._id,
           onReceiverModel: "FoodCreator",
           receiverId: order.foodCreatorId._id,
-          from: orderStatusReciever.phoneNo,
+          from: order.foodLoverId.phoneNo,
           deductAmount: order.NoshDeduct,
           orderId: order.orderId,
           amount: order.orderBill,
