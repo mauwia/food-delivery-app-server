@@ -306,7 +306,7 @@ export class FoodLoverService {
         };
         console.log(checked);
         if (!checked.validated) {
-          throw checked.message;
+          throw "Invalid OTP";
         } else {
           if (req.user) {
             UserInfo.verified = req.user ? true : false;

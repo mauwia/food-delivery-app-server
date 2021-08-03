@@ -208,7 +208,7 @@ export class FoodCreatorService {
           message: check.status,
         };
         if (!checked.validated) {
-          throw checked.message;
+          throw "Invalid OTP";
         } else {
           if (req.user) {
             UserInfo.verified = req.user ? true : false;

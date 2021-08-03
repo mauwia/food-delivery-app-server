@@ -130,6 +130,9 @@ export class MenuService {
               adminVerified:"Verified"
             },
             {
+              adminVerified:"Completed"
+            },
+            {
               menuExist: true,
             },
             {
