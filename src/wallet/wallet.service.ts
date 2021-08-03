@@ -829,6 +829,19 @@ export class WalletService {
       // console.log(newList);
       //taking out that transaction which need approval
       let transaction = await this.transactionsModel.findById(transactionId);
+      let sendTransaction = await this.createTransaction({
+        transactionType: "Sent Noshies",
+        timeStamp:transaction.timestamp,
+        senderId: UserInfo._id,
+        onSenderModel: "FoodLover",
+        receiverId: transaction.senderId,
+        onReceiverModel: "FoodLover",
+        from: UserInfo.phoneNo,
+        to: transaction.from,
+        amount: transaction.amount,
+        currency: transaction .tokenName,
+        status:action,
+      });
       console.log(transaction);
       if (action === "ACCEPTED") {
         // console.log(pendingNoshRequest);
