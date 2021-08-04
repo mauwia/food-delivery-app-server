@@ -113,7 +113,6 @@ export class FoodCreatorsService {
         }
 
         if (upload.name.includes('contactPersonGovId')) {
-          console.log('got here');
           contactPersonGovIdUpload = upload;
         }
       });
