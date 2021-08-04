@@ -99,6 +99,12 @@ export class OrdersService {
           foreignField: "chatroomId",
           as: "chat"
       }},
+      { $lookup: {
+        from: "reviews",
+          localField: "_id",
+          foreignField: "orderId",
+          as: "reviews"
+      }},
     ]
   }
 }
