@@ -10,5 +10,9 @@ export const FulfillingFcToday = () => [
       }
     }
   },
-  { $count: "fulfillingDayCount" },
+  { $group: {
+      _id: "$foodCreatorId",
+      fulfillingDayCount: { $sum: 1 },
+    }
+  }
 ];
