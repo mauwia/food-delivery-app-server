@@ -12,5 +12,9 @@ export const FulfillingFcMonth = () => [
       }
     }
   },
-  { $count: "fulfillingMonthCount" },
+  { $group: {
+    _id: "$foodCreatorId",
+      fulfillingMonthCount: { $sum: 1 },
+    }
+  },
 ]

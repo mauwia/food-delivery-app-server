@@ -147,13 +147,13 @@ export class FoodCreatorsService {
       verified,
       fulfilling: {
         today: fulfillingDay.length
-          ? fulfillingDay[0].fulfillingDayCount
+          ? fulfillingDay.length
           : 0,
         week: fulfillingWeek.length
-          ? fulfillingWeek[0].fulfillingWeekCount
+          ? fulfillingWeek.length
           : 0,
         month: fulfillingMonth.length
-          ? fulfillingMonth[0].fulfillingMonthCount
+          ? fulfillingMonth.length
           : 0,
       },
       active: {},
