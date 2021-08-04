@@ -9,6 +9,7 @@ import {
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
+import { uploadImage } from '../shared/imagekitHelper';
 
 @Injectable()
 export class FoodCreatorsService {
@@ -95,8 +96,32 @@ export class FoodCreatorsService {
     return updatedFC;
   }
 
-  async addKycData (id, kycData) {
+  async addKycData (id, kycData, files) {
+    let images = [];
+    let proofOfAddressUpload;
+    let contactPersonGovIdUpload;
+
+    for (const property in files) {
+      images.push(files[property]);
+    }
+
+    if (images.length > 0) {
+      const response = await Promise.all(images.map((picture) => uploadImage(picture[0], id)));
+      response.forEach((upload) => {
+        if (upload.name.includes('proofOfAddress')) {
+          proofOfAddressUpload = upload;
+        }
+
+        if (upload.name.includes('contactPersonGovId')) {
+          contactPersonGovIdUpload = upload;
+        }
+      });
+    }
+
     kycData.fcId = id;
+    proofOfAddressUpload && (kycData.proofOfAddress = proofOfAddressUpload.url);
+    contactPersonGovIdUpload && (kycData.contactPersonGovId = contactPersonGovIdUpload.url);
+
     const kyc = await this.verificationDetail.findOneAndReplace({ fcId: id },
       kycData, { upsert: true, new: true }
     );
@@ -104,7 +129,7 @@ export class FoodCreatorsService {
     return kyc;
   }
 
-  async getKycData (id) {
+  async getKycData (id: ObjectId) {
     const result = await this.verificationDetail.find({ fcId: id });
     return result[0];
   }
