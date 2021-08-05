@@ -106,6 +106,9 @@ export class MenuService {
               adminVerified:"Verified"
             },
             {
+              adminVerified:"Completed"
+            },
+            {
               subscribers:{$nin:[Types.ObjectId(UserInfo._id)]}
             }
           ],
