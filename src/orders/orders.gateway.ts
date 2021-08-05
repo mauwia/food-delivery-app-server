@@ -99,6 +99,11 @@ export class OrdersGateway
         .to(this.onlineUsers[to].socketId)
         .emit("update-order-status", order);
     } else {
+      let text
+      if(order.orderStatus=="New") text="Hey! You just got a new order 😃"
+      if(order.orderStatus=="Cancel") text="Customer just declined the order 😞"
+      if(order.orderStatus=="Order Completed") text="Customer has marked this order as completed 😃"
+      if(order.orderStatus=="Decline") text="Order Declined"
       await admin.messaging().sendToDevice(
         fcmRegistrationToken,
         {

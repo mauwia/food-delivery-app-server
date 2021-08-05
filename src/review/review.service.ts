@@ -35,7 +35,7 @@ export class ReviewService {
           {
             path: "orderId",
             select:
-              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+              "orderedFood orderId noshifyOrderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodCreatorId",
@@ -83,7 +83,7 @@ export class ReviewService {
           {
             path: "orderId",
             select:
-              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+              "orderedFood orderId noshifyOrderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodCreatorId",
@@ -126,7 +126,7 @@ export class ReviewService {
           {
             path: "orderId",
             select:
-              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+              "orderedFood orderId noshifyOrderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodCreatorId",
@@ -174,7 +174,7 @@ export class ReviewService {
           {
             path: "orderId",
             select:
-              "orderedFood orderId foodCreatorLocation locationTo locationFrom",
+              "orderedFood orderId noshifyOrderId foodCreatorLocation locationTo locationFrom",
           },
           {
             path: "foodLoverId",

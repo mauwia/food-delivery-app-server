@@ -8,7 +8,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { checkStatus, pad } from "../utils";
 import { OrdersGateway } from "./orders.gateway";
-import { orderFood, Orders } from "./orders.model";
+import { NoshifyCentral, orderFood, Orders } from "./orders.model";
 import { ChatService } from "../chat/chat.service";
 import { MenuItems } from "../menu/menu.model";
 import { Types } from "mongoose";
@@ -29,6 +29,7 @@ export class OrdersService {
     @InjectModel("MenuItems") private readonly menuItemsModel: Model<MenuItems>,
     @InjectModel("Wallet") private readonly walletModel: Model<Wallet>,
     @InjectModel("Reviews") private readonly reviewModel: Model<any>,
+    @InjectModel("NoshifyCentral") private readonly noshifyCentralModal:Model<NoshifyCentral>,
     private readonly walletService: WalletService,
     private readonly ordersGateway: OrdersGateway,
     private readonly chatService: ChatService,
@@ -80,14 +81,22 @@ export class OrdersService {
 
   async addOrders(order, UserInfo) {
     try {
+      let [noshifyCount]:any=await this.noshifyCentralModal.find({})
+      if(!noshifyCount){
+        let newCount=new this.noshifyCentralModal({})
+        noshifyCount=await this.noshifyCentralModal.create(newCount)
+      }
       let foodCreator = await this.foodCreatorModel.findOne({
         _id: order.foodCreatorId,
       });
+      let incrementNoshifyCount=+noshifyCount.noshifyOrderCount+1
       let incrementOrder = +foodCreator.totalOrders + 1;
       foodCreator.totalOrders = pad(
         incrementOrder,
         foodCreator.totalOrders.length
       );
+      noshifyCount.noshifyOrderCount=pad(incrementNoshifyCount,noshifyCount.noshifyOrderCount.length)
+      await noshifyCount.save()
       await foodCreator.save();
       order.realOrderBill = order.orderedFood.reduce((init, food) => {
         return (
@@ -95,13 +104,14 @@ export class OrdersService {
           food.realPrice * (food.discount / 100) * food.quantity +
           init
         );
-      }, 0);
+      }, 0).toFixed(2);
       console.log(order.realOrderBill);
-      order.NoshDeduct = order.orderBill - order.realOrderBill;
+      order.NoshDeduct = (order.orderBill - order.realOrderBill).toFixed(2);
       // order.orderBill -= order.NoshDeduct;
       let newOrder = new this.ordersModel(order);
       newOrder.orderId =
         "#" + pad(incrementOrder, foodCreator.totalOrders.length);
+      newOrder.noshifyOrderId="#" + pad(incrementNoshifyCount, noshifyCount.noshifyOrderCount.length)
       let orderCreated = await this.ordersModel.create(newOrder);
       orderCreated = await orderCreated
         .populate([
