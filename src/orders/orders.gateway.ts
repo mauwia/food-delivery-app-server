@@ -99,7 +99,7 @@ export class OrdersGateway
         .to(this.onlineUsers[to].socketId)
         .emit("update-order-status", order);
     } else {
-      let text
+      let text=`Order ${order.orderStatus}`
       if(order.orderStatus=="New") text="Hey! You just got a new order 😃"
       if(order.orderStatus=="Cancel") text="Customer just declined the order 😞"
       if(order.orderStatus=="Order Completed") text="Customer has marked this order as completed 😃"
@@ -108,7 +108,7 @@ export class OrdersGateway
         fcmRegistrationToken,
         {
           notification: {
-            title: `Order ${order.orderStatus}`,
+            title: text,
             body: "Tap to view details",
             clickAction: "noshifyfoodloverfrontend://food-lover-wallet",
           },
