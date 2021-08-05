@@ -135,6 +135,7 @@ export class MenuService {
             {
               adminVerified:"Completed"
             },
+            
             {
               menuExist: true,
             },
