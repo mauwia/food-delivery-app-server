@@ -141,7 +141,7 @@ export class OrdersGateway
         fcmRegistrationToken,
         {
           notification: {
-            title: `New Order is Arrived`,
+            title: `Hey! You just got a new order 😃`,
             body: "Tap to view details",
           },
           data: {
