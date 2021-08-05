@@ -6,7 +6,8 @@ export const ChatroomSchema = new mongoose.Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Orders" },
   timeStamp: { type: String, default: Date.now() },
   isActive: { type: Boolean, default: true },
-});
+},
+{ timestamps: true });
 
 export interface Chatroom extends mongoose.Document {
   foodCreatorId: string;
@@ -38,7 +39,8 @@ export const MessageSchema = new mongoose.Schema({
   recordedMessage: { url: { type: String }, duration: { type: String } },
   // isFoodCreatorMessage: { type: Boolean, required: true },
   timeStamp: { type: String, default: Date.now() },
-});
+},
+{ timestamps: true });
 
 export interface Message extends mongoose.Document {
   timeStamp: string;

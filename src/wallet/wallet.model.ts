@@ -54,7 +54,8 @@ export const TransactionsSchema = new mongoose.Schema({
   bankName:{type:String},
   orderId: { type: String },
   //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
-});
+},
+{ timestamps: true });
 export const WalletSchema = new mongoose.Schema({
   dedicatedAccountNumber: { type: String },
   dedicatedAccountName: { type: String },
