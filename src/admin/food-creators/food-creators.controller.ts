@@ -1,5 +1,15 @@
 import { ObjectId, Types } from 'mongoose';
-import { Body, Controller, Get, Param, Patch, Post, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Query,
+  Controller,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { QueryParams } from './interfaces';
 import { FoodCreatorsService } from '../food-creators/food-creators.service';
 import { FoodCreator } from '../../food-creator/food-creator.model';
@@ -47,11 +57,11 @@ export class FoodCreatorsController {
     { name: 'contactPersonGovId', maxCount: 1 },
   ]))
   async addVerificationDetails(
-    @Body('kycData') kycData,
+    @Body() kycData,
     @Param('id') id: ObjectId,
     @UploadedFiles() files: Express.Multer.File[]
   ) {
-    return await this.adminFoodCreatorsService.addKycData(id, JSON.parse(kycData), files);
+    return await this.adminFoodCreatorsService.addKycData(id, kycData, files);
   }
 
   @Get('/:id/kyc/view')
