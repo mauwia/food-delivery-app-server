@@ -104,6 +104,7 @@ export class OrdersGateway
       if(order.orderStatus=="Cancel") text="Customer just declined the order 😞"
       if(order.orderStatus=="Order Completed") text="Customer has marked this order as completed 😃"
       if(order.orderStatus=="Decline") text="Order Declined"
+      console.log(text)
       await admin.messaging().sendToDevice(
         fcmRegistrationToken,
         {
