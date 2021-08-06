@@ -15,6 +15,7 @@ import * as admin from "firebase-admin";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import getNumberOfFLChats from "./constants/getNumberOfFLChats";
 import { NotificationService } from "src/notification/notification.service";
+import { FoodCreator } from "src/food-creator/food-creator.model";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
@@ -22,6 +23,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     @InjectModel("Message") private readonly messageModel: Model<Message>,
     @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>,
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
+    @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
     private readonly notificationService:NotificationService
   ) {}
   socket_id: any;
@@ -149,6 +151,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
           updatedAt:message.timeStamp,
           chatroomId:chatroom._id
         })
+        await this.updateNotificationCount(message.receiverId.phoneNo,message.receiverId.fcmRegistrationToken)
         if (this.onlineUsers[message.receiverId.phoneNo]) {
           this.server
             .to(this.onlineUsers[message.receiverId.phoneNo].socketId)
@@ -240,7 +243,46 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     client.join(chatroomId);
     client.emit("joined-room", chatroomId);
   }
-
+  async updateNotificationCount(to,fcmRegistrationToken) {
+    try {
+      let updatedNotification = await this.foodCreatorModel.findOneAndUpdate(
+        { phoneNo: to },
+        {
+          $inc: { unseenNotification: 1 },
+        },{new:true}
+      );
+      if (!updatedNotification) {
+        updatedNotification = await this.foodLoverModel.findOneAndUpdate(
+          { phoneNo: to },
+          {
+            $inc: { unseenNotification: 1 },
+          },{new:true}
+        );
+      }
+      if (this.onlineUsers[to]) {
+        this.server
+          .to(this.onlineUsers[to].socketId)
+          .emit(
+            "update-notification-count",
+            updatedNotification.unseenNotification
+          );
+      }else {
+        await admin.messaging().sendToDevice(
+          fcmRegistrationToken,
+          {
+            data: {
+              type: "update-notification-count",
+              unseenNotification: JSON.stringify(updatedNotification.unseenNotification),
+            },
+          },
+          { priority: "high" }
+        );
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      return error;
+    }
+  }
   @SubscribeMessage("end-chat")
   handleEndChat(
     client: Socket,

@@ -6,7 +6,10 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { FoodLover } from "src/foodLover/foodLover.model";
 import { MENU_MESSAGES } from "./constants/key-contants";
 import getMenuPipline from "./constants/getMenuPipline";
-import { filterPipelineRating,filterPipelineCategory } from "./constants/getFilterPipeline";
+import {
+  filterPipelineRating,
+  filterPipelineCategory,
+} from "./constants/getFilterPipeline";
 
 @Injectable()
 export class MenuService {
@@ -33,19 +36,21 @@ export class MenuService {
       var searchKey = new RegExp(req.body.search, "i");
       let { lng, lat } = req.body;
       console.log(req.body);
-      let query:any = req.body.rating?filterPipelineRating(lng, lat, searchKey, req.body.rating):filterPipelineCategory(lng, lat, searchKey);
+      let query: any = req.body.rating
+        ? filterPipelineRating(lng, lat, searchKey, req.body.rating)
+        : filterPipelineCategory(lng, lat, searchKey);
       let nearByFoodCreators = await this.foodCreatorModel
         .find(query)
         .select(
           "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
         );
       let filterByCategory = [];
-      console.log(nearByFoodCreators)
+      console.log(nearByFoodCreators);
       if (req.body.creatorFoodType) {
         for (let i = 0; i < nearByFoodCreators.length; i++) {
           let { creatorFoodType } = nearByFoodCreators[i];
           for (let j = 0; j < creatorFoodType.length; j++) {
-            console.log(creatorFoodType[j])
+            console.log(creatorFoodType[j]);
 
             if (
               creatorFoodType[j].text == req.body.creatorFoodType &&
@@ -57,7 +62,7 @@ export class MenuService {
         }
         return filterByCategory;
       }
-      return nearByFoodCreators
+      return nearByFoodCreators;
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(
@@ -85,56 +90,80 @@ export class MenuService {
       let { lng, lat } = req.body;
       console.log(lng, lat);
 
-      let [nearByFoodCreators,nearByFoodCreatorSubscribed]=await Promise.all([this.foodCreatorModel
-        .find({
-          $and: [
-            {
-              location: {
-                $near: {
-                  $maxDistance: 7000,
-                  $geometry: {
-                    type: "Point",
-                    coordinates: [lng, lat],
+      let [nearByFoodCreators, nearByFoodCreatorSubscribed] = await Promise.all(
+        [
+          this.foodCreatorModel
+            .find({
+              $and: [
+                {
+                  location: {
+                    $near: {
+                      $maxDistance: 7000,
+                      $geometry: {
+                        type: "Point",
+                        coordinates: [lng, lat],
+                      },
+                    },
                   },
                 },
-              },
-            }, 
-            {
-              menuExist: true,
-            },
-            {
-              subscribers:{$nin:[Types.ObjectId(UserInfo._id)]}
-            }
-          ],
-        })
-        .select(
-          "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
-        ).lean(),this.foodCreatorModel
-        .find({
-          $and: [
-            {
-              location: {
-                $near: {
-                  $maxDistance: 7000,
-                  $geometry: {
-                    type: "Point",
-                    coordinates: [lng, lat],
+                {
+                  menuExist: true,
+                },
+                {
+                  subscribers: { $nin: [Types.ObjectId(UserInfo._id)] },
+                },
+              ],
+              $or: [
+                {
+                  adminVerified: "Verified",
+                },
+                {
+                  adminVerified: "Completed",
+                },
+              ],
+            })
+            .select(
+              "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+            )
+            .lean(),
+          this.foodCreatorModel
+            .find({
+              $and: [
+                {
+                  location: {
+                    $near: {
+                      $maxDistance: 7000,
+                      $geometry: {
+                        type: "Point",
+                        coordinates: [lng, lat],
+                      },
+                    },
                   },
                 },
-              },
-            },
-            {
-              menuExist: true,
-            },
-            {
-              subscribers:{$in:[Types.ObjectId(UserInfo._id)]}
-            }
-          ],
-        })
-        .select(
-          "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
-        ).lean()])
-      return { nearByFoodCreators,nearByFoodCreatorSubscribed };
+                {
+                  menuExist: true,
+                },
+                {
+                  subscribers: { $in: [Types.ObjectId(UserInfo._id)] },
+                },
+              ],
+              $or: [
+                {
+                  adminVerified: "Verified",
+                },
+                {
+                  adminVerified: "Completed",
+                },
+              ],
+            })
+            .select(
+              "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+            )
+            .lean(),
+        ]
+      );
+      console.log(nearByFoodCreators);
+      return { nearByFoodCreators, nearByFoodCreatorSubscribed };
     } catch (error) {
       this.logger.error(error, error.stack);
       throw new HttpException(

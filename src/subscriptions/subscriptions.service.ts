@@ -75,7 +75,7 @@ export class SubscriptionsService {
             { new: true }
           );
           await session.commitTransaction();
-          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`${flProfile.username} subscribed you`)
+          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`You've got a new subscriber!${flProfile.username} `)
           
           return { subscribedTo: result.subscribedTo };
           
