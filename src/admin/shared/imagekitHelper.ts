@@ -18,6 +18,6 @@ export const uploadImage = async (image: Express.Multer.File, id) => {
 
     return response;
   } catch (error) {
-    console.log(error, 'error');
+    throw new Error(error);
   }  
 }
