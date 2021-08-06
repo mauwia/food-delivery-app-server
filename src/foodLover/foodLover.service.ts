@@ -53,7 +53,7 @@ export class FoodLoverService {
 
       const token = generateJWT(userExist.id, userExist.phoneNo);
       if (!userExist.verified) {
-        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         //Example OTP
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -114,7 +114,7 @@ export class FoodLoverService {
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
         const token = generateJWT(user._id, req.phoneNo);
-        await this.sendSMS(`${user.countryCode}${user.phoneNo}`);
+        // await this.sendSMS(`${user.countryCode}${user.phoneNo}`);
         //Example otp hardcoded
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -356,7 +356,7 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         
-        await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
+        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)

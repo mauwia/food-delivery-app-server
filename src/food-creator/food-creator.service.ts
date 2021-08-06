@@ -58,7 +58,7 @@ export class FoodCreatorService {
       );
       // console.log(token)
       if (!userExist.verified) {
-        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -253,7 +253,7 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
-        await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
+        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)
@@ -445,7 +445,7 @@ export class FoodCreatorService {
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
       await UserInfo.save();
-      await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
+      // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
       let OTPCode = {
         CodeDigit,
