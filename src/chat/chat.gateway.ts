@@ -16,6 +16,8 @@ import { FoodLover } from "src/foodLover/foodLover.model";
 import getNumberOfFLChats from "./constants/getNumberOfFLChats";
 import { NotificationService } from "src/notification/notification.service";
 import { FoodCreator } from "src/food-creator/food-creator.model";
+import { AdminGateway } from "src/admin/admin.gateway";
+import { AdminNotificationService } from 'src/admin/admin-notification/admin-notification.service';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
@@ -24,7 +26,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     @InjectModel("Chatroom") private readonly chatroomModel: Model<Chatroom>,
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator") private readonly foodCreatorModel:Model<FoodCreator>,
-    private readonly notificationService:NotificationService
+    private readonly notificationService:NotificationService,
+    private readonly adminGateway: AdminGateway,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
   socket_id: any;
   users: any[] = [];
@@ -124,15 +128,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
       // console.log("PAYLOAD", payload);
 
       // check that chatroom has been created in the DB
-      const chatroom = await this.chatroomModel.findOne({
-        _id: payload.chatroomId,
-      });
+      const chatroom = await this.chatroomModel.findOne({_id: payload.chatroomId })
+        .populate({
+            path: "orderId",
+            select: "orderId",
+        });
       // console.log(chatroom)
       if (chatroom.isActive) {
         // console.log("PAYLOA1D", payload);
         let newMessage = new this.messageModel(payload);
         // console.log("==========>1", newMessage);
         let message = await this.messageModel.create(newMessage);
+
+        this.adminGateway.handleNewChat({ chat: message, orderId: chatroom.orderId._id });
+        
         // console.log("===============>2", message);
         message = await message
           .populate([
@@ -151,6 +160,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
           updatedAt:message.timeStamp,
           chatroomId:chatroom._id
         })
+
+        const notification = await this.adminNotificationService.saveNotification({
+          type: 'newChat',
+          subjectId: chatroom.orderId,
+          subjectName: chatroom.orderId.orderId,
+        });
+        this.adminGateway.handleAdminNotification({ notification, message });
+
         await this.updateNotificationCount(message.receiverId.phoneNo,message.receiverId.fcmRegistrationToken)
         if (this.onlineUsers[message.receiverId.phoneNo]) {
           this.server
