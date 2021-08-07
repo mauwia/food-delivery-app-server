@@ -1,15 +1,20 @@
 import { Types } from 'mongoose';
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { OrdersService } from '../orders/orders.service';
-import { AuthGuard } from '@nestjs/passport';
+import { JWTAuthGuard } from "src/foodLover/jwt/jwt-auth.guard";
+import { AuthService } from 'src/admin/auth/auth.service';
 
 @Controller()
 export class OrdersController {
-  constructor(private readonly adminOrdersService: OrdersService) {}
+  constructor(
+    private readonly adminAuthService: AuthService,
+    private readonly adminOrdersService: OrdersService
+  ) {}
 
   @Get('/:param')
-  // @UseGuards(AuthGuard('jwt'))
-  async getOrderByIdOrParam (@Query() queryParams, @Param('param') param): Promise<any> {
+  @UseGuards(new JWTAuthGuard())
+  async getOrderByIdOrParam (@Query() queryParams, @Param('param') param, @Req() { user }): Promise<any> {
+    await this.adminAuthService.validateUser(user);
     const validOrderStatus = [
       "New", "Accepted", "Being Prepared", "Prepared", "InTransit", "Decline", "Cancel", "Order Completed"
     ];
