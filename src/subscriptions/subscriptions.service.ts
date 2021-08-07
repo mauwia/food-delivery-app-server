@@ -153,7 +153,7 @@ export class SubscriptionsService {
             { new: true }
           );
           await session.commitTransaction();
-          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`${flProfile.username} unsubscribed you`)
+          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`${flProfile.username} unsubscribed to you`)
 
           return { subscribedTo: result.subscribedTo };
         } catch (error) {
