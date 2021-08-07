@@ -8,7 +8,7 @@ export class OrdersController {
   constructor(private readonly adminOrdersService: OrdersService) {}
 
   @Get('/:param')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getOrderByIdOrParam (@Query() queryParams, @Param('param') param): Promise<any> {
     const validOrderStatus = [
       "New", "Accepted", "Being Prepared", "Prepared", "InTransit", "Decline", "Cancel", "Order Completed"
