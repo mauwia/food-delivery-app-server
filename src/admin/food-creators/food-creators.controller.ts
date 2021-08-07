@@ -23,13 +23,13 @@ export class FoodCreatorsController {
   constructor(private readonly adminFoodCreatorsService: FoodCreatorsService) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getAllCreators (@Query() queryParams: QueryParams): Promise<any> {
     return await this.adminFoodCreatorsService.getAllCreators(queryParams);
   }
 
   @Get('/:param')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getCreatorsByIdOrParam (@Query() queryParams, @Param('param') param): Promise<any> {
     const validVerificationStatus = ['pending', 'ongoing', 'completed', 'suspended']
     
@@ -41,25 +41,25 @@ export class FoodCreatorsController {
   }
 
   @Patch('/:id/status')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async updateVerificationStatus (@Param('id') id, @Body('status') newStatus): Promise<FoodCreator> {
     return await this.adminFoodCreatorsService.updateVerificationStatus(id, newStatus);
   }
 
   @Patch('/:id/stage')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async updateVerificationStage (@Param('id') id, @Body('stage') newStage): Promise<FoodCreator> {
     return await this.adminFoodCreatorsService.updateVerificationStage(id, newStage);
   }
 
   @Get('/metrics/all')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getCreatorsMetrics () {
     return await this.adminFoodCreatorsService.getCreatorsMetrics();
   }
 
   @Post('/:id/kyc/new')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileFieldsInterceptor([
     { name: 'proofOfAddress', maxCount: 1 },
     { name: 'contactPersonGovId', maxCount: 1 },
@@ -73,7 +73,7 @@ export class FoodCreatorsController {
   }
 
   @Get('/:id/kyc/view')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getKycDetails (@Param('id') id): Promise<VerificationDetail> {
     return await this.adminFoodCreatorsService.getKycData(id);
   }

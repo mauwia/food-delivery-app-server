@@ -4,7 +4,6 @@ import { FoodLoversModule } from '../admin/food-lovers/food-lovers.module';
 import { AdminNotificationModule } from './admin-notification/admin-notification.module'
 import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module';
 import { OrdersModule } from './orders/orders.module';
-import { AuthModule } from './auth/auth.module';
 
 const routes: Routes = [
   {
@@ -27,10 +26,10 @@ const routes: Routes = [
         path: '/orders',
         module: OrdersModule,
       },
-      {
-        path: '/auth',
-        module: AuthModule,
-      },
+      // {
+      //   path: '/auth',
+      //   module: AuthModule,
+      // },
     ],
   },
 ];

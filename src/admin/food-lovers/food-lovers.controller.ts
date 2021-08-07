@@ -10,13 +10,13 @@ export class FoodLoversController {
 
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getAllLovers (@Query() queryParams): Promise<any> {
     return await this.adminFoodLoversService.getAllLovers(queryParams);
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async getCreator (@Param('id') id: ObjectId): Promise<FoodLover> {
     return await this.adminFoodLoversService.getLover(id);
   }
