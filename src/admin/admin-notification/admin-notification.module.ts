@@ -3,6 +3,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { AdminNotificationService } from './admin-notification.service'
 import { AdminNotificationSchema } from 'src/admin/admin-notification/admin-notifications.model'
 import { AdminNotificationController } from './admin-notification.controller';
+import { AuthModule } from '../auth/auth.module';
 
 
 @Module({
@@ -10,6 +11,7 @@ import { AdminNotificationController } from './admin-notification.controller';
     MongooseModule.forFeature([
       { name: "AdminNotification", schema: AdminNotificationSchema },
     ]),
+    AuthModule,
   ],
   controllers: [AdminNotificationController],
   providers: [AdminNotificationService],
