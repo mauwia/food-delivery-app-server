@@ -110,7 +110,7 @@ export class FoodCreatorService {
         const notification = await this.notificationService.saveNotification(
           'newFc',
           user._id,
-          user.phoneNo,
+          '+' + user.countryCode + user.phoneNo,
           user?.imageUrl,
         );
         this.adminGateway.handleFCSignup({ notification, user });
