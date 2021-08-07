@@ -135,7 +135,7 @@ export class FoodCreatorsService {
 
       return kyc;
     } catch (error) {
-      console.log(error.message);
+      console.log(JSON.parse(error.message));
     }
   }
 
