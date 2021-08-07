@@ -9,6 +9,9 @@ const imagekit = new ImageKit({
 
 export const uploadImage = async (image: Express.Multer.File, id) => {
   try {
+    const fullImageUrl = `${process.env.IMAGE_KIT_URL_ENDPOINT}${process.env.KYC_UPLOAD_FOLDER}/${image.fieldname}_${id}`;
+
+    await imagekit.purgeCache(fullImageUrl);
     const response = await imagekit.upload({
       useUniqueFileName: false,
       file: image.buffer.toString('base64'),
