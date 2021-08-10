@@ -16,11 +16,11 @@ export class AdminNotificationService {
     @InjectModel('AdminNotification') private readonly  notificationModel:PaginateModel<AdminNotification>,
   ) {}
 
-  async saveNotification(type, id, subject, img = '') {
+  async saveNotification({type, subjectId, subjectName, img = ''}) {
     const payload = {
       type,
-      subjectId: id,
-      subjectName: subject,
+      subjectId,
+      subjectName,
       subjectImgUrl: img,
     }
 

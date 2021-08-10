@@ -142,11 +142,11 @@ export class OrdersService {
         foodCreator.fcmRegistrationToken,userNotification
       );
 
-      const notification = await this.adminNotificationService.saveNotification(
-        'newOrder',
-        orderCreated._id,
-        foodCreator.businessName,
-      );
+      const notification = await this.adminNotificationService.saveNotification({
+        type: 'newOrder',
+        subjectId: orderCreated._id,
+        subjectName: foodCreator.businessName,
+      });
       this.adminGateway.handleNewOrder({ notification, orderCreated });
       return orderCreated;
     } catch (error) {
