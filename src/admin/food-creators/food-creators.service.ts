@@ -97,36 +97,46 @@ export class FoodCreatorsService {
   }
 
   async addKycData (id, kycData, files) {
-    let images = [];
-    let proofOfAddressUpload;
-    let contactPersonGovIdUpload;
+    try {
+      let images = [];
+      let proofOfAddressUpload;
+      let contactPersonGovIdUpload;
 
-    for (const property in files) {
-      images.push(files[property]);
+      for (const property in files) {
+        images.push(files[property]);
+      }
+
+      if (images.length > 0) {
+        const response = await Promise.all(images.map((picture) => uploadImage(picture[0], id)));
+        response.forEach((upload) => {
+          if (upload.name.includes('proofOfAddress')) {
+            proofOfAddressUpload = upload;
+          }
+
+          if (upload.name.includes('contactPersonGovId')) {
+            contactPersonGovIdUpload = upload;
+          }
+        });
+      }
+
+      kycData.fcId = id;
+      if (proofOfAddressUpload) {
+        kycData.proofOfAddress = proofOfAddressUpload.url;
+        kycData.proofOfAddressFileId = proofOfAddressUpload.fileId;
+      }
+      if (contactPersonGovIdUpload) {
+        kycData.contactPersonGovId = contactPersonGovIdUpload.url;
+        kycData.contactPersonGovIdFileId = contactPersonGovIdUpload.fileId;
+      }
+
+      const kyc = await this.verificationDetail.findOneAndReplace({ fcId: id },
+        kycData, { upsert: true, new: true }
+      );
+
+      return kyc;
+    } catch (error) {
+      console.log(error.message);
     }
-
-    if (images.length > 0) {
-      const response = await Promise.all(images.map((picture) => uploadImage(picture[0], id)));
-      response.forEach((upload) => {
-        if (upload.name.includes('proofOfAddress')) {
-          proofOfAddressUpload = upload;
-        }
-
-        if (upload.name.includes('contactPersonGovId')) {
-          contactPersonGovIdUpload = upload;
-        }
-      });
-    }
-
-    kycData.fcId = id;
-    proofOfAddressUpload && (kycData.proofOfAddress = proofOfAddressUpload.url);
-    contactPersonGovIdUpload && (kycData.contactPersonGovId = contactPersonGovIdUpload.url);
-
-    const kyc = await this.verificationDetail.findOneAndReplace({ fcId: id },
-      kycData, { upsert: true, new: true }
-    );
-
-    return kyc;
   }
 
   async getKycData (id: ObjectId) {

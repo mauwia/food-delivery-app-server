@@ -26,6 +26,10 @@ const routes: Routes = [
         path: '/orders',
         module: OrdersModule,
       },
+      // {
+      //   path: '/auth',
+      //   module: AuthModule,
+      // },
     ],
   },
 ];
