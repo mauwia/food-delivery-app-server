@@ -46,7 +46,8 @@ export class AppGateway
     this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
     }
   }
-  async handleRequestNoshies(to: string, transaction: any,noticationData:any): Promise<void> {
+  async handleRequestNoshies(to: string, transaction: any,noticationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,noticationData.requestReceiverfcmRegistrationToken,newNotification)
     await this.updateNotificationCount(to,noticationData.requestReceiverfcmRegistrationToken)
     if (this.onlineUsers[to]) {
       this.server
@@ -64,7 +65,9 @@ export class AppGateway
         });
     } 
   }
-  async handleApproveRequestNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
+  async handleApproveRequestNoshies(to: string, transaction: any,notificationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,notificationData.requestReceiverfcmRegistrationToken,newNotification)
+
     await this.updateNotificationCount(to,notificationData.requestReceiverfcmRegistrationToken)
     if (this.onlineUsers[to]) {
       this.server
@@ -81,7 +84,8 @@ export class AppGateway
       });
     }
   }
-  async handlesendNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
+  async handlesendNoshies(to: string, transaction: any,notificationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,notificationData.requestReceiverfcmRegistrationToken,newNotification)
     await this.updateNotificationCount(to,notificationData.requestReceiverfcmRegistrationToken)
 
     if (this.onlineUsers[to]) {
@@ -116,6 +120,29 @@ export class AppGateway
     let { userNo } = client.handshake.query;
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     console.log(this.onlineUsers);
+  }
+   async updateNotification(
+    to: string,
+    fcmRegistrationToken: any,
+    notification
+  ) {
+    if (this.onlineUsers[to]) {
+      console.log(this.socket_id);
+      this.server
+        .to(this.onlineUsers[to].socketId)
+        .emit("update-notification", notification);
+    } else {
+      await admin.messaging().sendToDevice(
+        fcmRegistrationToken,
+        {
+          data: {
+            type: "update-notification",
+            unseenNotification: JSON.stringify(notification),
+          },
+        },
+        { priority: "high" }
+      );
+    }
   }
   async updateNotificationCount(to,fcmRegistrationToken) {
     try {
