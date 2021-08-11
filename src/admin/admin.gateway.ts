@@ -20,4 +20,8 @@ export class AdminGateway {
   handleAdminNotification(@MessageBody() payload: unknown) {
     this.server.emit('newNotification', payload)
   }
+
+  handleOrderStatusUpdate(@MessageBody() payload: unknown) {
+    this.server.emit('updatedOrderStatus', payload)
+  }
 }

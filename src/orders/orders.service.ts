@@ -290,6 +290,20 @@ export class OrdersService {
         updatedOrder,
         order[orderStatusReciever].fcmRegistrationToken,notification
       );
+
+      this.adminGateway.handleOrderStatusUpdate({
+        ...updatedOrder._doc,
+        foodLoverId: updatedOrder.foodLoverId._id, 
+        foodCreatorId: updatedOrder.foodCreatorId._id,
+      });
+
+      const notification = await this.adminNotificationService.saveNotification({
+        type: 'updatedOrder',
+        subjectId: updatedOrder._id,
+        subjectName: updatedOrder.orderId,
+        additionalInfo: { orderStatus: updatedOrder.orderStatus },
+      });
+      this.adminGateway.handleAdminNotification({ notification, updatedOrder });
       // console.log(UserInfo.fcmRegistrationToken);
       // console.log("==============>", order[orderStatusReciever]);
       // console.log("CHATROOM", updatedOrder);
