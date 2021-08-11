@@ -297,13 +297,13 @@ export class OrdersService {
         foodCreatorId: updatedOrder.foodCreatorId._id,
       });
 
-      const notification = await this.adminNotificationService.saveNotification({
+      const adminNotification = await this.adminNotificationService.saveNotification({
         type: 'updatedOrder',
         subjectId: updatedOrder._id,
         subjectName: updatedOrder.orderId,
         additionalInfo: { orderStatus: updatedOrder.orderStatus },
       });
-      this.adminGateway.handleAdminNotification({ notification, updatedOrder });
+      this.adminGateway.handleAdminNotification({ notification: adminNotification, updatedOrder });
       // console.log(UserInfo.fcmRegistrationToken);
       // console.log("==============>", order[orderStatusReciever]);
       // console.log("CHATROOM", updatedOrder);
