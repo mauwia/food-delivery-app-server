@@ -7,6 +7,7 @@ import { OrdersSchema } from '../../orders/orders.model';
 import { VerificationDetailSchema } from './verification-detail.model';
 import { OrdersService } from '../orders/orders.service';
 import { AuthModule } from '../auth/auth.module';
+import { MenuSchema } from '../../menu/menu.model';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from '../auth/auth.module';
       { name: 'FoodCreator', schema: FoodCreatorSchema },
       { name: 'Orders', schema: OrdersSchema },
       { name: 'VerificationDetail', schema: VerificationDetailSchema },
+      { name: 'Menu', schema: MenuSchema },
     ]),
     AuthModule,
   ],

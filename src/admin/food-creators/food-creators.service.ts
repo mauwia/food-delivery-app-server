@@ -2,6 +2,7 @@ import { Model, PaginateModel, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodCreator } from "../../food-creator/food-creator.model";
+import { Menu } from "../../menu/menu.model";
 import { VerificationDetail } from '../food-creators/verification-detail.model';
 import { OrdersService } from '../orders/orders.service';
 import { 
@@ -10,10 +11,16 @@ import {
   getPaginatedResult,
   Paginated } from '../shared/pagination';
 import { uploadImage } from '../shared/imagekitHelper';
+import { ActiveFCToday } from '../analyticsQueries/dayQueries';
+import { ActiveFCWeek } from '../analyticsQueries/weekQueries';
+import { ActiveFCMonth } from '../analyticsQueries/monthQueries';
+
+const _uniq = require('lodash/uniq');
 
 @Injectable()
 export class FoodCreatorsService {
   constructor(
+    @InjectModel("Menu") private readonly menuModel: PaginateModel<Menu>,
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
     @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
     private readonly adminOrdersService: OrdersService,
@@ -146,12 +153,75 @@ export class FoodCreatorsService {
     return result[0];
   }
 
+  async getFCUpdatedMenuDaily () {
+    return await this.menuModel.aggregate(ActiveFCToday());
+  }
+
+  async getFCUpdatedProfileDaily () {
+    return await this.foodCreatorModel.aggregate(ActiveFCToday());
+  }
+
+  async getFCUpdatedMenuWeek () {
+    return await this.menuModel.aggregate(ActiveFCWeek());
+  }
+
+  async getFCUpdatedProfileWeek () {
+    return await this.foodCreatorModel.aggregate(ActiveFCWeek());
+  }
+
+  async getFCUpdatedMenuMonth () {
+    return await this.menuModel.aggregate(ActiveFCMonth());
+  }
+
+  async getFCUpdatedProfileMonth () {
+    return await this.foodCreatorModel.aggregate(ActiveFCMonth());
+  }
+
   async getCreatorsMetrics() {
     const totalCreators = await this.foodCreatorModel.estimatedDocumentCount();
     const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }});
     const fulfillingDay = await this.adminOrdersService.getFCsDailyOrdersCount();
     const fulfillingWeek = await this.adminOrdersService.getFCsWeeklyOrdersCount();
     const fulfillingMonth = await this.adminOrdersService.getFCsMonthlyOrdersCount();
+
+    const fcUpdatedMenuDay = await this.getFCUpdatedMenuDaily();
+    const fcUpdatedProfileDay = await this.getFCUpdatedProfileDaily();
+    const fcProcessedOrderDay = fulfillingDay;
+    const activeDayArray = [
+      ...fcUpdatedMenuDay,
+      ...fcUpdatedProfileDay,
+      ...fcProcessedOrderDay].map(item => {
+      if (item._id) {
+        return "" + item._id;
+      }
+    });
+    const uniqueActiveDayResult = _uniq(activeDayArray);
+
+    const fcUpdatedMenuWeek = await this.getFCUpdatedMenuWeek();
+    const fcUpdatedProfileWeek = await this.getFCUpdatedProfileWeek();
+    const fcProcessedOrderWeek = fulfillingWeek;
+    const activeWeekArray = [
+      ...fcUpdatedMenuWeek,
+      ...fcUpdatedProfileWeek,
+      ...fcProcessedOrderWeek ].map(item => {
+      if (item._id) {
+        return "" + item._id;
+      }
+    });;
+    const uniqueActiveWeekResult = _uniq(activeWeekArray);
+
+    const fcUpdatedMenuMonth = await this.getFCUpdatedMenuMonth();
+    const fcUpdatedProfileMonth = await this.getFCUpdatedProfileMonth();
+    const fcProcessedOrderMonth = fulfillingMonth;
+    const activeMonthResultArray = [
+      ...fcUpdatedMenuMonth,
+      ...fcUpdatedProfileMonth,
+      ...fcProcessedOrderMonth ].map(item => {
+      if (item._id) {
+        return "" + item._id;
+      }
+    });
+    const uniqueActiveMonthResult = _uniq(activeMonthResultArray).filter(Boolean);
     
     return {
       // total, verified, fulfilling, active
@@ -168,7 +238,11 @@ export class FoodCreatorsService {
           ? fulfillingMonth.length
           : 0,
       },
-      active: {},
+      active: {
+        today: uniqueActiveDayResult.length,
+        week: uniqueActiveWeekResult.length,
+        month: uniqueActiveMonthResult.length,
+      },
     }
   }
 }

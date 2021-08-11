@@ -7,7 +7,8 @@ export const FulfillingFcToday = () => [
       timestamp: {
         $gte: startOfDay.toString(),
         $lte: endOfDay.toString(),
-      }
+      },
+      orderStatus: 'Order Completed',
     }
   },
   { $group: {
@@ -15,4 +16,16 @@ export const FulfillingFcToday = () => [
       fulfillingDayCount: { $sum: 1 },
     }
   }
+];
+
+export const ActiveFCToday = () => [
+  { $match: { 
+    updatedAt: {
+      $gte: (new Date(startOfDay)),
+      $lte: (new Date(endOfDay)),
+    }}
+  },
+  { $group: {
+    _id: "$foodCreatorId",
+  }},
 ];

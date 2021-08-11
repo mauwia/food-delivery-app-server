@@ -9,12 +9,24 @@ export const FulfillingFcMonth = () => [
       timestamp: {
         $gte: startOfMonth.toString(),
         $lte: endOfMonth.toString(),
-      }
+      },
+      orderStatus: 'Order Completed',
     }
   },
   { $group: {
     _id: "$foodCreatorId",
-      fulfillingMonthCount: { $sum: 1 },
-    }
+    fulfillingMonthCount: { $sum: 1 },
+  }},
+];
+
+export const ActiveFCMonth = () => [
+  { $match: { 
+    updatedAt: {
+      $gte: (new Date(startOfMonth)),
+      $lte: (new Date(endOfMonth)),
+    }}
   },
-]
+  { $group: {
+    _id: "$foodCreatorId",
+  }},
+];

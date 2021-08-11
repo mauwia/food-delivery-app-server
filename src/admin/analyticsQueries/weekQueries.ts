@@ -8,7 +8,8 @@ export const FulfillingFcWeek = () => [
       timestamp: {
         $gte: startOfWeek.valueOf().toString(),
         $lte: endOfWeek.valueOf().toString(),
-      }
+      },
+      orderStatus: 'Order Completed',
     }
   },
   { $group: {
@@ -16,4 +17,16 @@ export const FulfillingFcWeek = () => [
       fulfillingWeekCount: { $sum: 1 },
     }
   },
-]
+];
+
+export const ActiveFCWeek = () => [
+  { $match: { 
+    updatedAt: {
+      $gte: (new Date(startOfWeek)),
+      $lte: (new Date(endOfWeek)),
+    }}
+  },
+  { $group: {
+    _id: "$foodCreatorId",
+  }},
+];
