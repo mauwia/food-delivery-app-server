@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongoose';
 import { Controller, Get, Query, Param, UseGuards, Req } from '@nestjs/common';
 import { AnalyticsService } from 'src/admin/analytics/analytics.service';
 import { FoodLover } from '../../foodLover/foodLover.model';
@@ -17,5 +16,12 @@ export class AnalyticsController {
   async getFoodLoversMetrics (@Req() { user }) {
     await this.adminAuthService.validateUser(user);
     return await this.analyticsService.getLoversMetrics();
+  }
+
+  @Get('/food-creators/all')
+  @UseGuards(new JWTAuthGuard())
+  async getCreatorsMetrics (@Req() { user }) {
+    await this.adminAuthService.validateUser(user);
+    return await this.analyticsService.getCreatorsMetrics();
   }
 }

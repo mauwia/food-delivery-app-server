@@ -7,9 +7,9 @@ import {
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { FulfillingFcToday, FLOrdersToday } from '../analyticsQueries/dayQueries'
-import { FulfillingFcWeek, FLOrdersWeek } from '../analyticsQueries/weekQueries'
-import { FulfillingFcMonth, FLOrdersMonth } from '../analyticsQueries/monthQueries'
+import { FulfillingFcToday, FLOrdersToday } from '../analytics/analyticsQueries/dayQueries'
+import { FulfillingFcWeek, FLOrdersWeek } from '../analytics/analyticsQueries/weekQueries'
+import { FulfillingFcMonth, FLOrdersMonth } from '../analytics/analyticsQueries/monthQueries'
 
 
 @Injectable()
