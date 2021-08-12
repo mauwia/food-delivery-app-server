@@ -5,6 +5,7 @@ import { AdminNotificationModule } from './admin-notification/admin-notification
 import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
+import { AnalyticsModule } from 'src/admin/analytics/analytics.module';
 
 const routes: Routes = [
   {
@@ -30,6 +31,10 @@ const routes: Routes = [
       {
         path: '/auth',
         module: AuthModule,
+      },
+      {
+        path: '/metrics',
+        module: AnalyticsModule,
       },
     ],
   },

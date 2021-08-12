@@ -7,9 +7,10 @@ import {
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
-import { FulfillingFcToday } from '../analyticsQueries/dayQueries'
-import { FulfillingFcWeek } from '../analyticsQueries/weekQueries'
-import { FulfillingFcMonth } from '../analyticsQueries/monthQueries'
+import { FulfillingFcToday, FLOrdersToday } from '../analytics/analyticsQueries/dayQueries'
+import { FulfillingFcWeek, FLOrdersWeek } from '../analytics/analyticsQueries/weekQueries'
+import { FulfillingFcMonth, FLOrdersMonth } from '../analytics/analyticsQueries/monthQueries'
+
 
 @Injectable()
 export class OrdersService {
@@ -27,6 +28,18 @@ export class OrdersService {
   
   async getFCsMonthlyOrdersCount () {
     return await this.ordersModel.aggregate(FulfillingFcMonth());
+  }
+
+  async getFLsDailyOrdersStats () {
+    return await this.ordersModel.aggregate(FLOrdersToday());
+  }
+
+  async getFLsWeeklyOrdersStats () {
+    return await this.ordersModel.aggregate(FLOrdersWeek());
+  }
+
+  async getFLsMonthlyOrdersStats () {
+    return await this.ordersModel.aggregate(FLOrdersMonth());
   }
 
   async getOrder (id: ObjectId): Promise<Orders> {

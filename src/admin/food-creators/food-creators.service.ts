@@ -2,6 +2,7 @@ import { Model, PaginateModel, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodCreator } from "../../food-creator/food-creator.model";
+import { Menu } from "../../menu/menu.model";
 import { VerificationDetail } from '../food-creators/verification-detail.model';
 import { OrdersService } from '../orders/orders.service';
 import { 
@@ -14,9 +15,9 @@ import { uploadImage } from '../shared/imagekitHelper';
 @Injectable()
 export class FoodCreatorsService {
   constructor(
+    @InjectModel("Menu") private readonly menuModel: PaginateModel<Menu>,
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
     @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
-    private readonly adminOrdersService: OrdersService,
   ) {}
 
   async getAllCreators(queryParams: GetAllRequestParams): Promise<Paginated> {
@@ -144,31 +145,5 @@ export class FoodCreatorsService {
   async getKycData (id: ObjectId) {
     const result = await this.verificationDetail.find({ fcId: id });
     return result[0];
-  }
-
-  async getCreatorsMetrics() {
-    const totalCreators = await this.foodCreatorModel.estimatedDocumentCount();
-    const verified = await this.foodCreatorModel.countDocuments({ adminVerified: { $in: ['Completed', 'Verified'] }});
-    const fulfillingDay = await this.adminOrdersService.getFCsDailyOrdersCount();
-    const fulfillingWeek = await this.adminOrdersService.getFCsWeeklyOrdersCount();
-    const fulfillingMonth = await this.adminOrdersService.getFCsMonthlyOrdersCount();
-    
-    return {
-      // total, verified, fulfilling, active
-      total: totalCreators,
-      verified,
-      fulfilling: {
-        today: fulfillingDay.length
-          ? fulfillingDay.length
-          : 0,
-        week: fulfillingWeek.length
-          ? fulfillingWeek.length
-          : 0,
-        month: fulfillingMonth.length
-          ? fulfillingMonth.length
-          : 0,
-      },
-      active: {},
-    }
   }
 }
