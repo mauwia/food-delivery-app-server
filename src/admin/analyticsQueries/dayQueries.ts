@@ -29,3 +29,60 @@ export const ActiveFCToday = () => [
     _id: "$foodCreatorId",
   }},
 ];
+
+export const FLOrdersToday = () => [
+  {
+    $match: {
+      updatedAt: {
+        $gte: (new Date(startOfDay)),
+        $lte: (new Date(endOfDay)),
+      },
+    },
+  },
+  {
+    $facet: {
+      placedUncompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $ne: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      placedCompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $eq: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      reviewedAnOrder: [
+        {
+          $match: {
+            orderReviewed: {
+              $eq: true,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+    },
+  },
+];

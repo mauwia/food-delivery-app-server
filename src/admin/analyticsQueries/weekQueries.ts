@@ -30,3 +30,60 @@ export const ActiveFCWeek = () => [
     _id: "$foodCreatorId",
   }},
 ];
+
+export const FLOrdersWeek = () => [
+  {
+    $match: {
+      updatedAt: {
+        $gte: (new Date(startOfWeek)),
+        $lte: (new Date(endOfWeek)),
+      },
+    },
+  },
+  {
+    $facet: {
+      placedUncompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $ne: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      placedCompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $eq: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      reviewedAnOrder: [
+        {
+          $match: {
+            orderReviewed: {
+              $eq: true,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+    },
+  },
+];

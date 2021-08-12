@@ -30,3 +30,60 @@ export const ActiveFCMonth = () => [
     _id: "$foodCreatorId",
   }},
 ];
+
+export const FLOrdersMonth = () => [
+  {
+    $match: {
+      updatedAt: {
+        $gte: (new Date(startOfMonth)),
+        $lte: (new Date(endOfMonth)),
+      },
+    },
+  },
+  {
+    $facet: {
+      placedUncompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $ne: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      placedCompletedOrder: [
+        {
+          $match: {
+            orderStatus: {
+              $eq: "Order Completed",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+      reviewedAnOrder: [
+        {
+          $match: {
+            orderReviewed: {
+              $eq: true,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$foodLoverId",
+          },
+        },
+      ],
+    },
+  },
+];
