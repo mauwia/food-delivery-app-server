@@ -113,7 +113,7 @@ export class FoodCreatorService {
           subjectName: '+' + user.countryCode + user.phoneNo,
           img: user?.imageUrl,
         });
-        this.adminGateway.handleFCSignup(notification);
+        this.adminGateway.handleFCSignup({ notification, user });
 
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
