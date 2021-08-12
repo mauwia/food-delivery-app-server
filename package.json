@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^7.6.5",
     "@nestjs/platform-socket.io": "^7.6.13",
     "@nestjs/websockets": "^7.6.5",
+    "@sendgrid/mail": "^7.4.6",
     "@turf/distance": "^6.3.0",
     "@turf/helpers": "^6.3.0",
     "axios": "^0.21.1",
