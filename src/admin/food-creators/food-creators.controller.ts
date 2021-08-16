@@ -61,13 +61,6 @@ export class FoodCreatorsController {
     return await this.adminFoodCreatorsService.updateVerificationStage(id, newStage);
   }
 
-  @Get('/metrics/all')
-  @UseGuards(new JWTAuthGuard())
-  async getCreatorsMetrics (@Req() { user }) {
-    await this.adminAuthService.validateUser(user);
-    return await this.adminFoodCreatorsService.getCreatorsMetrics();
-  }
-
   @Post('/:id/kyc/new')
   @UseGuards(new JWTAuthGuard())
   @UseInterceptors(FileFieldsInterceptor([

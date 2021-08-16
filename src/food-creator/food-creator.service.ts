@@ -10,6 +10,7 @@ import { Testers } from "src/profile/profile.model";
 import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 import { AdminGateway } from "src/admin/admin.gateway";
 import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
+import { sendEmail as sendAdminNotificationEmail } from '../admin/shared/emailNotification';
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -113,7 +114,22 @@ export class FoodCreatorService {
           subjectName: '+' + user.countryCode + user.phoneNo,
           img: user?.imageUrl,
         });
-        this.adminGateway.handleFCSignup(notification);
+
+        this.adminGateway.handleFCSignup({ notification, user });
+        if (utils.isProduction()) {
+          process.env.ADMIN_EMAILS.split(" ").forEach(adminEmail => {
+            sendAdminNotificationEmail({
+              sender: {
+                name: 'Noshify',
+                email: process.env.SENDER_EMAIL,
+              },
+              recepient: adminEmail,
+              subject: 'New FC Signup',
+              phone: `+${user.countryCode}${user.phoneNo}`,
+              profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
+            });
+          });
+        }
 
         const token = jwt.sign(
           { phoneNo: req.phoneNo },

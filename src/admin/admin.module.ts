@@ -8,6 +8,7 @@ import { AdminNotificationModule } from './admin-notification/admin-notification
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   controllers: [AdminController],
@@ -19,6 +20,7 @@ import { UsersModule } from './users/users.module';
     OrdersModule,
     AuthModule,
     UsersModule,
+    AnalyticsModule,
   ],
   exports: [AdminGateway],
 })
