@@ -114,19 +114,22 @@ export class FoodCreatorService {
           subjectName: '+' + user.countryCode + user.phoneNo,
           img: user?.imageUrl,
         });
+
         this.adminGateway.handleFCSignup({ notification, user });
-        process.env.ADMIN_EMAILS.split(" ").forEach(adminEmail => {
-          sendAdminNotificationEmail({
-            sender: {
-              name: 'Noshify',
-              email: process.env.SENDER_EMAIL,
-            },
-            recepient: adminEmail,
-            subject: 'New FC Signup',
-            phone: `+${user.countryCode}${user.phoneNo}`,
-            profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
+        if (utils.isProduction()) {
+          process.env.ADMIN_EMAILS.split(" ").forEach(adminEmail => {
+            sendAdminNotificationEmail({
+              sender: {
+                name: 'Noshify',
+                email: process.env.SENDER_EMAIL,
+              },
+              recepient: adminEmail,
+              subject: 'New FC Signup',
+              phone: `+${user.countryCode}${user.phoneNo}`,
+              profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
+            });
           });
-        });
+        }
 
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
