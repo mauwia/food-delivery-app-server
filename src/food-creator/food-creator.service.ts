@@ -111,7 +111,7 @@ export class FoodCreatorService {
         const notification = await this.notificationService.saveNotification({
           type: 'newFc',
           subjectId: user._id,
-          subjectName: '+' + user.countryCode + user.phoneNo,
+          subjectName: user.countryCode + user.phoneNo,
           img: user?.imageUrl,
         });
 
@@ -125,7 +125,7 @@ export class FoodCreatorService {
               },
               recepient: adminEmail,
               subject: 'New FC Signup',
-              phone: `+${user.countryCode}${user.phoneNo}`,
+              phone: `${user.countryCode}${user.phoneNo}`,
               profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
             });
           });
