@@ -11,6 +11,7 @@ import {
   getPaginatedResult,
   Paginated } from '../shared/pagination';
 import { uploadImage } from '../shared/imagekitHelper';
+import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 
 @Injectable()
 export class FoodCreatorsService {
@@ -18,6 +19,7 @@ export class FoodCreatorsService {
     @InjectModel("Menu") private readonly menuModel: PaginateModel<Menu>,
     @InjectModel("FoodCreator") private readonly foodCreatorModel: PaginateModel<FoodCreator>,
     @InjectModel("VerificationDetail") private readonly verificationDetail: Model<VerificationDetail>,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
 
   async getAllCreators(queryParams: GetAllRequestParams): Promise<Paginated> {
@@ -95,6 +97,34 @@ export class FoodCreatorsService {
       }},
       { new: true }
     );
+
+    if (newStage === 'KYC Request') {
+      this.adminNotificationService.sendFCVerificationStatusEmail(
+        updatedFC.email,
+        process.env.FC_VERIFICATION_GUIDE_TEMPLATE_ID,
+      );
+    }
+
+    if (newStage === 'KYC Submitted') {
+      this.adminNotificationService.sendFCVerificationStatusEmail(
+        updatedFC.email,
+        process.env.FC_SUCCESSFUL_KYC_SUBMISSION_TEMPLATE_ID,
+      );
+    }
+
+    if (newStage === 'Interview Scheduled') {
+      this.adminNotificationService.sendFCVerificationStatusEmail(
+        updatedFC.email,
+        process.env.FC_VIDEO_VERIFICATION_NOTICE_TEMPLATE_ID,
+      );
+    }
+
+    if (newStage === 'Account Activated') {
+      this.adminNotificationService.sendFCVerificationStatusEmail(
+        updatedFC.email,
+        process.env.FC_SUCCESSFUL_VERIFICATION_TEMPLATE_ID,
+      );
+    }
 
     return updatedFC;
   }

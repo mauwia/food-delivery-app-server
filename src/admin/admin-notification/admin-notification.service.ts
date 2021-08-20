@@ -8,6 +8,8 @@ import {
   GetAllRequestParams,
   getPaginatedResult,
   Paginated } from '../shared/pagination';
+import { isProduction } from 'src/admin/shared/utils';
+import { getMessage, sendEmail as sendAdminNotificationEmail } from 'src/admin/shared/emailNotification';
 
 
 @Injectable()
@@ -75,5 +77,35 @@ export class AdminNotificationService {
     const paginatedResult = getPaginatedResult(result);
   
     return {...paginatedResult, unreadNotification: count }
+  }
+
+  async sendNewFCSignupEmail (user) {
+    if (isProduction()) {
+      process.env.ADMIN_EMAILS.split(" ").forEach(adminEmail => {
+        const message = getMessage({
+          sender: {
+            name: 'Noshify',
+            email: process.env.SENDER_EMAIL,
+          },
+          recepient: adminEmail,
+          subject: 'New FC Signup',
+          phone: `${user.countryCode}${user.phoneNo}`,
+          profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
+        });
+        sendAdminNotificationEmail(message);
+      });
+    }
+  }
+
+  async sendFCVerificationStatusEmail(email, templateId) {
+    const message = {
+      from: {
+        name: 'Noshify',
+        email: process.env.SENDER_EMAIL,
+      },
+      to: email,
+      "template_id": templateId,
+    }
+    sendAdminNotificationEmail(message);
   }
 }

@@ -16,12 +16,12 @@ export function getMessage(details) {
   };
 }
 
-export async function sendEmail(details) {
+export async function sendEmail(message) {
   try {
-    await sendGridMail.send(getMessage(details));
-    console.log('Test email sent successfully');
+    await sendGridMail.send(message);
+    console.log('Notification email sent successfully');
   } catch (error) {
-    console.error('Error sending test email');
+    console.error('Error sending email');
     console.error(error);
     if (error.response) {
       console.error(error.response.body)
