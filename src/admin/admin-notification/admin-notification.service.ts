@@ -108,4 +108,16 @@ export class AdminNotificationService {
     }
     sendAdminNotificationEmail(message);
   }
+
+  async sendWelcomeEmail(email, templateId) {
+    const message = {
+      from: {
+        name: 'Noshify',
+        email: process.env.SENDER_EMAIL,
+      },
+      to: email,
+      "template_id": templateId,
+    }
+    sendAdminNotificationEmail(message);
+  }
 }
