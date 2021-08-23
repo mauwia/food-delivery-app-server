@@ -264,7 +264,7 @@ export class WalletService {
           if (transaction.status === "SUCCESSFUL") {
             res.sendStatus(200);
           }
-          await this.notificationService.createNotification({
+          let notification=await this.notificationService.createNotification({
             notificationType: "Bought Noshies",
             transactionId: transaction._id,
             senderId: UserInfo._id,
@@ -272,6 +272,10 @@ export class WalletService {
             createdAt: transaction.timeStamp,
             updatedAt: transaction.timeStamp,
           });
+          await this.appGatway.updateNotification(
+            UserInfo.phoneNo,
+            UserInfo.fcmRegistrationToken,notification
+          );
           if (wallet.assets) {
             // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
             let asset = wallet.assets.find(
@@ -415,7 +419,7 @@ export class WalletService {
           currency: tokenName,
           message,
         });
-        await this.notificationService.createNotification({
+        let notification=await this.notificationService.createNotification({
           notificationType: "Send Noshies",
           transactionId: transaction._id,
           senderId: UserInfo._id,
@@ -429,7 +433,7 @@ export class WalletService {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
           amount,
-        });
+        },notification);
 
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -455,7 +459,7 @@ export class WalletService {
           currency: tokenName,
           message,
         });
-        await this.notificationService.createNotification({
+        let notification=await this.notificationService.createNotification({
           notificationType: "Send Noshies",
           transactionId: transaction._id,
           senderId: UserInfo._id,
@@ -469,7 +473,7 @@ export class WalletService {
           ReceiverfcmRegistrationToken: ReceiverInfo.fcmRegistrationToken,
           senderUsername: UserInfo.username,
           amount,
-        });
+        },notification);
         return {
           message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
           // senderAmount: senderAssets.amount,
@@ -753,7 +757,7 @@ export class WalletService {
         message,
         status: "PENDING",
       });
-      await this.notificationService.createNotification({
+      let notification=await this.notificationService.createNotification({
         notificationType: "Request Noshies",
         transactionId: transaction._id,
         senderId: UserInfo._id,
@@ -781,7 +785,7 @@ export class WalletService {
           requestReceiverUser.fcmRegistrationToken,
         senderUsername: UserInfo.username,
         amount,
-      });
+      },notification);
       return { message: "REQUEST SEND" };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -872,7 +876,7 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           transaction.status = action;
           await wallet.save();
-          await this.notificationService.createNotification({
+          let notification=await this.notificationService.createNotification({
             notificationType: "Request Success Noshies",
             transactionId: transaction._id,
             senderId: transaction.senderId,
@@ -891,7 +895,7 @@ export class WalletService {
               pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
               senderUsername: UserInfo.username,
               amount: transaction.amount,
-            }
+            },notification
           );
 
           return {
@@ -909,7 +913,7 @@ export class WalletService {
           wallet.requestReceivedForNoshies = newList;
           await receiverWallet.save();
           await wallet.save();
-          await this.notificationService.createNotification({
+          let notification=await this.notificationService.createNotification({
             notificationType: "Request Success Noshies",
             transactionId: transaction._id,
             senderId: transaction.senderId,
@@ -929,7 +933,7 @@ export class WalletService {
               pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
               senderUsername: UserInfo.username,
               amount: transaction.amount,
-            }
+            },notification
           );
           return {
             message: WALLET_MESSAGES.TRANSACTION_SUCCESS,
@@ -952,7 +956,7 @@ export class WalletService {
               body: "Tap to view details",
             },
           });
-        await this.notificationService.createNotification({
+        let notification=await this.notificationService.createNotification({
           notificationType: "Request Fail Noshies",
           transactionId: transaction._id,
           senderId: transaction.senderId,
@@ -969,7 +973,7 @@ export class WalletService {
             pendingNoshRequestFCM: pendingNoshRequest.fcmRegistrationToken,
             senderUsername: UserInfo.username,
             amount: transaction.amount,
-          }
+          },notification
         );
         return {
           message: "Transaction decline",
@@ -1017,6 +1021,7 @@ export class WalletService {
         UserInfo.phoneNo,
         UserInfo.fcmRegistrationToken
       );
+      
       if (wallet.assets) {
         // let asset=wallet.assets.find(asset=>asset.tokenName=='here1')
         let asset = wallet.assets.find((asset) => asset.tokenName == tokenName);
@@ -1033,7 +1038,7 @@ export class WalletService {
             message: "Test message",
             status: "SUCCESSFUL",
           });
-          await this.notificationService.createNotification({
+          let notification=await this.notificationService.createNotification({
             notificationType: "Bought Noshies",
             transactionId: transaction._id,
             senderId: UserInfo._id,
@@ -1041,7 +1046,10 @@ export class WalletService {
             createdAt: timeStamp,
             updatedAt: timeStamp,
           });
-
+          await this.appGatway.updateNotification(
+            UserInfo.phoneNo,
+            UserInfo.fcmRegistrationToken,notification
+          );
           return {
             message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
             totalAmount: token.amount,
@@ -1061,7 +1069,7 @@ export class WalletService {
           message: "Test message",
           status: "SUCCESSFUL",
         });
-        await this.notificationService.createNotification({
+        let notification=await this.notificationService.createNotification({
           notificationType: "Bought Noshies",
           transactionId: transaction._id,
           senderId: UserInfo._id,
@@ -1069,6 +1077,10 @@ export class WalletService {
           createdAt: timeStamp,
           updatedAt: timeStamp,
         });
+        await this.appGatway.updateNotification(
+          UserInfo.phoneNo,
+          UserInfo.fcmRegistrationToken,notification
+        );
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: asset.amount,
@@ -1086,7 +1098,7 @@ export class WalletService {
           message: "Test message",
           status: "SUCCESSFUL",
         });
-        await this.notificationService.createNotification({
+        let notification=await this.notificationService.createNotification({
           notificationType: "Bought Noshies",
           transactionId: transaction._id,
           senderId: UserInfo._id,
@@ -1094,6 +1106,10 @@ export class WalletService {
           createdAt: timeStamp,
           updatedAt: timeStamp,
         });
+        await this.appGatway.updateNotification(
+          UserInfo.phoneNo,
+          UserInfo.fcmRegistrationToken,notification
+        );
         return {
           message: WALLET_MESSAGES.AMOUNT_ADDED_SUCCESS,
           totalAmount: token.amount,

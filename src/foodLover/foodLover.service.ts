@@ -205,6 +205,7 @@ export class FoodLoverService {
         orderStatus: "Order Completed",
       });
       console.log("totalOrders", { ...UserInfo, totalOrders });
+      user.pinHash = !!user.pinHash;
       UserInfo.passHash = "";
       return { user: { ...UserInfo, totalOrders } };
     

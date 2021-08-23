@@ -1,3 +1,3 @@
 #!/bin/bash
-cd ~/aws-codedeploy
-pm2 startOrReload ecosystem.config.js 
+cd ~/Noshify-server/dist
+pm2 start main.js 

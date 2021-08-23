@@ -125,7 +125,7 @@ export class OrdersService {
           },
         ])
         .execPopulate();
-      await this.notificationService.createNotification({
+      let userNotification=await this.notificationService.createNotification({
         notificationType: "Order",
         orderId: orderCreated._id,
         orderStatus: "New",
@@ -139,7 +139,7 @@ export class OrdersService {
       this.ordersGateway.handleAddOrder(
         foodCreator.phoneNo,
         orderCreated,
-        foodCreator.fcmRegistrationToken
+        foodCreator.fcmRegistrationToken,userNotification
       );
 
       const notification = await this.adminNotificationService.saveNotification({
@@ -259,7 +259,7 @@ export class OrdersService {
         });
         order.chatRoomId = chatroom.chatroom._id;
       }
-      await this.notificationService.createNotification({
+      let notification=await this.notificationService.createNotification({
         notificationType: "Order",
         orderId: order._id,
         orderStatus: status,
@@ -288,7 +288,7 @@ export class OrdersService {
       this.ordersGateway.handleUpdateStatus(
         sendStatusToPhoneNo,
         updatedOrder,
-        order[orderStatusReciever].fcmRegistrationToken
+        order[orderStatusReciever].fcmRegistrationToken,notification
       );
 
       this.adminGateway.handleOrderStatusUpdate({
@@ -392,7 +392,7 @@ export class OrdersService {
           receiverId: order.foodCreatorId._id,
           from: order.foodLoverId.phoneNo,
           deductAmount: order.NoshDeduct,
-          orderId: order.orderId,
+          orderId: order.noshifyOrderId,
           amount: order.orderBill,
           currency: order.tokenName,
           status: "SUCCESSFUL",

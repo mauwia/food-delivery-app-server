@@ -14,19 +14,108 @@ export class NotificationService {
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
-    private readonly notificationGateway:NotificationGateway
+    private readonly notificationGateway: NotificationGateway
   ) {}
   async createNotification(body) {
     let newNotification = new this.notificationModel(body);
-    return await this.notificationModel.create(newNotification);
+    let notification = await this.notificationModel.create(newNotification);
+    return await notification
+      .populate([
+        {
+          path: "receiverId",
+          select: "phoneNo username imageUrl businessName avgRating ",
+        },
+        {
+          path: "senderId",
+          select: "username imageUrl businessName avgRating",
+        },
+        {
+          path: "transactionId",
+          populate: [
+            {
+              path: "senderId",
+              select: "username imageUrl businessName",
+            },
+            {
+              path: "receiverId",
+              select: "username imageUrl businessName",
+            },
+          ],
+        },
+        {
+          path: "orderId",
+          populate: [
+            {
+              path: "foodCreatorId",
+              select: "username imageUrl businessName",
+            },
+            {
+              path: "foodLoverId",
+              select: "username imageUrl",
+            },
+          ],
+        },
+        {
+          path: "messageId",
+        },
+        // {
+        //   path:"chatRoomId",
+
+        // }
+      ])
+      .execPopulate();
   }
-  async updateNotification(body){
-  
-    let update=await this.notificationModel.findOneAndUpdate({chatRoomId:body.chatroomId},{
-      messageId:body.messageId,
-      updatedAt:body.updatedAt
-    })
-    console.log(update)
+  async updateNotification(body) {
+    let update = await this.notificationModel.findOneAndUpdate(
+      { chatRoomId: body.chatroomId },
+      {
+        messageId: body.messageId,
+        updatedAt: body.updatedAt,
+      }
+    ).populate([
+      {
+        path: "receiverId",
+        select: "phoneNo username imageUrl businessName avgRating ",
+      },
+      {
+        path: "senderId",
+        select: "username imageUrl businessName avgRating",
+      },
+      {
+        path: "transactionId",
+        populate: [
+          {
+            path: "senderId",
+            select: "username imageUrl businessName",
+          },
+          {
+            path: "receiverId",
+            select: "username imageUrl businessName",
+          },
+        ],
+      },
+      {
+        path: "orderId",
+        populate: [
+          {
+            path: "foodCreatorId",
+            select: "username imageUrl businessName",
+          },
+          {
+            path: "foodLoverId",
+            select: "username imageUrl",
+          },
+        ],
+      },
+      {
+        path: "messageId",
+      },
+      // {
+      //   path:"chatRoomId",
+
+      // }
+    ]);
+    console.log(update);
   }
   async getNotificationsFL(req) {
     try {
@@ -51,14 +140,15 @@ export class NotificationService {
       }
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
-      page = page - 1
-      UserInfo.unseenNotification=0
-      UserInfo.save()
-      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo)
+      page = page - 1;
+      UserInfo.unseenNotification = 0;
+      UserInfo.save();
+      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo);
       let notifications = await this.notificationModel
         .find({
           $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
-        }).sort({updatedAt:"desc"})
+        })
+        .sort({ updatedAt: "desc" })
         // .limit(resultsPerPage)
         // .skip(resultsPerPage * page)
         .populate([
@@ -72,33 +162,39 @@ export class NotificationService {
           },
           {
             path: "transactionId",
-            populate:[ {
-              path: 'senderId',
-              select:"username imageUrl businessName"
-            } ,{
-              path: 'receiverId',
-              select:"username imageUrl businessName"
-            }]
+            populate: [
+              {
+                path: "senderId",
+                select: "username imageUrl businessName",
+              },
+              {
+                path: "receiverId",
+                select: "username imageUrl businessName",
+              },
+            ],
           },
           {
             path: "orderId",
-            populate:[ {
-              path: 'foodCreatorId',
-              select:"username imageUrl businessName"
-            } ,{
-              path: 'foodLoverId',
-              select:"username imageUrl"
-            }]
+            populate: [
+              {
+                path: "foodCreatorId",
+                select: "username imageUrl businessName",
+              },
+              {
+                path: "foodLoverId",
+                select: "username imageUrl",
+              },
+            ],
           },
           {
-            path:"messageId"
+            path: "messageId",
           },
           // {
           //   path:"chatRoomId",
-           
+
           // }
         ]);
-        // console.log(notifications)
+      // console.log(notifications)
       return { notifications };
     } catch (error) {
       console.log(error, error.stack);
@@ -134,15 +230,16 @@ export class NotificationService {
       }
       const resultsPerPage = 10;
       let page = req.params.page >= 1 ? req.params.page : 1;
-      console.log(req.params.page)
-      page = page - 1
-      UserInfo.unseenNotification=0
-      UserInfo.save()
-      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo)
+      console.log(req.params.page);
+      page = page - 1;
+      UserInfo.unseenNotification = 0;
+      UserInfo.save();
+      this.notificationGateway.updateNotificationCountToZero(UserInfo.phoneNo);
       let notifications = await this.notificationModel
         .find({
           $or: [{ senderId: UserInfo._id }, { receiverId: UserInfo._id }],
-        }).sort({updatedAt:"desc"})
+        })
+        .sort({ updatedAt: "desc" })
         // .limit(resultsPerPage)
         // .skip(resultsPerPage * page)
         .populate([
@@ -156,30 +253,35 @@ export class NotificationService {
           },
           {
             path: "transactionId",
-            populate:[ {
-              path: 'senderId',
-              select:"username imageUrl businessName"
-            } ,{
-              path: 'receiverId',
-              select:"username imageUrl businessName"
-            }]
+            populate: [
+              {
+                path: "senderId",
+                select: "username imageUrl businessName",
+              },
+              {
+                path: "receiverId",
+                select: "username imageUrl businessName",
+              },
+            ],
           },
           {
             path: "orderId",
-            populate:[ {
-              path: 'foodCreatorId',
-              select:"username imageUrl businessName"
-            } ,{
-              path: 'foodLoverId',
-              select:"username imageUrl"
-            }]
+            populate: [
+              {
+                path: "foodCreatorId",
+                select: "username imageUrl businessName",
+              },
+              {
+                path: "foodLoverId",
+                select: "username imageUrl",
+              },
+            ],
           },
           {
-            path:"messageId"
+            path: "messageId",
           },
-         
         ]);
-        console.log(notifications)
+      console.log(notifications);
 
       return { notifications };
     } catch (error) {

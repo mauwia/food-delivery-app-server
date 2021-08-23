@@ -91,8 +91,9 @@ export class OrdersGateway
   async handleUpdateStatus(
     to: string,
     order: any,
-    fcmRegistrationToken: any
+    fcmRegistrationToken: any,notification
   ): Promise<void> {
+    await this.updateNotification(to,fcmRegistrationToken,notification)
     await this.updateNotificationCount(to,fcmRegistrationToken);
     if (this.onlineUsers[to]) {
       this.server
@@ -127,12 +128,36 @@ export class OrdersGateway
     delete this.onlineUsers[client.handshake.query.userNo];
     console.log(this.onlineUsers);
   }
+  async updateNotification(
+    to: string,
+    fcmRegistrationToken: any,
+    notification
+  ) {
+    if (this.onlineUsers[to]) {
+      console.log(this.socket_id);
+      this.server
+        .to(this.onlineUsers[to].socketId)
+        .emit("update-notification", notification);
+    } else {
+      await admin.messaging().sendToDevice(
+        fcmRegistrationToken,
+        {
+          data: {
+            type: "update-notification",
+            unseenNotification: JSON.stringify(notification),
+          },
+        },
+        { priority: "high" }
+      );
+    }
+  }
   async handleAddOrder(
     to: string,
     order: any,
-    fcmRegistrationToken: any
+    fcmRegistrationToken: any,notification
   ): Promise<void> {
     // console.log
+    await this.updateNotification(to,fcmRegistrationToken,notification)
     await this.updateNotificationCount(to,fcmRegistrationToken);
     if (this.onlineUsers[to]) {
       console.log(this.socket_id);

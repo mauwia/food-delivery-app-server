@@ -22,17 +22,45 @@ export class SubscriptionGateway
   onlineUsers: { [key: string]: any } = {};
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger("NotificationGateway");
-   constructor(
-      @InjectModel("FoodCreator")
-      private readonly foodCreatorModel: Model<FoodCreator>,
-      @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>
-    ){}
+  constructor(
+    @InjectModel("FoodCreator")
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>
+  ) {}
   afterInit(server: Server) {
     this.logger.log("Init");
   }
-
-  async handleSubscription(to: string, fcmRegistrationToken: any, text: any) {
-    this.updateNotificationCount(to,fcmRegistrationToken)
+  async updateNotification(
+    to: string,
+    fcmRegistrationToken: any,
+    notification
+  ) {
+    if (this.onlineUsers[to]) {
+      console.log(this.socket_id);
+      this.server
+        .to(this.onlineUsers[to].socketId)
+        .emit("update-notification", notification);
+    } else {
+      await admin.messaging().sendToDevice(
+        fcmRegistrationToken,
+        {
+          data: {
+            type: "update-notification",
+            unseenNotification: JSON.stringify(notification),
+          },
+        },
+        { priority: "high" }
+      );
+    }
+  }
+  async handleSubscription(
+    to: string,
+    fcmRegistrationToken: any,
+    text: any,
+    notification
+  ) {
+    this.updateNotification(to,fcmRegistrationToken,notification)
+    this.updateNotificationCount(to, fcmRegistrationToken);
     if (this.onlineUsers[to]) {
       console.log(this.socket_id);
       this.server.to(this.onlineUsers[to].socketId).emit("subscription", text);
@@ -63,20 +91,22 @@ export class SubscriptionGateway
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     console.log(this.onlineUsers);
   }
-  async updateNotificationCount(to,fcmRegistrationToken) {
+  async updateNotificationCount(to, fcmRegistrationToken) {
     try {
       let updatedNotification = await this.foodCreatorModel.findOneAndUpdate(
         { phoneNo: to },
         {
           $inc: { unseenNotification: 1 },
-        },{new:true}
+        },
+        { new: true }
       );
       if (!updatedNotification) {
         updatedNotification = await this.foodLoverModel.findOneAndUpdate(
           { phoneNo: to },
           {
             $inc: { unseenNotification: 1 },
-          },{new:true}
+          },
+          { new: true }
         );
       }
       if (this.onlineUsers[to]) {
@@ -87,13 +117,15 @@ export class SubscriptionGateway
             "update-notification-count",
             updatedNotification.unseenNotification
           );
-      }else {
+      } else {
         await admin.messaging().sendToDevice(
           fcmRegistrationToken,
           {
             data: {
               type: "update-notification-count",
-              unseenNotification: JSON.stringify(updatedNotification.unseenNotification),
+              unseenNotification: JSON.stringify(
+                updatedNotification.unseenNotification
+              ),
             },
           },
           { priority: "high" }
