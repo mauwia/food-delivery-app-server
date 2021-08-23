@@ -6,6 +6,7 @@ import { FoodCreatorSchema } from '../../food-creator/food-creator.model';
 import { VerificationDetailSchema } from './verification-detail.model';
 import { AuthModule } from '../auth/auth.module';
 import { MenuSchema } from '../../menu/menu.model';
+import { AdminNotificationModule } from "src/admin/admin-notification/admin-notification.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MenuSchema } from '../../menu/menu.model';
       { name: 'Menu', schema: MenuSchema },
     ]),
     AuthModule,
+    AdminNotificationModule,
   ],
   controllers: [FoodCreatorsController],
   providers: [FoodCreatorsService]
