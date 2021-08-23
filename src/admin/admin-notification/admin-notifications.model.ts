@@ -6,6 +6,7 @@ export const AdminNotificationSchema = new mongoose.Schema({
   subjectId: { type: mongoose.Schema.Types.ObjectId },
   subjectName: { type: String },
   subjectImgUrl: {type: String },
+  additionalInfo: { type: {} },
   viewed: { type: Boolean, default: false }
 }, { timestamps: true });
 AdminNotificationSchema.plugin(mongoosePaginate);
@@ -16,4 +17,5 @@ export interface AdminNotification extends mongoose.Document {
   subjectName: string;
   subjectImgUrl: string;
   viewed: boolean;
+  additionalInfo: any;
 }

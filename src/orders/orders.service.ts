@@ -142,11 +142,11 @@ export class OrdersService {
         foodCreator.fcmRegistrationToken,userNotification
       );
 
-      const notification = await this.adminNotificationService.saveNotification(
-        'newOrder',
-        orderCreated._id,
-        foodCreator.businessName,
-      );
+      const notification = await this.adminNotificationService.saveNotification({
+        type: 'newOrder',
+        subjectId: orderCreated._id,
+        subjectName: foodCreator.businessName,
+      });
       this.adminGateway.handleNewOrder({ notification, orderCreated });
       return orderCreated;
     } catch (error) {
@@ -290,6 +290,20 @@ export class OrdersService {
         updatedOrder,
         order[orderStatusReciever].fcmRegistrationToken,notification
       );
+
+      this.adminGateway.handleOrderStatusUpdate({
+        ...updatedOrder._doc,
+        foodLoverId: updatedOrder.foodLoverId._id, 
+        foodCreatorId: updatedOrder.foodCreatorId._id,
+      });
+
+      const adminNotification = await this.adminNotificationService.saveNotification({
+        type: 'updatedOrder',
+        subjectId: updatedOrder._id,
+        subjectName: updatedOrder.orderId,
+        additionalInfo: { orderStatus: updatedOrder.orderStatus },
+      });
+      this.adminGateway.handleAdminNotification({ notification: adminNotification, updatedOrder });
       // console.log(UserInfo.fcmRegistrationToken);
       // console.log("==============>", order[orderStatusReciever]);
       // console.log("CHATROOM", updatedOrder);

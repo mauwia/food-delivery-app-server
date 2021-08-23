@@ -1,29 +1,27 @@
-import { ObjectId } from 'mongoose';
 import { Controller, Get, Query, Param, UseGuards, Req } from '@nestjs/common';
-import { FoodLoversService } from '../food-lovers/food-lovers.service';
+import { AnalyticsService } from 'src/admin/analytics/analytics.service';
 import { FoodLover } from '../../foodLover/foodLover.model';
 import { JWTAuthGuard } from "src/foodLover/jwt/jwt-auth.guard";
 import { AuthService } from 'src/admin/auth/auth.service';
 
 @Controller()
-export class FoodLoversController {
+export class AnalyticsController {
   constructor(
     private readonly adminAuthService: AuthService,
-    private readonly adminFoodLoversService: FoodLoversService
+    private readonly analyticsService: AnalyticsService
   ) {}
 
-
-  @Get()
+  @Get('food-lovers/all')
   @UseGuards(new JWTAuthGuard())
-  async getAllLovers (@Query() queryParams, @Req() { user }): Promise<any> {
+  async getFoodLoversMetrics (@Req() { user }) {
     await this.adminAuthService.validateUser(user);
-    return await this.adminFoodLoversService.getAllLovers(queryParams);
+    return await this.analyticsService.getLoversMetrics();
   }
 
-  @Get('/:id')
+  @Get('/food-creators/all')
   @UseGuards(new JWTAuthGuard())
-  async getCreator (@Param('id') id: ObjectId, @Req() { user }): Promise<FoodLover> {
+  async getCreatorsMetrics (@Req() { user }) {
     await this.adminAuthService.validateUser(user);
-    return await this.adminFoodLoversService.getLover(id);
+    return await this.analyticsService.getCreatorsMetrics();
   }
 }
