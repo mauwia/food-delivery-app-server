@@ -7,6 +7,9 @@ import * as utils from "../utils";
 import { FOOD_CREATOR_MESSAGES } from "./constants/key-constant";
 import { FoodCreator } from "./food-creator.model";
 import { Testers } from "src/profile/profile.model";
+import { InjectTwilio, TwilioClient } from "nestjs-twilio";
+import { AdminGateway } from "src/admin/admin.gateway";
+import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
@@ -19,7 +22,10 @@ export class FoodCreatorService {
     @InjectModel("FoodLover")
     private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("Testers") private readonly testerModel:Model<Testers>,
-    private readonly walletService: WalletService
+    @InjectTwilio() private readonly client: TwilioClient,
+    private readonly walletService: WalletService,
+    private readonly adminGateway: AdminGateway,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -52,6 +58,7 @@ export class FoodCreatorService {
       );
       // console.log(token)
       if (!userExist.verified) {
+        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -98,8 +105,18 @@ export class FoodCreatorService {
         // const denver = { type: 'Point', coordinates: [-104.9903, 39.7392] };
         // req.location=denver
         const newUser = new this.foodCreatorModel(req);
-
         const user = await this.foodCreatorModel.create(newUser);
+
+        const notification = await this.adminNotificationService.saveNotification({
+          type: 'newFc',
+          subjectId: user._id,
+          subjectName: user.countryCode + user.phoneNo,
+          img: user?.imageUrl,
+        });
+
+        this.adminGateway.handleFCSignup({ notification, user });
+        this.adminNotificationService.sendNewFCSignupEmail(user);
+
         const token = jwt.sign(
           { phoneNo: req.phoneNo },
           process.env.JWT_ACCESS_TOKEN_SECRET
@@ -177,14 +194,14 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
-        // let { otp } = req.body;
+        let { otp } = req.body;
         let checked = utils.checkExpiry(
           this.OTP,
           req.body.otp,
           UserInfo.phoneNo
         );
         // let check = await this.checkSmsVerification(
-        //   UserInfo.phoneNo,
+        //   `${UserInfo.countryCode}${UserInfo.phoneNo}`,
         //   otp,
         //   otp.length
         // );
@@ -193,7 +210,7 @@ export class FoodCreatorService {
         //   message: check.status,
         // };
         if (!checked.validated) {
-          throw checked.message;
+          throw "Invalid OTP";
         } else {
           if (req.user) {
             UserInfo.verified = req.user ? true : false;
@@ -238,7 +255,7 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
-        // await this.sendSMS(user.phoneNo, req.body.codeLength);
+        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)
@@ -425,10 +442,12 @@ export class FoodCreatorService {
       UserInfo.businessName = req.body.businessName;
       UserInfo.username = req.body.username;
       UserInfo.email = req.body.email;
+      UserInfo.addressComponents=req.body.addressComponents
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
       await UserInfo.save();
+      // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
       let OTPCode = {
         CodeDigit,
@@ -472,4 +491,34 @@ export class FoodCreatorService {
       );
     }
   }
+  async sendSMS(phoneNo, codeLength = 6) {
+    try {
+      // let service=await this.client.verify.services.create({friendlyName: 'OTP'})
+      // console.log(service.sid)
+      let response = await this.client.verify
+        .services(
+          codeLength == 6
+            ? process.env.TWILIO_SERVICE_ID_6
+            : process.env.TWILIO_SERVICE_ID_4
+        )
+        .verifications.create({ to: phoneNo, channel: "sms" });
+      return response;
+    } catch (e) {
+      return e;
+    }
+  }
+  async checkSmsVerification(phoneNo, code, codeLength = 6) {
+    try {
+      let response = await this.client.verify
+        .services(
+          codeLength == 6
+            ? process.env.TWILIO_SERVICE_ID_6
+            : process.env.TWILIO_SERVICE_ID_4
+        )
+        .verificationChecks.create({ to: phoneNo, code });
+      return response;
+    } catch (e) {
+      return e;
+    }
+  } 
 }

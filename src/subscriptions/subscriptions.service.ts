@@ -4,13 +4,17 @@ import { InjectModel } from "@nestjs/mongoose";
 import { FoodLover } from "../foodLover/foodLover.model";
 import { FoodCreator } from "../food-creator/food-creator.model";
 import { SUBSCRIPTION_MESSAGES } from "./constants/key-constants";
-
+import * as admin from "firebase-admin";
+import { NotificationService } from "src/notification/notification.service";
+import {SubscriptionGateway} from "./subscription.gateway"
 @Injectable()
 export class SubscriptionsService {
   constructor(
     @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>,
     @InjectModel("FoodCreator")
-    private readonly foodCreatorModel: Model<FoodCreator>
+    private readonly foodCreatorModel: Model<FoodCreator>,
+    private readonly notificationService:NotificationService,
+    private readonly subscriptionGateway:SubscriptionGateway
   ) {}
   private logger = new Logger("Profile");
 
@@ -20,7 +24,7 @@ export class SubscriptionsService {
       body,
     }: {
       user: { phoneNo: string; id: string };
-      body: { foodCreatorId: string };
+      body: { foodCreatorId: string,timestamp:any };
     } = request;
     try {
       let fcProfile = await this.foodCreatorModel.findOne({
@@ -36,6 +40,15 @@ export class SubscriptionsService {
       if (flProfile.subscribedTo.includes(body.foodCreatorId)) {
         throw SUBSCRIPTION_MESSAGES.ALREADY_SUBSCRIBED_TO_FC;
       } else {
+        let notification=  await this.notificationService.createNotification({
+          notificationType:"Subscribe",
+          senderId: flProfile._id,
+          onSenderModel: "FoodLover",
+          receiverId: fcProfile._id,
+          onReceiverModel: "FoodCreator",
+          createdAt:body.timestamp,
+          updatedAt:body.timestamp
+        })
         const session = await this.foodLoverModel.startSession();
         session.startTransaction();
         try {
@@ -62,7 +75,10 @@ export class SubscriptionsService {
             { new: true }
           );
           await session.commitTransaction();
+          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`You've got a new subscriber!${flProfile.username} `,notification)
+          
           return { subscribedTo: result.subscribedTo };
+          
         } catch (error) {
           await session.abortTransaction();
           this.logger.error("Subscription operation arboted");
@@ -83,7 +99,7 @@ export class SubscriptionsService {
       body,
     }: {
       user: { phoneNo: string; id: string };
-      body: { foodCreatorId: string };
+      body: { foodCreatorId: string,timestamp:any };
     } = request;
     try {
       let flProfile = await this.foodLoverModel.findOne({
@@ -96,6 +112,15 @@ export class SubscriptionsService {
       if (!flProfile.subscribedTo.includes(body.foodCreatorId)) {
         throw SUBSCRIPTION_MESSAGES.NOT_SUBSCRIBED_TO_FC;
       } else {
+        let notification=  await this.notificationService.createNotification({
+          notificationType:"Unsubscribe",
+          senderId: flProfile._id,
+          onSenderModel: "FoodLover",
+          receiverId: fcProfile._id,
+          onReceiverModel: "FoodCreator",
+          createdAt:body.timestamp,
+          updatedAt:body.timestamp
+        })
         const session = await this.foodLoverModel.startSession();
         session.startTransaction();
         try {
@@ -128,6 +153,8 @@ export class SubscriptionsService {
             { new: true }
           );
           await session.commitTransaction();
+          await this.subscriptionGateway.handleSubscription(fcProfile.phoneNo,fcProfile.fcmRegistrationToken,`${flProfile.username} unsubscribed to you`,notification)
+
           return { subscribedTo: result.subscribedTo };
         } catch (error) {
           await session.abortTransaction();

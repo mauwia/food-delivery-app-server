@@ -6,7 +6,8 @@ const TokenSchema = new mongoose.Schema({
   tokenSymbol: { type: String },
   tokenName: { type: String },
   amount: { type: Number, default: 0 },
-});
+},
+{ timestamps: true });
 export const TransactionsSchema = new mongoose.Schema({
   transactionType: {
     type: String,
@@ -53,7 +54,8 @@ export const TransactionsSchema = new mongoose.Schema({
   bankName:{type:String},
   orderId: { type: String },
   //   walletId:{type:mongoose.Schema.Types.ObjectId,ref:"Wallet", required: true},
-});
+},
+{ timestamps: true });
 export const WalletSchema = new mongoose.Schema({
   dedicatedAccountNumber: { type: String },
   dedicatedAccountName: { type: String },
@@ -64,7 +66,8 @@ export const WalletSchema = new mongoose.Schema({
   assets: [TokenSchema],
   escrow: { type: Number, default: 0 },
   requestReceivedForNoshies: { type: Array },
-});
+},
+{ timestamps: true });
 export interface Wallet extends mongoose.Document {
   dedicatedAccountNumber: string;
   dedicatedAccountName: string;

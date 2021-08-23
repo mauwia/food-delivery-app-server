@@ -13,13 +13,17 @@ import { ChatModule } from "./chat/chat.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
 import { ReviewModule } from './review/review.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { NotificationModule } from './notification/notification.module';
 import { AdminModule } from './admin/admin.module';
+import { RouterModule } from 'nest-router';
+import routes from './admin/routes';
+import { FoodLoverSchema } from "./foodLover/foodLover.model";
+import { FoodCreatorSchema } from "./food-creator/food-creator.model";
 
 @Module({
   imports: [
     FoodLoverModule,
-    MongooseModule.forRoot(
-      `mongodb+srv://${process.env.MONGOOSE_PASSWORD}:nestonep@cluster0.arej3.mongodb.net/${process.env.MONGOOSE_DB_NAME}?retryWrites=true&w=majority`,
+    MongooseModule.forRoot( `${process.env.MONGO_URI}`,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -27,6 +31,10 @@ import { AdminModule } from './admin/admin.module';
         useFindAndModify: false,
       }
     ),
+    MongooseModule.forFeature([
+      { name: "FoodLover", schema: FoodLoverSchema },
+      { name: "FoodCreator", schema: FoodCreatorSchema },
+    ]),
     // MorganModule.forRoot(),
     ProfileModule,
     WalletModule,
@@ -42,6 +50,7 @@ import { AdminModule } from './admin/admin.module';
     ReviewModule,
     AnalyticsModule,
     AdminModule,
+    RouterModule.forRoutes(routes), // setup the admin routes
   ],
   controllers: [AppController],
   providers: [

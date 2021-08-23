@@ -1,89 +1,106 @@
-export const filterPipelineRating= (lng,lat,searchKey,rating)=>{
-    return {
-        $and: [
-          {
-            location: {
-              $near: {
-                $maxDistance: 30000,
-                $geometry: {
-                  type: "Point",
-                  coordinates: [lng, lat],
-                },
-              },
+export const filterPipelineRating = (lng, lat, searchKey, rating) => {
+  return {
+    $and: [
+      {
+        location: {
+          $near: {
+            $maxDistance: 7000,
+            $geometry: {
+              type: "Point",
+              coordinates: [lng, lat],
             },
           },
+        },
+      },
+      {
+        menuExist: true,
+      },
+
+      {
+        $and: [
           {
-            menuExist: true,
-          },
-          {
-            $and: [
+            $or: [
               {
-                $or: [
-                  {
-                    businessName: searchKey,
-                  },
-                  {
-                    username: searchKey,
-                  },
-                  {
-                    phoneNo:searchKey
-                  }
-                ],
+                businessName: searchKey,
               },
               {
-                $or: [
-                //   {
-                //     $and:[
-                //       {"creatorFoodType.text":creatorFoodType},
-                //       {"creatorFoodType.selected":true}
-                //     ]
-                //     // creatorFoodType: { $in: [req.body.creatorFoodType] },
+                username: searchKey,
+              },
+              {
+                phoneNo: searchKey,
+              },
+            ],
+          },
+          {
+            $or: [
+              //   {
+              //     $and:[
+              //       {"creatorFoodType.text":creatorFoodType},
+              //       {"creatorFoodType.selected":true}
+              //     ]
+              //     // creatorFoodType: { $in: [req.body.creatorFoodType] },
 
-                //   },
-                  {
-                    avgRating: { $gte: rating },
-                  },
-                ],
+              //   },
+              {
+                adminVerified: "Verified",
+              },
+              {
+                adminVerified: "Completed",
+              },
+              {
+                avgRating: { $gte: rating },
               },
             ],
           },
         ],
-      }
-}
-export const filterPipelineCategory= (lng,lat,searchKey)=>{
+      },
+    ],
+  };
+};
+export const filterPipelineCategory = (lng, lat, searchKey) => {
   return {
-      $and: [
-        {
-          location: {
-            $near: {
-              $maxDistance: 30000,
-              $geometry: {
-                type: "Point",
-                coordinates: [lng, lat],
-              },
+    $and: [
+      {
+        location: {
+          $near: {
+            $maxDistance: 7000,
+            $geometry: {
+              type: "Point",
+              coordinates: [lng, lat],
             },
           },
         },
-        {
-          menuExist: true,
-        },
-        {
-          $and: [
-            {
-              $or: [
-                {
-                  businessName: searchKey,
-                },
-                {
-                  username: searchKey,
-                },
-                {
-                  phoneNo:searchKey
-                }
-              ],
-            },
-          ],
-        },
-      ],
-    }
-}
+      },
+      {
+        menuExist: true,
+      },
+      {
+        $or: [
+          {
+            adminVerified: "Verified",
+          },
+          {
+            adminVerified: "Completed",
+          },
+        ],
+      },
+      {
+        $and: [
+          {
+            $or: [
+              {
+                businessName: searchKey,
+              },
+              {
+                username: searchKey,
+              },
+              {
+                phoneNo: searchKey,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+};

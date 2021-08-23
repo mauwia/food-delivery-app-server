@@ -5,7 +5,7 @@ import { pad,bnbToNosh } from './utils';
 export class AppService {
   uniqueNumber='20000000'
   getHello(): string {
-    return 'Hello World!';
+    return 'Hello Noshify Server';
   }
   getUniqueNumber = async ()=>{
     await bnbToNosh()

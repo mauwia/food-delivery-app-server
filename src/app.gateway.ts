@@ -9,6 +9,10 @@ import {
 import { Logger } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
 import * as admin from "firebase-admin";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { FoodCreator } from "./food-creator/food-creator.model";
+import { FoodLover } from "./foodLover/foodLover.model";
 
 @WebSocketGateway()
 export class AppGateway
@@ -18,7 +22,11 @@ export class AppGateway
   onlineUsers: { [key: string]: any } = {};
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger("AppGateway");
-
+    constructor(
+      @InjectModel("FoodCreator")
+      private readonly foodCreatorModel: Model<FoodCreator>,
+      @InjectModel("FoodLover") private readonly foodLoverModel: Model<FoodLover>
+    ){}
   handleReceiveTransaction(to: string, transaction: any): void {
     //  this.server.emit(payload.phoneNo, payload);
     // console.log(to,transaction)
@@ -38,7 +46,9 @@ export class AppGateway
     this.onlineUsers[payload.phoneNo] = { phoneNo: payload.phoneNo, socketId: client.id };
     }
   }
-  async handleRequestNoshies(to: string, transaction: any,noticationData:any): Promise<void> {
+  async handleRequestNoshies(to: string, transaction: any,noticationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,noticationData.requestReceiverfcmRegistrationToken,newNotification)
+    await this.updateNotificationCount(to,noticationData.requestReceiverfcmRegistrationToken)
     if (this.onlineUsers[to]) {
       this.server
         .to(this.onlineUsers[to].socketId)
@@ -55,7 +65,10 @@ export class AppGateway
         });
     } 
   }
-  async handleApproveRequestNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
+  async handleApproveRequestNoshies(to: string, transaction: any,notificationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,notificationData.requestReceiverfcmRegistrationToken,newNotification)
+
+    await this.updateNotificationCount(to,notificationData.requestReceiverfcmRegistrationToken)
     if (this.onlineUsers[to]) {
       this.server
         .to(this.onlineUsers[to].socketId)
@@ -71,7 +84,10 @@ export class AppGateway
       });
     }
   }
-  async handlesendNoshies(to: string, transaction: any,notificationData:any): Promise<void> {
+  async handlesendNoshies(to: string, transaction: any,notificationData:any,newNotification): Promise<void> {
+    this.updateNotification(to,notificationData.requestReceiverfcmRegistrationToken,newNotification)
+    await this.updateNotificationCount(to,notificationData.requestReceiverfcmRegistrationToken)
+
     if (this.onlineUsers[to]) {
       console.log(this.socket_id);
       this.server
@@ -104,5 +120,68 @@ export class AppGateway
     let { userNo } = client.handshake.query;
     this.onlineUsers[userNo] = { phoneNo: userNo, socketId: client.id };
     console.log(this.onlineUsers);
+  }
+   async updateNotification(
+    to: string,
+    fcmRegistrationToken: any,
+    notification
+  ) {
+    if (this.onlineUsers[to]) {
+      console.log(this.socket_id);
+      this.server
+        .to(this.onlineUsers[to].socketId)
+        .emit("update-notification", notification);
+    } else {
+      await admin.messaging().sendToDevice(
+        fcmRegistrationToken,
+        {
+          data: {
+            type: "update-notification",
+            unseenNotification: JSON.stringify(notification),
+          },
+        },
+        { priority: "high" }
+      );
+    }
+  }
+  async updateNotificationCount(to,fcmRegistrationToken) {
+    try {
+      let updatedNotification = await this.foodCreatorModel.findOneAndUpdate(
+        { phoneNo: to },
+        {
+          $inc: { unseenNotification: 1 },
+        },{new:true}
+      );
+      if (!updatedNotification) {
+        updatedNotification = await this.foodLoverModel.findOneAndUpdate(
+          { phoneNo: to },
+          {
+            $inc: { unseenNotification: 1 },
+          },{new:true}
+        );
+      }
+      if (this.onlineUsers[to]) {
+        this.server
+          .to(this.onlineUsers[to].socketId)
+          .emit(
+            "update-notification-count",
+            updatedNotification.unseenNotification
+          );
+      }else {
+        await admin.messaging().sendToDevice(
+          fcmRegistrationToken,
+          {
+            data: {
+              type: "update-notification-count",
+              unseenNotification: JSON.stringify(updatedNotification.unseenNotification),
+            },
+          },
+          { priority: "high" }
+        );
+      }
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      return error;
+    }
   }
 }

@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import * as mongoosePaginate from "mongoose-paginate-v2";
 
 export const FoodCreatorSchema = new mongoose.Schema({
   phoneNo: { type: String, required: true, unique: true },
@@ -27,6 +28,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
       "https://res.cloudinary.com/dk8xi5rcy/image/upload/v1614929907/Creator/default-avatar-profile-icon-vector-social-media-user-portrait-176256935_isnmem.jpg",
   },
   creatorUrls: { type: Array },
+  addressComponents: { type: Array },
   description: { type: String },
   countryCode: { type: String },
   countryName: { type: String },
@@ -41,11 +43,47 @@ export const FoodCreatorSchema = new mongoose.Schema({
   menuExist: { type: Boolean, default: false },
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
-});
+  unseenNotification: { type: Number, default: 0 },
+  adminVerified: {
+    type: String,
+    default: "Pending",
+    enum: [
+      "Pending",
+      "Ongoing",
+      "Suspended",
+      "Completed",
+      "Verified", // required for onsite verification stage
+    ],
+  },
+  adminVerificationStage: {
+    type: String,
+    enum: [
+      "KYC Request",
+      "KYC Submitted",
+      "KYC Verification",
+      "Interview Scheduled",
+      "Interview Completed",
+      "Profile Assessment",
+      "Assessment Completed",
+      "Account Activated",
+    ],
+  },
+  adminVerificationStart: {
+    type: Date
+  },
+  adminVerificationComplete: {
+    type: Date
+  }
+},
+{ timestamps: true });
 FoodCreatorSchema.index({ location: "2dsphere" });
+FoodCreatorSchema.plugin(mongoosePaginate);
+
 export interface FoodCreator extends mongoose.Document {
   // location: Location[];
+  unseenNotification: number;
   recipientCode: string;
+  addressComponents: any;
   totalNoshedOrders: number;
   creatorUrls: any;
   description: string;

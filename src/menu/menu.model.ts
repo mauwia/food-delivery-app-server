@@ -4,7 +4,8 @@ export const MenuSchema = new mongoose.Schema({
   foodCreatorId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCreator" },
   menuItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "MenuItems" }],
   menuName: { type: String },
-});
+},
+{ timestamps: true });
 export const MenuItemSchema = new mongoose.Schema({
   imageUrls: [{ type: String }],
   itemName: { type: String },
@@ -17,7 +18,8 @@ export const MenuItemSchema = new mongoose.Schema({
   reviews: [{ type: Object }],
   rating: { type: Number },
   orderCounts: { type: Number, default: 0 },
-});
+},
+{ timestamps: true });
 export interface Menu extends mongoose.Document {
   foodCreatorId: string;
   menuName: string;
