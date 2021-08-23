@@ -25,7 +25,7 @@ export class FoodCreatorService {
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService,
     private readonly adminGateway: AdminGateway,
-    private readonly notificationService: AdminNotificationService,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -107,13 +107,15 @@ export class FoodCreatorService {
         const newUser = new this.foodCreatorModel(req);
         const user = await this.foodCreatorModel.create(newUser);
 
-        const notification = await this.notificationService.saveNotification({
+        const notification = await this.adminNotificationService.saveNotification({
           type: 'newFc',
           subjectId: user._id,
-          subjectName: '+' + user.countryCode + user.phoneNo,
+          subjectName: user.countryCode + user.phoneNo,
           img: user?.imageUrl,
         });
-        this.adminGateway.handleFCSignup(notification);
+
+        this.adminGateway.handleFCSignup({ notification, user });
+        this.adminNotificationService.sendNewFCSignupEmail(user);
 
         const token = jwt.sign(
           { phoneNo: req.phoneNo },

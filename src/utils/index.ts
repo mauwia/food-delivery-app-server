@@ -93,3 +93,5 @@ export const checkStatus = (currentStatus, newStatus) => {
   }
   
 };
+
+export const isProduction = () => process.env.NODE_ENV === 'production' && !process.env.HEROKU;

@@ -11,7 +11,7 @@ import { JwtStrategy } from 'src/foodLover/jwt/jwt.strategy';
   imports: [ 
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      signOptions: { expiresIn: "1h" },
+      signOptions: { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN },
     }),
     UsersModule,
   ],

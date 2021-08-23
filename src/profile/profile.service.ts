@@ -16,6 +16,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { Orders } from "src/orders/orders.model";
 import { Testers } from "./profile.model";
 const bcrypt = require("bcryptjs");
+import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 
 @Injectable()
 export class ProfileService {
@@ -24,12 +25,14 @@ export class ProfileService {
     @InjectModel("FoodCreator")
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
-    @InjectModel("Testers") private readonly testerModel: Model<Testers>
+    @InjectModel("Testers") private readonly testerModel: Model<Testers>,
+    private readonly adminNotificationService: AdminNotificationService,
   ) {}
   private logger = new Logger("Profile");
 
   async updateProfile(request, query) {
     let pinHash: string;
+    let newAccount;
     let {
       user,
       body,
@@ -111,6 +114,9 @@ export class ProfileService {
             if (emailCheck && emailCheck.phoneNo !== userProfile.phoneNo) {
               throw "Email already in use";
             }
+            if (!emailCheck) {
+              newAccount = true;
+            }
           }
           const updatedProfile = await model
             .findOneAndUpdate(
@@ -147,6 +153,19 @@ export class ProfileService {
             )
             .lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
+          if (newAccount && userType === 'fl') {
+            this.adminNotificationService.sendWelcomeEmail(
+              updatedProfile.email,
+              process.env.FL_WELCOME_EMAIL_TEMPLATE_ID,
+            );
+          }
+
+          if (newAccount && userType === 'fc') {
+            this.adminNotificationService.sendWelcomeEmail(
+              updatedProfile.email,
+              process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
+            );
+          }
           let totalOrders = await this.ordersModel.countDocuments({
             foodLoverId: userProfile._id,
             orderStatus: "Order Completed",
