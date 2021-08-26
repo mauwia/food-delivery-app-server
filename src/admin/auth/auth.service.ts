@@ -13,7 +13,7 @@ export class AuthService {
   async validateUser (payload) {
     const user = await this.adminUsersService.findByPayload(payload);
     if (!user) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);    
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);    
     }    
     return user; 
   }
