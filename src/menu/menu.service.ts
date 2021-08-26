@@ -110,6 +110,9 @@ export class MenuService {
                   menuExist: true,
                 },
                 {
+                  onlineStatus:true
+                },
+                {
                   subscribers: { $nin: [Types.ObjectId(UserInfo._id)] },
                 },
               ],
