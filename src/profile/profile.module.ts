@@ -6,6 +6,7 @@ import { FoodLoverSchema } from "../foodLover/foodLover.model";
 import { FoodCreatorSchema } from "../food-creator/food-creator.model";
 import { OrdersSchema } from 'src/orders/orders.model';
 import { TestersSchema } from './profile.model';
+import { AdminModule } from "src/admin/admin.module";
 import { AdminNotificationModule } from "src/admin/admin-notification/admin-notification.module";
 
 
@@ -18,6 +19,7 @@ import { AdminNotificationModule } from "src/admin/admin-notification/admin-noti
       {name:"Testers",schema:TestersSchema}
     ]),
     AdminNotificationModule,
+    AdminModule,
   ],
   controllers: [ProfileController],
   providers: [ProfileService]
