@@ -56,7 +56,7 @@ export class OrdersService {
 
     if (queryParams.search) {
       query['$or'] = [          
-        { orderId: new RegExp(queryParams.search, 'i') },
+        { noshifyOrderId: new RegExp(queryParams.search, 'i') },
       ];
     }
 
