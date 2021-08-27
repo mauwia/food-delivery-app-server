@@ -16,6 +16,7 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { Orders } from "src/orders/orders.model";
 import { Testers } from "./profile.model";
 const bcrypt = require("bcryptjs");
+import { AdminGateway } from "src/admin/admin.gateway";
 import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
 
 @Injectable()
@@ -27,6 +28,7 @@ export class ProfileService {
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectModel("Testers") private readonly testerModel: Model<Testers>,
     private readonly adminNotificationService: AdminNotificationService,
+    private readonly adminGateway: AdminGateway,
   ) {}
   private logger = new Logger("Profile");
 
@@ -154,16 +156,18 @@ export class ProfileService {
             .lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
           if (newAccount && userType === 'fl') {
-            this.adminNotificationService.sendWelcomeEmail(
-              updatedProfile.email,
+            this.adminGateway.sendWelcomeEmail(
+              updatedProfile,
               process.env.FL_WELCOME_EMAIL_TEMPLATE_ID,
+              'food lover',
             );
           }
 
           if (newAccount && userType === 'fc') {
-            this.adminNotificationService.sendWelcomeEmail(
-              updatedProfile.email,
+            this.adminGateway.sendWelcomeEmail(
+              updatedProfile,
               process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
+              'food creator'
             );
           }
           let totalOrders = await this.ordersModel.countDocuments({
