@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AdminNotificationService } from './admin-notification.service';
 import { AdminNotification } from './admin-notifications.model';
 import { JWTAuthGuard } from "src/foodLover/jwt/jwt-auth.guard";
@@ -30,5 +30,12 @@ export class AdminNotificationController {
   async getNotification (@Param('id') id, @Req() { user }): Promise<AdminNotification> {
     await this.adminAuthService.validateUser(user);
     return await this.notificationService.getNotification(id);
+  }
+
+  @Post('/mail')
+  @UseGuards(new JWTAuthGuard())
+  async sendEmail (@Req() { user }, @Body() { stage, email }): Promise<any> {
+    await this.adminAuthService.validateUser(user);
+    return await this.notificationService.sendEmail(stage, email);
   }
 }
