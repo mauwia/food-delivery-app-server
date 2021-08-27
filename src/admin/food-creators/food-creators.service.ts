@@ -97,35 +97,6 @@ export class FoodCreatorsService {
       }},
       { new: true }
     );
-
-    if (newStage === 'KYC Request') {
-      this.adminNotificationService.sendFCVerificationStatusEmail(
-        updatedFC.email,
-        process.env.FC_VERIFICATION_GUIDE_TEMPLATE_ID,
-      );
-    }
-
-    if (newStage === 'KYC Submitted') {
-      this.adminNotificationService.sendFCVerificationStatusEmail(
-        updatedFC.email,
-        process.env.FC_SUCCESSFUL_KYC_SUBMISSION_TEMPLATE_ID,
-      );
-    }
-
-    if (newStage === 'Interview Scheduled') {
-      this.adminNotificationService.sendFCVerificationStatusEmail(
-        updatedFC.email,
-        process.env.FC_VIDEO_VERIFICATION_NOTICE_TEMPLATE_ID,
-      );
-    }
-
-    if (newStage === 'Account Activated') {
-      this.adminNotificationService.sendFCVerificationStatusEmail(
-        updatedFC.email,
-        process.env.FC_SUCCESSFUL_VERIFICATION_TEMPLATE_ID,
-      );
-    }
-
     return updatedFC;
   }
 

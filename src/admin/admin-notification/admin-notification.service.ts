@@ -81,7 +81,7 @@ export class AdminNotificationService {
 
   async sendNewFCSignupEmail (user) {
     if (isProduction()) {
-      process.env.ADMIN_EMAILS.split(" ").forEach(adminEmail => {
+      process.env.ADMIN_EMAILS.split(" ").forEach(async adminEmail => {
         const message = getMessage({
           sender: {
             name: 'Noshify',
@@ -92,7 +92,11 @@ export class AdminNotificationService {
           phone: `${user.countryCode}${user.phoneNo}`,
           profileUrl: `${process.env.ADMIN_PORTAL_ROOT_URL}/admin/creators/${user._id}`
         });
-        sendAdminNotificationEmail(message);
+        try {
+          await sendAdminNotificationEmail(message);
+        } catch (error) {
+          throw error;
+        }
       });
     }
   }
@@ -106,7 +110,11 @@ export class AdminNotificationService {
       to: email,
       "template_id": templateId,
     }
-    sendAdminNotificationEmail(message);
+    try {
+      await sendAdminNotificationEmail(message);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async sendWelcomeEmail(email, templateId) {
@@ -118,6 +126,40 @@ export class AdminNotificationService {
       to: email,
       "template_id": templateId,
     }
-    sendAdminNotificationEmail(message);
+    try {
+      await sendAdminNotificationEmail(message);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async sendEmail (stage, email) {
+    if (stage === 'KYC Request') {
+      await this.sendFCVerificationStatusEmail(
+        email,
+        process.env.FC_VERIFICATION_GUIDE_TEMPLATE_ID,
+      );
+    }
+
+    if (stage === 'KYC Submitted') {
+      await this.sendFCVerificationStatusEmail(
+        email,
+        process.env.FC_SUCCESSFUL_KYC_SUBMISSION_TEMPLATE_ID,
+      );
+    }
+
+    if (stage === 'KYC Verification') {
+      await this.sendFCVerificationStatusEmail(
+        email,
+        process.env.FC_VIDEO_VERIFICATION_NOTICE_TEMPLATE_ID,
+      );
+    }
+
+    if (stage === 'Account Activated') {
+      await this.sendFCVerificationStatusEmail(
+        email,
+        process.env.FC_SUCCESSFUL_VERIFICATION_TEMPLATE_ID,
+      );
+    }
   }
 }
