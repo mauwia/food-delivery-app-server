@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import * as sendGridMail from '@sendgrid/mail';
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -22,9 +23,9 @@ export async function sendEmail(message) {
     console.log('Notification email sent successfully');
   } catch (error) {
     console.error('Error sending email');
-    console.error(error);
     if (error.response) {
-      console.error(error.response.body)
+      console.error(error.response.body);
+      throw new HttpException(error.response.body?.errors[0]?.message, error.code);
     }
   }
 }
