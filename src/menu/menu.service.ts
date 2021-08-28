@@ -149,6 +149,9 @@ export class MenuService {
                 {
                   subscribers: { $in: [Types.ObjectId(UserInfo._id)] },
                 },
+                {
+                  onlineStatus:true
+                },
               ],
               $or: [
                 {
@@ -475,7 +478,7 @@ export class MenuService {
       } = req.body;
       console.log(req.body);
       let menuItem = await this.menuItemsModel.findById(menuItemId);
-      console.log(menuItem);
+      // console.log(menuItem);
       let updatedMenuItem = await this.menuItemsModel.findOneAndUpdate(
         { _id: menuItemId },
         {
@@ -485,7 +488,7 @@ export class MenuService {
             description: description || menuItem.description,
             preparationTime: preparationTime || menuItem.preparationTime,
             price: price || menuItem.price,
-            discount: discount || menuItem.discount,
+            discount: discount?menuItem.discount:null
           },
         }
       );
