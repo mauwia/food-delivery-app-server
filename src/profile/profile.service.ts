@@ -164,7 +164,7 @@ export class ProfileService {
           }
 
           if (newAccount && userType === 'fc') {
-            this.adminGateway.sendWelcomeEmail(
+              this.adminGateway.sendWelcomeEmail(
               updatedProfile,
               process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
               'food creator'

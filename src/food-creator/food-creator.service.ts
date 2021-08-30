@@ -447,6 +447,11 @@ export class FoodCreatorService {
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
       await UserInfo.save();
+      this.adminGateway.sendWelcomeEmail(
+        UserInfo,
+        process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
+        'food creator'
+      );
       // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
       let OTPCode = {
