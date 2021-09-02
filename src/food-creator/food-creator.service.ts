@@ -58,7 +58,7 @@ export class FoodCreatorService {
       );
       // console.log(token)
       if (!userExist.verified) {
-        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -195,20 +195,20 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
         let { otp } = req.body;
-        let checked = utils.checkExpiry(
-          this.OTP,
-          req.body.otp,
-          UserInfo.phoneNo
-        );
-        // let check = await this.checkSmsVerification(
-        //   `${UserInfo.countryCode}${UserInfo.phoneNo}`,
-        //   otp,
-        //   otp.length
+        // let checked = utils.checkExpiry(
+        //   this.OTP,
+        //   req.body.otp,
+        //   UserInfo.phoneNo
         // );
-        // let checked = {
-        //   validated: check.valid,
-        //   message: check.status,
-        // };
+        let check = await this.checkSmsVerification(
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
+          otp,
+          otp.length
+        );
+        let checked = {
+          validated: check.valid,
+          message: check.status,
+        };
         if (!checked.validated) {
           throw "Invalid OTP";
         } else {
@@ -255,7 +255,7 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
-        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
+        await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)
@@ -452,7 +452,7 @@ export class FoodCreatorService {
         process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
         'food creator'
       );
-      // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
+      await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
       let OTPCode = {
         CodeDigit,

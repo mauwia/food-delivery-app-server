@@ -10,6 +10,12 @@ import {
   filterPipelineRating,
   filterPipelineCategory,
 } from "./constants/getFilterPipeline";
+import {
+  getNonSubsCreator,
+  getNonSubsCreatorWhitelisted,
+  getSubsCreator,
+  getSubsCreatorWhiteListed,
+} from "./constants/getCreatorQuery";
 
 @Injectable()
 export class MenuService {
@@ -89,86 +95,43 @@ export class MenuService {
       }
       let { lng, lat } = req.body;
       console.log(lng, lat);
-
-      let [nearByFoodCreators, nearByFoodCreatorSubscribed] = await Promise.all(
-        [
+      if (UserInfo.whitelistedTester) {
+        let [
+          nearByFoodCreators,
+          nearByFoodCreatorSubscribed,
+        ] = await Promise.all([
           this.foodCreatorModel
-            .find({
-              $and: [
-                {
-                  location: {
-                    $near: {
-                      $maxDistance: 7000,
-                      $geometry: {
-                        type: "Point",
-                        coordinates: [lng, lat],
-                      },
-                    },
-                  },
-                },
-                {
-                  menuExist: true,
-                },
-                {
-                  onlineStatus:true
-                },
-                {
-                  subscribers: { $nin: [Types.ObjectId(UserInfo._id)] },
-                },
-              ],
-              $or: [
-                {
-                  adminVerified: "Verified",
-                },
-                {
-                  adminVerified: "Completed",
-                },
-              ],
-            })
+            .find(getNonSubsCreatorWhitelisted(lng, lat, UserInfo))
             .select(
               "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
             )
             .lean(),
           this.foodCreatorModel
-            .find({
-              $and: [
-                {
-                  location: {
-                    $near: {
-                      $maxDistance: 7000,
-                      $geometry: {
-                        type: "Point",
-                        coordinates: [lng, lat],
-                      },
-                    },
-                  },
-                },
-                {
-                  menuExist: true,
-                },
-                {
-                  subscribers: { $in: [Types.ObjectId(UserInfo._id)] },
-                },
-                {
-                  onlineStatus:true
-                },
-              ],
-              $or: [
-                {
-                  adminVerified: "Verified",
-                },
-                {
-                  adminVerified: "Completed",
-                },
-              ],
-            })
+            .find(getSubsCreatorWhiteListed(lng, lat, UserInfo))
             .select(
               "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
             )
             .lean(),
-        ]
-      );
-      console.log(nearByFoodCreators);
+        ]);
+        return { nearByFoodCreators, nearByFoodCreatorSubscribed };
+      }
+      let [
+        nearByFoodCreators,
+        nearByFoodCreatorSubscribed,
+      ] = await Promise.all([
+        this.foodCreatorModel
+          .find(getNonSubsCreator(lng, lat, UserInfo))
+          .select(
+            "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+          )
+          .lean(),
+        this.foodCreatorModel
+          .find(getSubsCreator(lng, lat, UserInfo))
+          .select(
+            "-pinHash -passHash -mobileRegisteredId -walletId -verified -fcmRegistrationToken"
+          )
+          .lean(),
+      ]);
       return { nearByFoodCreators, nearByFoodCreatorSubscribed };
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -488,7 +451,7 @@ export class MenuService {
             description: description || menuItem.description,
             preparationTime: preparationTime || menuItem.preparationTime,
             price: price || menuItem.price,
-            discount: discount?menuItem.discount:null
+            discount: discount ? menuItem.discount : null,
           },
         }
       );
