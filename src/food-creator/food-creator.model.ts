@@ -44,6 +44,7 @@ export const FoodCreatorSchema = new mongoose.Schema({
   mobileRegisteredId: { type: String, required: true },
   fcmRegistrationToken: { type: Array },
   unseenNotification: { type: Number, default: 0 },
+  whitelistedTester:{type: Boolean, default: false},
   adminVerified: {
     type: String,
     default: "Pending",
@@ -106,6 +107,7 @@ export interface FoodCreator extends mongoose.Document {
   onlineStatus: boolean;
   avgRating: Number;
   mobileRegisteredId: string;
+  whitelistedTester:boolean
   totalOrders: string;
   fcmRegistrationToken: Array<any>;
 }
