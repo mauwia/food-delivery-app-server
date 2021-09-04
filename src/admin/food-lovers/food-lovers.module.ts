@@ -7,7 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'FoodLover', schema: FoodLoverSchema }]),
+    MongooseModule.forFeature([{ name: 'FoodLover', schema: FoodLoverSchema }], 'noshify'),
     AuthModule,
   ],
   controllers: [FoodLoversController],

@@ -9,6 +9,7 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { LandingPageModule } from './landing-page/landing-page.module';
 
 @Module({
   controllers: [AdminController],
@@ -21,6 +22,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AuthModule,
     UsersModule,
     AnalyticsModule,
+    LandingPageModule,
   ],
   exports: [AdminGateway],
 })

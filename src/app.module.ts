@@ -29,12 +29,22 @@ import { FoodCreatorSchema } from "./food-creator/food-creator.model";
         useUnifiedTopology: true,
         useCreateIndex: true,
         useFindAndModify: false,
+        connectionName: 'noshify',
+      }
+    ),
+    MongooseModule.forRoot( `${process.env.LANDING_PAGE_MONGO_URI}`,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+        connectionName: 'landingPage',
       }
     ),
     MongooseModule.forFeature([
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
-    ]),
+    ], 'noshify'),
     // MorganModule.forRoot(),
     ProfileModule,
     WalletModule,

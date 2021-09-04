@@ -19,8 +19,7 @@ import { NotificationModule } from "src/notification/notification.module";
       { name: "Transactions", schema: TransactionsSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
       {name:"Notification",schema:NotificationSchema}
-
-    ]),
+    ], 'noshify'),
     NotificationModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
