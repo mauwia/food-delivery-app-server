@@ -32,7 +32,7 @@ import { AdminNotificationSchema } from "src/admin/admin-notification/admin-noti
       { name: "OrderedFood", schema: orderFoodSchema },
       { name: "Reviews", schema: ReviewSchema },
       { name: "AdminNotification", schema: AdminNotificationSchema },
-    ]),
+    ], 'noshify'),
     WalletModule,
     ChatModule,
     NotificationModule,

@@ -13,7 +13,7 @@ import { NotificationGateway } from './notification.gateway';
         {name:"Notification",schema:NotificationSchema},
         { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema }
-    ])
+    ], 'noshify')
   ],
   providers: [NotificationService,NotificationGateway],
   controllers: [NotificationController],

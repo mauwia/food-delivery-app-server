@@ -17,7 +17,7 @@ import { AdminNotificationSchema } from 'src/admin/admin-notification/admin-noti
       { name: "FoodLover", schema: FoodLoverSchema },
       {name:"Testers",schema:TestersSchema},
       { name: "AdminNotification", schema: AdminNotificationSchema },
-    ]),
+    ], 'noshify'),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: { expiresIn: "1h" },
