@@ -17,7 +17,7 @@ import { FoodCreatorSchema } from '../../food-creator/food-creator.model';
       { name: 'FoodCreator', schema: FoodCreatorSchema },
       { name: 'Orders', schema: OrdersSchema },
       { name: 'Menu', schema: MenuSchema },
-    ]),
+    ], 'noshify'),
     AuthModule,
   ],
   providers: [AnalyticsService, OrdersService],

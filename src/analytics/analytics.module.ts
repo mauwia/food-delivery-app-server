@@ -12,7 +12,7 @@ import { ReviewSchema } from "src/review/review.model";
       { name: "Orders", schema: OrdersSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "Reviews", schema: ReviewSchema },
-    ]),
+    ], 'noshify'),
   ],
   providers: [AnalyticsService],
   controllers: [AnalyticsController],

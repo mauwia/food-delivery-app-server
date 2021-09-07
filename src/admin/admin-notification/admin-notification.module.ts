@@ -10,7 +10,7 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     MongooseModule.forFeature([
       { name: "AdminNotification", schema: AdminNotificationSchema },
-    ]),
+    ], 'noshify'),
     AuthModule,
   ],
   controllers: [AdminNotificationController],

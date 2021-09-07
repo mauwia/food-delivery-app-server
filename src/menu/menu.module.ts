@@ -15,7 +15,7 @@ import { MenuService } from "./menu.service";
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "MenuItems", schema: MenuItemSchema },
-    ]),
+    ], 'noshify'),
   ],
   controllers: [MenuController],
   providers: [MenuService],

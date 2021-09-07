@@ -16,7 +16,7 @@ import { ReviewService } from "./review.service";
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "MenuItems", schema: MenuItemSchema },
       { name: "Orders", schema: OrdersSchema },
-    ]),
+    ], 'noshify'),
   ],
   controllers: [ReviewController],
   providers: [ReviewService],

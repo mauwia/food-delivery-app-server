@@ -18,7 +18,7 @@ import { TestersSchema } from "src/profile/profile.model";
       { name: "FoodCreator", schema: FoodCreatorSchema },
       { name: "Orders", schema: OrdersSchema },
       {name:"Testers",schema:TestersSchema}
-    ]),
+    ], 'noshify'),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: { expiresIn: "1h" },
