@@ -7,7 +7,7 @@ import { AdminUserSchema } from './admin-user.model';
   imports: [
     MongooseModule.forFeature([
       { name: 'AdminUser', schema: AdminUserSchema },
-    ]),
+    ], 'noshify'),
   ],
   providers: [UsersService],
   exports: [UsersService],

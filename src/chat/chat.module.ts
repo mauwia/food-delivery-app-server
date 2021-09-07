@@ -20,7 +20,7 @@ import { AdminNotificationModule } from 'src/admin/admin-notification/admin-noti
       { name: "Message", schema: MessageSchema },
       {name:"Orders",schema:OrdersSchema},
       {name:"FoodCreator",schema:FoodCreatorSchema}
-    ]),
+    ], 'noshify'),
     NotificationModule,
     AdminModule,
     AdminNotificationModule,

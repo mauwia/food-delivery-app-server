@@ -41,7 +41,11 @@ export class AdminGateway {
         type: 'emailError',
         subjectId: profile._id,
         subjectName: profile.email,
-        additionalInfo: { emailType: 'Welcome Email', userType },
+        additionalInfo: {
+          emailType: 'Welcome Email', 
+          userType,
+          error,
+        },
       });
       this.server.emit('welcomeEmailError', { notification, error: { ...error, updatedAt: Date.now()} });
     }
