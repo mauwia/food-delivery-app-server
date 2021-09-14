@@ -280,6 +280,35 @@ export class FoodLoverService {
       );
     }
   }
+  async checkEmailVerification(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOneAndUpdate(
+        {
+          phoneNo: user.phoneNo,
+        },
+        { emailVerified: true }
+      );
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      }
+      let response = await this.client.verify
+        .services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
+        .verificationChecks.create({ to: UserInfo.email, code: req.body.code })
+        .then((verification_check) => console.log(verification_check.sid));
+
+      return response;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async authenticateOTP_and_forgetPasswordOTP(req) {
     try {
       let user = req.user ? req.user : req.body;
