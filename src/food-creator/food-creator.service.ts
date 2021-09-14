@@ -447,6 +447,9 @@ export class FoodCreatorService {
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
       await UserInfo.save();
+      await this.client.verify.services('VA0a41cfdd7c4e22fc5067429b5d721698')
+      .verifications
+      .create({to: UserInfo.email, channel: 'email'})
       this.adminGateway.sendWelcomeEmail(
         UserInfo,
         process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
