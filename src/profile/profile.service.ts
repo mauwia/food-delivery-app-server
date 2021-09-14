@@ -159,7 +159,7 @@ export class ProfileService {
             .lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
           if(!updatedProfile.emailVerified){
-            await this.client.verify.services('VA0a41cfdd7c4e22fc5067429b5d721698')
+            await this.client.verify.services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
              .verifications
              .create({to: updatedProfile.email, channel: 'email'})
           }

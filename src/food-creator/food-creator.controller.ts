@@ -96,6 +96,12 @@ export class FoodCreatorController {
     const response=await this.foodCreatorService.logout(request)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/emailVerify")
+  async emailVerify(@Req() request:Request){
+    const response=await this.foodCreatorService.checkEmailVerification(request)
+    return response
+  }
   // @UseGuards(new JWTAuthGuard())
   // @Post("/addCreatorLocation")
   // async AddCreatorLocation(@Req() request:Request){
