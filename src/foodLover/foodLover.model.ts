@@ -16,6 +16,7 @@ export const FoodLoverSchema = new mongoose.Schema(
     countryName: { type: String },
     location: { type: Array },
     whitelistedTester: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
     addressComponents: { type: Array },
     email: { type: String },
     username: { type: String },
@@ -45,6 +46,7 @@ export interface FoodLover extends mongoose.Document {
   unseenNotification: number;
   whitelistedTester: boolean;
   dedicatedCustomer: boolean;
+  emailVerified: boolean;
   customerCode: string;
   firstName: string;
   recipientCode: string;
