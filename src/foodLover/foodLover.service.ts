@@ -295,7 +295,6 @@ export class FoodLoverService {
       let response = await this.client.verify
         .services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
         .verificationChecks.create({ to: UserInfo.email, code: req.body.code })
-        .then((verification_check) => console.log(verification_check.sid));
 
       return response;
     } catch (error) {
