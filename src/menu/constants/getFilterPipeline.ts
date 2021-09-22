@@ -15,7 +15,12 @@ export const filterPipelineRating = (lng, lat, searchKey, rating) => {
       {
         menuExist: true,
       },
-
+      {
+        onlineStatus: true,
+      },
+      {
+        whitelistedTester: false,
+      },
       {
         $and: [
           {
@@ -73,6 +78,12 @@ export const filterPipelineCategory = (lng, lat, searchKey) => {
       },
       {
         menuExist: true,
+      },
+      {
+        onlineStatus: true,
+      },
+      {
+        whitelistedTester: false,
       },
       {
         $or: [

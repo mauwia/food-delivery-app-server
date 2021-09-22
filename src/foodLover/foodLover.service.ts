@@ -53,7 +53,7 @@ export class FoodLoverService {
 
       const token = generateJWT(userExist.id, userExist.phoneNo);
       if (!userExist.verified) {
-        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         //Example OTP
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -114,7 +114,7 @@ export class FoodLoverService {
         const newUser = new this.foodLoverModel(req);
         const user = await this.foodLoverModel.create(newUser);
         const token = generateJWT(user._id, req.phoneNo);
-        // await this.sendSMS(`${user.countryCode}${user.phoneNo}`);
+        await this.sendSMS(`${user.countryCode}${user.phoneNo}`);
         //Example otp hardcoded
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
@@ -280,6 +280,34 @@ export class FoodLoverService {
       );
     }
   }
+  async checkEmailVerification(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodLoverModel.findOneAndUpdate(
+        {
+          phoneNo: user.phoneNo,
+        },
+        { emailVerified: true }
+      );
+      if (!UserInfo) {
+        throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
+      }
+      let response = await this.client.verify
+        .services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
+        .verificationChecks.create({ to: UserInfo.email, code: req.body.code })
+
+      return response;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async authenticateOTP_and_forgetPasswordOTP(req) {
     try {
       let user = req.user ? req.user : req.body;
@@ -291,21 +319,21 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         let { otp } = req.body;
-        let checked = utils.checkExpiry(
-          this.OTP,
-          req.body.otp,
-          UserInfo.phoneNo
-        );
-        // let check = await this.checkSmsVerification(
-        //   `${UserInfo.countryCode}${UserInfo.phoneNo}`,
-        //   otp,
-        //   otp.length
+        // let checked = utils.checkExpiry(
+        //   this.OTP,
+        //   req.body.otp,
+        //   UserInfo.phoneNo
         // );
-        // let checked = {
-        //   validated: check.valid,
-        //   message: check.status,
-        // };
-        // console.log(checked);
+        let check = await this.checkSmsVerification(
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
+          otp,
+          otp.length
+        );
+        let checked = {
+          validated: check.valid,
+          message: check.status,
+        };
+        console.log(checked);
         if (!checked.validated) {
           throw "Invalid OTP";
         } else {
@@ -357,7 +385,7 @@ export class FoodLoverService {
         throw FOOD_LOVER_MESSAGES.USER_NOT_FOUND;
       } else {
         
-        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
+        await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)

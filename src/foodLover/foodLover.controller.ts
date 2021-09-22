@@ -88,4 +88,10 @@ export class FoodLoverController {
     const response=await this.foodLoverService.logout(request)
     return response
   }
+  @UseGuards(new JWTAuthGuard())
+  @Post("/emailVerify")
+  async emailVerify(@Req() request:Request){
+    const response=await this.foodLoverService.checkEmailVerification(request)
+    return response
+  }
 }

@@ -6,6 +6,7 @@ import { FoodCreatorsModule } from '../admin/food-creators/food-creators.module'
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { AnalyticsModule } from 'src/admin/analytics/analytics.module';
+import { LandingPageModule } from './landing-page/landing-page.module';
 
 const routes: Routes = [
   {
@@ -35,6 +36,10 @@ const routes: Routes = [
       {
         path: '/metrics',
         module: AnalyticsModule,
+      },
+      {
+        path: '/beta',
+        module: LandingPageModule,
       },
     ],
   },

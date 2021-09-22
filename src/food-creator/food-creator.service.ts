@@ -21,11 +21,11 @@ export class FoodCreatorService {
     private readonly foodCreatorModel: Model<FoodCreator>,
     @InjectModel("FoodLover")
     private readonly foodLoverModel: Model<FoodLover>,
-    @InjectModel("Testers") private readonly testerModel:Model<Testers>,
+    @InjectModel("Testers") private readonly testerModel: Model<Testers>,
     @InjectTwilio() private readonly client: TwilioClient,
     private readonly walletService: WalletService,
     private readonly adminGateway: AdminGateway,
-    private readonly adminNotificationService: AdminNotificationService,
+    private readonly adminNotificationService: AdminNotificationService
   ) {}
   OTP = [];
   private logger = new Logger("Food Creator");
@@ -58,7 +58,7 @@ export class FoodCreatorService {
       );
       // console.log(token)
       if (!userExist.verified) {
-        // await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
+        await this.sendSMS(`${userExist.countryCode}${userExist.phoneNo}`);
         let CodeDigit = Math.floor(100000 + Math.random() * 900000);
         let OTPCode = {
           CodeDigit,
@@ -107,12 +107,14 @@ export class FoodCreatorService {
         const newUser = new this.foodCreatorModel(req);
         const user = await this.foodCreatorModel.create(newUser);
 
-        const notification = await this.adminNotificationService.saveNotification({
-          type: 'newFc',
-          subjectId: user._id,
-          subjectName: user.countryCode + user.phoneNo,
-          img: user?.imageUrl,
-        });
+        const notification = await this.adminNotificationService.saveNotification(
+          {
+            type: "newFc",
+            subjectId: user._id,
+            subjectName: user.countryCode + user.phoneNo,
+            img: user?.imageUrl,
+          }
+        );
 
         this.adminGateway.handleFCSignup({ notification, user });
         this.adminNotificationService.sendNewFCSignupEmail(user);
@@ -166,7 +168,9 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       }
       if (req.params.username) {
-        let user = await this.foodCreatorModel.findOne({username:req.params.username});
+        let user = await this.foodCreatorModel.findOne({
+          username: req.params.username,
+        });
         return { user };
       }
       // let location=await this.locationModel.find({foodCreatorId:UserInfo._id})
@@ -195,20 +199,20 @@ export class FoodCreatorService {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
         let { otp } = req.body;
-        let checked = utils.checkExpiry(
-          this.OTP,
-          req.body.otp,
-          UserInfo.phoneNo
-        );
-        // let check = await this.checkSmsVerification(
-        //   `${UserInfo.countryCode}${UserInfo.phoneNo}`,
-        //   otp,
-        //   otp.length
+        // let checked = utils.checkExpiry(
+        //   this.OTP,
+        //   req.body.otp,
+        //   UserInfo.phoneNo
         // );
-        // let checked = {
-        //   validated: check.valid,
-        //   message: check.status,
-        // };
+        let check = await this.checkSmsVerification(
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
+          otp,
+          otp.length
+        );
+        let checked = {
+          validated: check.valid,
+          message: check.status,
+        };
         if (!checked.validated) {
           throw "Invalid OTP";
         } else {
@@ -255,7 +259,10 @@ export class FoodCreatorService {
       if (!UserInfo) {
         throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
       } else {
-        // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`, req.body.codeLength);
+        await this.sendSMS(
+          `${UserInfo.countryCode}${UserInfo.phoneNo}`,
+          req.body.codeLength
+        );
         let CodeDigit =
           req.body.codeLength == 6
             ? Math.floor(100000 + Math.random() * 900000)
@@ -442,12 +449,20 @@ export class FoodCreatorService {
       UserInfo.businessName = req.body.businessName;
       UserInfo.username = req.body.username;
       UserInfo.email = req.body.email;
-      UserInfo.addressComponents=req.body.addressComponents
+      UserInfo.addressComponents = req.body.addressComponents;
       // this.addCreatorLocation(req)
       // UserInfo.location.push(req.body.location)
       UserInfo.location = req.body.location;
       await UserInfo.save();
-      // await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
+      await this.client.verify
+        .services("VA0a41cfdd7c4e22fc5067429b5d721698")
+        .verifications.create({ to: UserInfo.email, channel: "email" });
+      this.adminGateway.sendWelcomeEmail(
+        UserInfo,
+        process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
+        "food creator"
+      );
+      await this.sendSMS(`${UserInfo.countryCode}${UserInfo.phoneNo}`);
       let CodeDigit = Math.floor(100000 + Math.random() * 900000);
       let OTPCode = {
         CodeDigit,
@@ -507,6 +522,35 @@ export class FoodCreatorService {
       return e;
     }
   }
+  async checkEmailVerification(req) {
+    try {
+      let { user } = req;
+      const UserInfo = await this.foodCreatorModel.findOneAndUpdate(
+        {
+          phoneNo: user.phoneNo,
+        },
+        { emailVerified: true }
+      );
+      if (!UserInfo) {
+        throw FOOD_CREATOR_MESSAGES.USER_NOT_FOUND;
+      }
+      let response = await this.client.verify
+        .services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
+        .verificationChecks.create({ to: UserInfo.email, code: req.body.code })
+        .then((verification_check) => console.log(verification_check.sid));
+
+      return response;
+    } catch (error) {
+      this.logger.error(error, error.stack);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          msg: error,
+        },
+        HttpStatus.NOT_FOUND
+      );
+    }
+  }
   async checkSmsVerification(phoneNo, code, codeLength = 6) {
     try {
       let response = await this.client.verify
@@ -520,5 +564,5 @@ export class FoodCreatorService {
     } catch (e) {
       return e;
     }
-  } 
+  }
 }

@@ -12,7 +12,7 @@ import { SubscriptionGateway } from './subscription.gateway';
     MongooseModule.forFeature([
       { name: "FoodLover", schema: FoodLoverSchema },
       { name: "FoodCreator", schema: FoodCreatorSchema },
-    ]),
+    ], 'noshify'),
     NotificationModule
   ],
 

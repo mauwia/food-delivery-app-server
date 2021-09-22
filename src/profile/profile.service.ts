@@ -16,7 +16,9 @@ import { FoodCreator } from "../food-creator/food-creator.model";
 import { Orders } from "src/orders/orders.model";
 import { Testers } from "./profile.model";
 const bcrypt = require("bcryptjs");
+import { AdminGateway } from "src/admin/admin.gateway";
 import { AdminNotificationService } from "src/admin/admin-notification/admin-notification.service";
+import { InjectTwilio, TwilioClient } from "nestjs-twilio";
 
 @Injectable()
 export class ProfileService {
@@ -27,6 +29,8 @@ export class ProfileService {
     @InjectModel("Orders") private readonly ordersModel: Model<Orders>,
     @InjectModel("Testers") private readonly testerModel: Model<Testers>,
     private readonly adminNotificationService: AdminNotificationService,
+    @InjectTwilio() private readonly client: TwilioClient,
+    private readonly adminGateway: AdminGateway,
   ) {}
   private logger = new Logger("Profile");
 
@@ -126,6 +130,7 @@ export class ProfileService {
                   phoneNo: body.phoneNo || userProfile.phoneNo,
                   verified: body.verified || userProfile.verified,
                   email: body.email || userProfile.email,
+                  emailVerified:body.email!==userProfile.email?false:true,
                   username: body.username || userProfile.username,
                   addressComponents:body.addressComponents||userProfile.addressComponents,
                   imageUrl: body.imageUrl || userProfile.imageUrl,
@@ -153,17 +158,25 @@ export class ProfileService {
             )
             .lean();
           updatedProfile.pinHash = !!updatedProfile.pinHash;
+          if(!updatedProfile.emailVerified){
+            await this.client.verify.services(process.env.TWILIO_SERVICE_ID_EMAIL_FC)
+             .verifications
+             .create({to: updatedProfile.email, channel: 'email'})
+          }
           if (newAccount && userType === 'fl') {
-            this.adminNotificationService.sendWelcomeEmail(
-              updatedProfile.email,
+            this.adminGateway.sendWelcomeEmail(
+              updatedProfile,
               process.env.FL_WELCOME_EMAIL_TEMPLATE_ID,
+              'food lover',
             );
+
           }
 
           if (newAccount && userType === 'fc') {
-            this.adminNotificationService.sendWelcomeEmail(
-              updatedProfile.email,
+              this.adminGateway.sendWelcomeEmail(
+              updatedProfile,
               process.env.FC_WELCOME_EMAIL_TEMPLATE_ID,
+              'food creator'
             );
           }
           let totalOrders = await this.ordersModel.countDocuments({
